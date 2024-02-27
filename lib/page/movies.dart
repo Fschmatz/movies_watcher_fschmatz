@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
+import '../entity/no_yes.dart';
 
 class Movies extends StatefulWidget {
-  int bookState;
+  NoYes watched;
 
-  Movies({Key? key, required this.bookState}) : super(key: key);
+  Movies({Key? key, required this.watched}) : super(key: key);
 
   @override
   _MoviesState createState() => _MoviesState();
@@ -46,6 +47,10 @@ class _MoviesState extends State<Movies> {
                   ))
                 : ListView(
                     children: [
+
+
+
+
                       ListView.separated(
                         separatorBuilder: (BuildContext context, int index) =>
                             const SizedBox(
@@ -78,7 +83,7 @@ class _MoviesState extends State<Movies> {
                       )
                     ],
                   ),
-        floatingActionButton: FloatingActionButton(
+       /* floatingActionButton: FloatingActionButton(
           heroTag: null,
           onPressed: () {
             Navigator.push(
@@ -94,6 +99,7 @@ class _MoviesState extends State<Movies> {
           child: const Icon(
             Icons.add_outlined,
           ),
-        ));
+        )*/
+    );
   }
 }

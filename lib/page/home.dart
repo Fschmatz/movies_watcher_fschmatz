@@ -2,7 +2,8 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings_page.dart';
 import 'package:movies_watcher_fschmatz/page/statistics.dart';
-
+import 'package:movies_watcher_fschmatz/page/store_movie.dart';
+import '../entity/no_yes.dart';
 import '../util/app_details.dart';
 import 'movies.dart';
 
@@ -15,14 +16,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  List<Widget> _pageList = [
+  final List<Widget> _pageList = [
     Movies(
       key: UniqueKey(),
-      bookState: 1,
+      watched: NoYes.NO,
     ),
     Movies(
       key: UniqueKey(),
-      bookState: 2,
+      watched: NoYes.YES,
     ),
     const Statistics()
   ];
@@ -67,6 +68,26 @@ class _HomeState extends State<Home> {
               child: _pageList[_currentIndex]),
         ),
       ),
+      floatingActionButton: Visibility(
+        visible: _currentIndex != 2,
+        child: FloatingActionButton(
+          heroTag: null,
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => StoreMovie(
+                    key: UniqueKey(),
+                  ),
+                ));
+            //reload
+            //.then((value) => getAllChannels());
+          },
+          child: const Icon(
+            Icons.add_outlined,
+          ),
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: _currentIndex,
@@ -81,12 +102,12 @@ class _HomeState extends State<Home> {
             selectedIcon: Icon(
               Icons.movie,
             ),
-            label: 'Watch',
+            label: 'Movies',
           ),
           NavigationDestination(
-            icon: Icon(Icons.visibility_off_outlined),
+            icon: Icon(Icons.fact_check_outlined),
             selectedIcon: Icon(
-              Icons.visibility_off,
+              Icons.fact_check,
             ),
             label: 'Watched',
           ),
