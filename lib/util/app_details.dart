@@ -1,17 +1,21 @@
 class AppDetails{
 
-  static String appVersion = "0.3.0";
+  static String appVersion = "0.4.0";
   static String appName = "Movies Watcher Fschmatz";
-  static String repositoryLink = '';
+  static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
-0.3.0
-- DB
 - Load data from API
-- Various logic changes
+- Created new page  
+- Code changes
 ''';
 
   static String changelogsOld = '''
+0.3.0
+- DB
+- Added API
+- Various logic changes
+
 0.2.0
 - Home
 

@@ -53,8 +53,8 @@ class MovieDAO {
             $columnPoster BLOB,
             $columnImdbRating TEXT, 
             $columnImdbID TEXT NOT NULL, 
-            $columnWatched TEXT,
-            $columnDateAdded TEXT  NOT NULL,
+            $columnWatched TEXT NOT NULL,
+            $columnDateAdded TEXT NOT NULL,
             $columnDateWatched TEXT                  
           )
           ''');

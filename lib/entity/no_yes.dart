@@ -3,7 +3,7 @@ enum NoYes {
   NO,
 }
 
-extension YesNoExtension on NoYes {
+extension NoYesExtension on NoYes {
   String get id {
     switch (this) {
       case NoYes.YES:

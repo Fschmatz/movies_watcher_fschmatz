@@ -1,36 +1,36 @@
 import 'no_yes.dart';
 
 class Movie {
-  final int? _id;
-  final String? _title;
-  final String? _year;
-  final String? _released;
-  final String? _runtime;
-  final String? _director;
-  final String? _plot;
-  final String? _country;
-  final String? _poster;
-  final String? _imdbRating;
-  final String? _imdbID;
-  final NoYes? _watched;
-  final String? _dateAdded;
-  final String? _dateWatched;
+  int? _id;
+  String? _title;
+  String? _year;
+  String? _released;
+  String? _runtime;
+  String? _director;
+  String? _plot;
+  String? _country;
+  String? _poster;
+  String? _imdbRating;
+  String? _imdbID;
+  NoYes? _watched;
+  String? _dateAdded;
+  String? _dateWatched;
 
   Movie(
       {int? id,
-        String? title,
-        String? year,
-        String? released,
-        String? runtime,
-        String? director,
-        String? plot,
-        String? country,
-        String? poster,
-        String? imdbRating,
-        String? imdbID,
-        NoYes? watched,
-        String? dateAdded,
-        String? dateWatched})
+      String? title,
+      String? year,
+      String? released,
+      String? runtime,
+      String? director,
+      String? plot,
+      String? country,
+      String? poster,
+      String? imdbRating,
+      String? imdbID,
+      NoYes? watched,
+      String? dateAdded,
+      String? dateWatched})
       : _id = id,
         _title = title,
         _year = year,
@@ -70,27 +70,81 @@ class Movie {
 
   NoYes? getWatched() => _watched;
 
-  String? dateWatched() => _dateWatched;
+  String? getDateWatched() => _dateWatched;
 
-  String? dateAdded() => _dateAdded;
+  String? getDateAdded() => _dateAdded;
+
+  void setId(int value) {
+    _id = value;
+  }
+
+  void setTitle(String value) {
+    _title = value;
+  }
+
+  void setYear(String value) {
+    _year = value;
+  }
+
+  void setReleased(String value) {
+    _released = value;
+  }
+
+  void setRuntime(String value) {
+    _runtime = value;
+  }
+
+  void setDirector(String value) {
+    _director = value;
+  }
+
+  void setPlot(String value) {
+    _plot = value;
+  }
+
+  void setCountry(String value) {
+    _country = value;
+  }
+
+  void setPoster(String value) {
+    _poster = value;
+  }
+
+  void setImdbRating(String value) {
+    _imdbRating = value;
+  }
+
+  void setImdbID(String value) {
+    _imdbID = value;
+  }
+
+  void setWatched(NoYes value) {
+    _watched = value;
+  }
+
+  void setDateWatched(String value) {
+    _dateWatched = value;
+  }
+
+  void setDateAdded(String value) {
+    _dateAdded = value;
+  }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-      id: null,
-      title: json['Title'],
-      year: json['Year'],
-      released: json['Released'],
-      runtime: json['Runtime'],
-      director: json['Director'],
-      plot: json['Plot'],
-      country: json['Country'],
-      poster: json['Poster'],
-      imdbRating: json['imdbRating'],
-      imdbID: json['imdbID'],
-      watched: NoYes.NO,
-      dateAdded: null,
-      dateWatched: null
-    );
+        id: null,
+        title: json['Title'],
+        year: json['Year'],
+        released: json['Released'],
+        runtime: json['Runtime'],
+        director: json['Director'],
+        plot: json['Plot'],
+        country: json['Country'],
+        poster: json['Poster'],
+        imdbRating: json['imdbRating'],
+        imdbID: json['imdbID'],
+        watched: NoYes.NO,
+        dateAdded: null,
+        dateWatched: null);
   }
-
 }
