@@ -131,20 +131,49 @@ class Movie {
   }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
+    String? runtime = json['Runtime'];
+
+    if (runtime != null) {
+      List<String> parts = runtime.split(' ');
+      if (parts.isNotEmpty) {
+        runtime = parts.first;
+      }
+    }
+
     return Movie(
-        id: null,
-        title: json['Title'],
-        year: json['Year'],
-        released: json['Released'],
-        runtime: json['Runtime'],
-        director: json['Director'],
-        plot: json['Plot'],
-        country: json['Country'],
-        poster: json['Poster'],
-        imdbRating: json['imdbRating'],
-        imdbID: json['imdbID'],
-        watched: NoYes.NO,
-        dateAdded: null,
-        dateWatched: null);
+      id: null,
+      title: json['Title'],
+      year: json['Year'],
+      released: json['Released'],
+      runtime: runtime,
+      director: json['Director'],
+      plot: json['Plot'],
+      country: json['Country'],
+      poster: json['Poster'],
+      imdbRating: json['imdbRating'],
+      imdbID: json['imdbID'],
+      watched: NoYes.NO,
+      dateAdded: null,
+      dateWatched: null,
+    );
+  }
+
+  factory Movie.fromMap(Map<String, dynamic> map) {
+    return Movie(
+      id: map['id'],
+      title: map['title'],
+      year: map['year'],
+      released: map['released'],
+      runtime: map['runtime'],
+      director: map['director'],
+      plot: map['plot'],
+      country: map['country'],
+      poster: map['poster'],
+      imdbRating: map['imdbRating'],
+      imdbID: map['imdbID'],
+      watched: map['watched'] == 'Y' ? NoYes.YES : NoYes.NO,
+      dateAdded: map['dateAdded'],
+      dateWatched: map['dateWatched'],
+    );
   }
 }

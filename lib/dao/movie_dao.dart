@@ -84,6 +84,6 @@ class MovieDAO {
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
     return await db.rawQuery(
-        'SELECT * FROM $table WHERE $columnWatched=${noYes.id} ORDER BY $columnTitle');
+        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
 }

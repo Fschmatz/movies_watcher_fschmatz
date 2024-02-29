@@ -5,7 +5,7 @@ import 'package:movies_watcher_fschmatz/page/statistics.dart';
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
 import '../entity/no_yes.dart';
 import '../util/app_details.dart';
-import 'movies.dart';
+import 'movie_list.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -17,11 +17,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final List<Widget> _pageList = [
-    Movies(
+    MovieList(
       key: UniqueKey(),
       watched: NoYes.NO,
     ),
-    Movies(
+    MovieList(
       key: UniqueKey(),
       watched: NoYes.YES,
     ),
@@ -78,6 +78,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(
                   builder: (BuildContext context) => StoreMovie(
                     key: UniqueKey(),
+                    isUpdate: false,
                   ),
                 ));
             //reload

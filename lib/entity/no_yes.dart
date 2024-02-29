@@ -3,7 +3,21 @@ enum NoYes {
   NO,
 }
 
+
 extension NoYesExtension on NoYes {
+  NoYes toNoYes(String input) {
+    switch (input.toUpperCase()) {
+      case 'YES':
+      case 'Y':
+        return NoYes.YES;
+      case 'NO':
+      case 'N':
+        return NoYes.NO;
+      default:
+        throw ArgumentError('Invalid enum: $input');
+    }
+  }
+
   String get id {
     switch (this) {
       case NoYes.YES:

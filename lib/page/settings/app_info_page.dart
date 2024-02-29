@@ -80,7 +80,13 @@ class AppInfoPage extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.messenger_outline),
             title: Text(
-              "The key to efficient development is to make interesting new mistakes.",
+              "Greetings, my friend. We are all interested in the future, for that is where you and I are going to spend the rest of our lives. "
+              "And remember, my friend: Future events such as these will affect you in the future. "
+              "You are interested in the unknown, the mysterious, the unexplainable. "
+              "That is why you are here. And now, for the first time, we are bringing to you the full story of what happened on that fateful day. "
+              "We are giving you all the evidence, based only on the secret testimony of the miserable souls who survived this terrifying ordeal. "
+              "The incidents, the places. My friend, we cannot keep this a secret any longer. Let us punish the guilty; let us reward the innocent. "
+              "My friend, can your heart stand the shocking facts about grave robbers from outer space?",
             ),
           ),
         ]));

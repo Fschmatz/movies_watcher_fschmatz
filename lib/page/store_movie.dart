@@ -1,8 +1,7 @@
-//import 'dart:html';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -10,14 +9,15 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import '../api_key.dart';
 import '../entity/movie.dart';
-import '../entity/no_yes.dart';
 import '../service/movie_service.dart';
 
 class StoreMovie extends StatefulWidget {
-  const StoreMovie({super.key});
-
   @override
   State<StoreMovie> createState() => _StoreMovieState();
+
+  bool isUpdate;
+
+  StoreMovie({Key? key, required this.isUpdate}) : super(key: key);
 }
 
 class _StoreMovieState extends State<StoreMovie> {
@@ -25,6 +25,13 @@ class _StoreMovieState extends State<StoreMovie> {
   MovieService movieService = MovieService();
   String? posterUrl;
   File? poster;
+  double posterHeight = 225;
+  double posterWidth = 140;
+  final bool _validFieldWithoutRequired = true;
+  bool _validImdbId = true;
+  bool _validTitle = true;
+  bool _validRuntime = true;
+  bool _validYear = true;
   final TextEditingController ctrlImdbId = TextEditingController();
   final TextEditingController ctrlTitle = TextEditingController();
   final TextEditingController ctrlYear = TextEditingController();
@@ -39,29 +46,38 @@ class _StoreMovieState extends State<StoreMovie> {
   @override
   void initState() {
     super.initState();
-
     ctrlImdbId.text = "tt1560653";
   }
 
-  void loadMovieData() async {
-    final String apiKey = ApiKey.key;
-    final String movieId = ctrlImdbId.text;
-    final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
+  void _loadMovieData() async {
+    if (ctrlImdbId.text.isNotEmpty) {
+      final String apiKey = ApiKey.key;
+      final String movieId = ctrlImdbId.text;
+      final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
 
-    final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse(apiUrl));
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonData = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = json.decode(response.body);
 
-      setState(() {
-        movie = Movie.fromJson(jsonData);
-        posterUrl = movie.getPoster();
-        loadTextFields();
-      });
+        setState(() {
+          movie = Movie.fromJson(jsonData);
+          posterUrl = movie.getPoster();
+          _validImdbId = true;
+          loadTextFields();
+        });
+      } else {
+        Fluttertoast.showToast(
+          msg: "API Error",
+        );
+      }
     } else {
       Fluttertoast.showToast(
-        msg: "API Error",
+        msg: "No Results!",
       );
+      setState(() {
+        _validImdbId = false;
+      });
     }
   }
 
@@ -78,13 +94,14 @@ class _StoreMovieState extends State<StoreMovie> {
     ctrlImdbId.text = movie.getImdbID() ?? '';
   }
 
-  void saveMovie() {
-    if (poster != null) {
-      _downloadPoster();
-
-      Uint8List? posterBytes;
-      posterBytes = poster!.readAsBytesSync();
-      movie.setPoster(base64Encode(posterBytes));
+  Future<void> saveMovie() async {
+    if (posterUrl != null) {
+      Uint8List? base64ImageBytes;
+      Uint8List? compressedPoster;
+      http.Response response =  await http.get(Uri.parse(posterUrl!));
+      base64ImageBytes = response.bodyBytes;
+      compressedPoster = await compressCoverImage(base64ImageBytes);
+      movie.setPoster(base64Encode(compressedPoster));
     }
 
     movie.setTitle(ctrlTitle.text);
@@ -97,42 +114,63 @@ class _StoreMovieState extends State<StoreMovie> {
     movie.setImdbRating(ctrlImdbRating.text);
     movie.setImdbID(ctrlImdbId.text);
 
-    // movieService.insertMovie(movie);
-    setState(() {
-      poster;
-    });
+    movieService.insertMovie(movie);
   }
 
-  Future<void> _downloadPoster() async {
-    final url = posterUrl;
-    final response = await http.get(Uri.parse(url!));
-    final documentDirectory = await getApplicationDocumentsDirectory();
-    poster = File('${documentDirectory.path}/image.jpg');
-    await poster?.writeAsBytes(response.bodyBytes);
-
-    File? compressedFile = await FlutterNativeImage.compressImage(poster!.path,
-        quality: 85, targetWidth: 325, targetHeight: 475);
-
-    poster = compressedFile;
+  Future<Uint8List> compressCoverImage(Uint8List list) async {
+    var result = await FlutterImageCompress.compressWithList(
+      list,
+      minHeight: 250,
+      minWidth: 250,
+      quality: 70,
+    );
+    return result;
   }
 
-  Widget buildTextField(String label, TextEditingController controller,
-      bool required, int maxLines, int maxLength) {
+  bool validateTextFields() {
+    bool ok = true;
+    if (ctrlImdbId.text.isEmpty) {
+      ok = false;
+      _validImdbId = false;
+    }
+    if (ctrlTitle.text.isEmpty) {
+      ok = false;
+      _validTitle = false;
+    }
+    if (ctrlRuntime.text.isEmpty) {
+      ok = false;
+      _validRuntime = false;
+    }
+    if (ctrlYear.text.isEmpty) {
+      ok = false;
+      _validYear = false;
+    }
+    return ok;
+  }
+
+  Widget buildTextField(
+    String label,
+    TextEditingController controller,
+    bool required,
+    int maxLines,
+    int maxLength,
+    bool fieldValidator,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: TextField(
-        minLines: 1,
-        maxLines: maxLines,
-        maxLength: maxLength,
-        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-        textCapitalization: TextCapitalization.sentences,
-        keyboardType: TextInputType.text,
-        controller: controller,
-        decoration: InputDecoration(
-            helperText: required ? "* Required" : "",
-            labelText: label,
-            border: const OutlineInputBorder()),
-      ),
+          minLines: 1,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          textCapitalization: TextCapitalization.sentences,
+          keyboardType: TextInputType.text,
+          controller: controller,
+          decoration: InputDecoration(
+              helperText: required ? "* Required" : "",
+              labelText: label,
+              border: const OutlineInputBorder(),
+              errorText: (fieldValidator) ? null : "ID is empty or invalid")),
     );
   }
 
@@ -143,89 +181,106 @@ class _StoreMovieState extends State<StoreMovie> {
           title: const Text('New movie'),
         ),
         body: ListView(children: [
-          buildTextField("IMDB ID", ctrlImdbId, true, 1, 200),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-            child: FilledButton.tonalIcon(
-                onPressed: () {
-                  loadMovieData();
-                  /* if (validarTextFields()) {
-                    _salvarLivro();
-                    widget.refreshHome();
-                    Navigator.of(context).pop();
-                  } else {
-                    setState(() {
-                      nomeValido;
-                    });
-                  }*/
-                },
-                icon: const Icon(
-                  Icons.download_outlined,
-                ),
-                label: const Text(
-                  'Load',
-                )),
-          ),
           Center(
-            child: posterUrl != null
-                ? Image.network(
-                    posterUrl!,
-                    width: 150,
-                    height: 250,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const SizedBox.shrink();
-                    },
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Text('Failed to load image'),
-                  )
-                : const Text('No poster available'),
-          ),
-          buildTextField("Title", ctrlTitle, true, 2, 200),
-          buildTextField("Year", ctrlYear, true, 1, 4),
-          buildTextField("Released", ctrlReleased, false, 1, 30),
-          buildTextField("Runtime", ctrlRuntime, true, 1, 30),
-          buildTextField("Director", ctrlDirector, false, 2, 200),
-          buildTextField("Plot", ctrlPlot, false, 5, 500),
-          buildTextField("Country", ctrlCountry, false, 2, 200),
-          buildTextField("IMDB Rating", ctrlImdbRating, false, 1, 4),
-       /*   Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            elevation: 0,
-            child: poster == null
-                ? Container(
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(5)),
-                    width: 70,
-                    height: 105,
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.file(
-                      poster!,
-                      width: 70,
-                      height: 105,
-                      fit: BoxFit.fill,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Image.network(
+                posterUrl ?? '',
+                width: posterWidth,
+                height: posterHeight,
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.medium,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return Card(
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: child));
+                  }
+                  return Card(
+                    child: SizedBox(
+                      width: posterWidth,
+                      height: posterHeight,
+                      child: const Icon(
+                          Icons.error), // Placeholder icon while loading
                     ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) => Card(
+                  child: SizedBox(
+                    width: posterWidth,
+                    height: posterHeight,
+                    child: const Icon(Icons.image_outlined),
                   ),
-          ),*/
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: TextField(
+                minLines: 1,
+                maxLines: 1,
+                maxLength: 200,
+                onSubmitted: (e) => _loadMovieData(),
+                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                keyboardType: TextInputType.text,
+                controller: ctrlImdbId,
+                decoration: InputDecoration(
+                    helperText: true ? "* Required" : "",
+                    labelText: "IMDB ID",
+                    border: const OutlineInputBorder(),
+                    errorText: (_validImdbId) ? null : "Link is empty")),
+          ),
+          buildTextField("Title", ctrlTitle, true, 2, 200, _validTitle),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildTextField(
+                    "Runtime - Min", ctrlRuntime, true, 1, 30, _validRuntime),
+              ),
+              Expanded(
+                child: buildTextField("Year", ctrlYear, true, 1, 4, _validYear),
+              ),
+            ],
+          ),
+          buildTextField("Director", ctrlDirector, false, 2, 200,
+              _validFieldWithoutRequired),
+          buildTextField(
+              "Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
+          buildTextField("Released", ctrlReleased, false, 1, 30,
+              _validFieldWithoutRequired),
+          buildTextField("Country", ctrlCountry, false, 2, 200,
+              _validFieldWithoutRequired),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildTextField("Released", ctrlReleased, false, 1, 30,
+                    _validFieldWithoutRequired),
+              ),
+              Expanded(
+                child: buildTextField("IMDB Rating", ctrlImdbRating, false, 1,
+                    4, _validFieldWithoutRequired),
+              ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
             child: FilledButton.tonalIcon(
                 onPressed: () {
-                  saveMovie();
-
-                  /* if (validarTextFields()) {
-                    _salvarLivro();
-                    widget.refreshHome();
+                  if (validateTextFields()) {
+                    saveMovie();
                     Navigator.of(context).pop();
                   } else {
                     setState(() {
-                      nomeValido;
+                      _validImdbId;
+                      _validTitle;
+                      _validRuntime;
+                      _validYear;
                     });
-                  }*/
+                  }
                 },
                 icon: const Icon(
                   Icons.save_outlined,
@@ -234,6 +289,9 @@ class _StoreMovieState extends State<StoreMovie> {
                   'Save',
                 )),
           ),
+          const SizedBox(
+            height: 50,
+          )
         ]));
   }
 }

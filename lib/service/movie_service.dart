@@ -19,7 +19,7 @@ class MovieService {
       MovieDAO.columnPoster: movie.getPoster(),
       MovieDAO.columnImdbRating: movie.getImdbRating(),
       MovieDAO.columnImdbID: movie.getImdbID(),
-      MovieDAO.columnWatched: movie.getWatched(),
+      MovieDAO.columnWatched: movie.getWatched()?.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
       MovieDAO.columnDateWatched: null
     };
@@ -48,7 +48,7 @@ class MovieService {
       MovieDAO.columnPoster: movie.getPoster(),
       MovieDAO.columnImdbRating: movie.getImdbRating(),
       MovieDAO.columnImdbID: movie.getImdbID(),
-      MovieDAO.columnWatched: movie.getWatched(),
+      MovieDAO.columnWatched: movie.getWatched()!.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
       MovieDAO.columnDateWatched: movie.getDateWatched()
     };
@@ -61,7 +61,7 @@ class MovieService {
 
     Map<String, dynamic> row = {
       MovieDAO.columnId: movie.getId(),
-      MovieDAO.columnWatched: NoYes.YES,
+      MovieDAO.columnWatched: NoYes.YES.id,
       MovieDAO.columnDateWatched: DateTime.now().toString()
     };
 
@@ -73,7 +73,7 @@ class MovieService {
 
     Map<String, dynamic> row = {
       MovieDAO.columnId: movie.getId(),
-      MovieDAO.columnWatched: NoYes.NO,
+      MovieDAO.columnWatched: NoYes.NO.id,
       MovieDAO.columnDateWatched: null
     };
 

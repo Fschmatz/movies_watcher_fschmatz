@@ -69,17 +69,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 getThemeStringFormatted(),
               ),
             ),
-          /*  ListTile(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => PrintRepoList(),
-                  )),
-              leading: const Icon(Icons.print_outlined),
-              title: const Text(
-                "Print repository list",
-              ),
-            ),*/
             ListTile(
               title: Text("About",
                   style: TextStyle(
