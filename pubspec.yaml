@@ -1,7 +1,7 @@
 name: movies_watcher_fschmatz
 description: "Track movies"
 publish_to: 'none'
-version: 0.5.0
+version: 0.6.0
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -14,6 +14,7 @@ dependencies:
   fluttertoast:
   easy_dynamic_theme:
   shared_preferences:
+  share:
   sqflite:
   path_provider:
   dynamic_value:

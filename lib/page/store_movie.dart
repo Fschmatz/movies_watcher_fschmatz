@@ -5,6 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import '../api_key.dart';
@@ -16,13 +17,15 @@ class StoreMovie extends StatefulWidget {
   State<StoreMovie> createState() => _StoreMovieState();
 
   bool isUpdate;
+  Function() refreshHome;
 
-  StoreMovie({Key? key, required this.isUpdate}) : super(key: key);
+  StoreMovie({Key? key, required this.isUpdate, required this.refreshHome}) : super(key: key);
 }
 
 class _StoreMovieState extends State<StoreMovie> {
   Movie movie = Movie();
   MovieService movieService = MovieService();
+  NoYes movieWatchedState = NoYes.NO;
   String? posterUrl;
   File? poster;
   double posterHeight = 225;
@@ -60,6 +63,11 @@ class _StoreMovieState extends State<StoreMovie> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(response.body);
 
+        String? responseValue = jsonData['Response'];
+        if (responseValue != null && responseValue.toLowerCase() == 'false') {
+          _showNoResultsFound();
+        }
+
         setState(() {
           movie = Movie.fromJson(jsonData);
           posterUrl = movie.getPoster();
@@ -72,47 +80,63 @@ class _StoreMovieState extends State<StoreMovie> {
         );
       }
     } else {
-      Fluttertoast.showToast(
-        msg: "No Results!",
-      );
-      setState(() {
-        _validImdbId = false;
-      });
+      _showNoResultsFound();
     }
+  }
+
+  void _showNoResultsFound() {
+    Fluttertoast.showToast(
+      msg: "No Results Found!",
+    );
+    setState(() {
+      _validImdbId = false;
+    });
   }
 
   void loadTextFields() {
     ctrlTitle.text = movie.getTitle() ?? '';
     ctrlYear.text = movie.getYear() ?? '';
     ctrlReleased.text = movie.getReleased() ?? '';
-    ctrlRuntime.text = movie.getRuntime() ?? '';
+    ctrlRuntime.text = movie.getRuntime().toString();
     ctrlDirector.text = movie.getDirector() ?? '';
     ctrlPlot.text = movie.getPlot() ?? '';
     ctrlCountry.text = movie.getCountry() ?? '';
     ctrlPoster.text = movie.getPoster() ?? '';
     ctrlImdbRating.text = movie.getImdbRating() ?? '';
     ctrlImdbId.text = movie.getImdbID() ?? '';
+    movieWatchedState = movie.getWatched()!;
   }
 
   Future<void> saveMovie() async {
     if (posterUrl != null) {
       Uint8List? base64ImageBytes;
       Uint8List? compressedPoster;
-      http.Response response =  await http.get(Uri.parse(posterUrl!));
+      http.Response response = await http.get(Uri.parse(posterUrl!));
       base64ImageBytes = response.bodyBytes;
       compressedPoster = await compressCoverImage(base64ImageBytes);
       movie.setPoster(base64Encode(compressedPoster));
     }
 
+    int runtimeInt = 0;
+    if (ctrlRuntime.text.isNotEmpty) {
+      String text = ctrlRuntime.text;
+      try {
+        runtimeInt = int.parse(text);
+      } catch (e) {
+        runtimeInt = 0;
+      }
+    }
+
     movie.setTitle(ctrlTitle.text);
     movie.setYear(ctrlYear.text);
     movie.setReleased(ctrlReleased.text);
-    movie.setRuntime(ctrlRuntime.text);
+    movie.setRuntime(runtimeInt);
     movie.setDirector(ctrlDirector.text);
     movie.setPlot(ctrlPlot.text);
     movie.setCountry(ctrlCountry.text);
     movie.setImdbRating(ctrlImdbRating.text);
     movie.setImdbID(ctrlImdbId.text);
+    movie.setWatched(movieWatchedState);
 
     movieService.insertMovie(movie);
   }
@@ -120,10 +144,11 @@ class _StoreMovieState extends State<StoreMovie> {
   Future<Uint8List> compressCoverImage(Uint8List list) async {
     var result = await FlutterImageCompress.compressWithList(
       list,
-      minHeight: 250,
-      minWidth: 250,
+      minHeight: 180,
+      minWidth: 150,
       quality: 70,
     );
+
     return result;
   }
 
@@ -179,6 +204,17 @@ class _StoreMovieState extends State<StoreMovie> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('New movie'),
+          actions: [
+            IconButton(
+                icon: const Icon(
+                  Icons.refresh_outlined,
+                ),
+                onPressed: () {
+                  if (ctrlImdbId.text.isNotEmpty) {
+                    _loadMovieData();
+                  }
+                }),
+          ],
         ),
         body: ListView(children: [
           Center(
@@ -267,12 +303,37 @@ class _StoreMovieState extends State<StoreMovie> {
             ],
           ),
           Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
+            child: SegmentedButton<NoYes>(
+              showSelectedIcon: false,
+              segments: const <ButtonSegment<NoYes>>[
+                ButtonSegment<NoYes>(
+                    value: NoYes.NO,
+                    label: Text('Not Watched'),
+                    icon: Icon(Icons.visibility_off_outlined)),
+                ButtonSegment<NoYes>(
+                    value: NoYes.YES,
+                    label: Text('Watched'),
+                    icon: Icon(Icons.visibility_outlined)),
+              ],
+              selected: <NoYes>{movieWatchedState},
+              onSelectionChanged: (Set<NoYes> newSelection) {
+                setState(() {
+                  movieWatchedState = newSelection.first;
+                });
+              },
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
             child: FilledButton.tonalIcon(
                 onPressed: () {
                   if (validateTextFields()) {
-                    saveMovie();
-                    Navigator.of(context).pop();
+                    saveMovie().then((v) => {
+                        widget.refreshHome(),
+                        Navigator.of(context).pop()
+                    }
+                    );
                   } else {
                     setState(() {
                       _validImdbId;

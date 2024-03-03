@@ -16,7 +16,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _pageList = [
+  List<Widget> _pageList = [
     MovieList(
       key: UniqueKey(),
       watched: NoYes.NO,
@@ -27,6 +27,22 @@ class _HomeState extends State<Home> {
     ),
     const Statistics()
   ];
+
+  void refreshHome() {
+    setState(() {
+      _pageList = [
+        MovieList(
+          key: UniqueKey(),
+          watched: NoYes.NO,
+        ),
+        MovieList(
+          key: UniqueKey(),
+          watched: NoYes.YES,
+        ),
+        const Statistics()
+      ];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +74,9 @@ class _HomeState extends State<Home> {
             ];
           },
           body: PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 700),
               transitionBuilder: (child, animation, secondaryAnimation) =>
                   FadeThroughTransition(
-                    fillColor: Theme.of(context).scaffoldBackgroundColor,
                     animation: animation,
                     secondaryAnimation: secondaryAnimation,
                     child: child,
@@ -77,12 +93,10 @@ class _HomeState extends State<Home> {
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => StoreMovie(
-                    key: UniqueKey(),
-                    isUpdate: false,
-                  ),
+                      key: UniqueKey(),
+                      isUpdate: false,
+                      refreshHome: refreshHome),
                 ));
-            //reload
-            //.then((value) => getAllChannels());
           },
           child: const Icon(
             Icons.add_outlined,

@@ -15,17 +15,17 @@ class MovieList extends StatefulWidget {
 }
 
 class _MovieListState extends State<MovieList> {
-  List<Map<String, dynamic>> moviesList = [];
   final dbMovies = MovieDAO.instance;
+  List<Map<String, dynamic>> moviesList = [];
   bool loading = true;
 
   @override
   void initState() {
-    getLivrosState();
+    getAllMoviesByWatched();
     super.initState();
   }
 
-  void getLivrosState() async {
+  void getAllMoviesByWatched() async {
     var resp = await dbMovies.queryAllByWatchedNoYes(widget.watched);
     moviesList = resp;
 
@@ -34,37 +34,50 @@ class _MovieListState extends State<MovieList> {
     });
   }
 
+  void removeMovieFromList(int index) {
+    setState(() {
+      moviesList = List.from(moviesList)..removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView(
-          children: [
-            (loading)
-                ? const Center(child: SizedBox.shrink())
-                : (moviesList.isEmpty)
-                    ? const Center(
-                        child: SizedBox(
-                        height: 5,
-                      ))
-                    : Padding(
+      body: ListView(
+        children: [
+          (loading)
+              ? const Center(child: SizedBox.shrink())
+              : (moviesList.isEmpty)
+                  ? const Center(
+                      child: SizedBox(
+                      height: 5,
+                    ))
+                  : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 5
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3, mainAxisExtent: 230),
                         physics: const ScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: moviesList.length,
                         itemBuilder: (context, index) {
                           final movie = moviesList[index];
-                          return MovieTile(key: UniqueKey(),movie: Movie.fromMap(movie));
+                          return MovieTile(
+                            key: UniqueKey(),
+                            movie: Movie.fromMap(movie),
+                            refreshMovieList: getAllMoviesByWatched,
+                            removeMovieFromList: removeMovieFromList,
+                            index: index,
+                          );
                         },
                       ),
                     ),
-          ],
-        ));
+          const SizedBox(
+            height: 100,
+          )
+        ],
+      ),
+    );
   }
 }
-

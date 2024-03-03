@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../dao/movie_dao.dart';
+import '../entity/no_yes.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({Key? key}) : super(key: key);
@@ -8,47 +10,35 @@ class Statistics extends StatefulWidget {
 }
 
 class _StatisticsState extends State<Statistics> {
- // final dbLivro = LivroDao.instance;
+  final dbMovies = MovieDAO.instance;
+  List<Map<String, dynamic>> moviesList = [];
   bool loading = true;
 
-  int? livrosLendo = 0;
-  int? livrosParaLer = 0;
-  int? livrosLidos = 0;
-  int? paginasLendo = 0;
-  int? paginasParaLer = 0;
-  int? paginasLidos = 0;
-  int? quantAutores = 0;
+  int? watchedMovies = 0;
+  int? notWatchedMovies = 0;
+  int? watchedRuntime = 0;
+  int? notWatchedRuntime = 0;
 
   @override
   void initState() {
-    getContagemLivrosEstado().then((v) => getContagemPaginasEstado());
     super.initState();
+
+    _loadValues();
   }
 
-  Future<void> getContagemLivrosEstado() async {
-    // var respLendo = await dbLivro.contagemLivrosEstado(0);
-    // var respParaLer = await dbLivro.contagemLivrosEstado(1);
-    // var respLidos = await dbLivro.contagemLivrosEstado(2);
-    // setState(() {
-    //   livrosLendo = respLendo ?? 0;
-    //   livrosParaLer = respParaLer ?? 0;
-    //   livrosLidos = respLidos ?? 0;
-    // });
-  }
-
-  Future<void> getContagemPaginasEstado() async {
-   /* var respLendo = await dbLivro.contagemPaginasEstado(0);
-    var respParaLer = await dbLivro.contagemPaginasEstado(1);
-    var respLidos = await dbLivro.contagemPaginasEstado(2);
-    var respAutores = await dbLivro.contagemAutores();
+  Future<void>   _loadValues() async {
+    var respNotWatchedMovies = await  dbMovies.countMoviesByWatchedNoYes(NoYes.NO);
+   var respWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.YES);
+    var respWatchedRuntime =  await  dbMovies.countRuntimeByWatchedNoYes(NoYes.NO);
+    var respNotWatchedRuntime =  await dbMovies.countRuntimeByWatchedNoYes(NoYes.YES);
 
     setState(() {
-      paginasLendo = respLendo ?? 0;
-      paginasParaLer = respParaLer ?? 0;
-      paginasLidos = respLidos ?? 0;
-      quantAutores = respAutores ?? 0;
+      watchedMovies = respWatchedMovies ?? 0;
+      notWatchedMovies = respNotWatchedMovies ?? 0;
+      watchedRuntime = respWatchedRuntime ?? 0;
+      notWatchedRuntime = respNotWatchedRuntime ?? 0;
       loading = false;
-    });*/
+    });
   }
 
   @override
@@ -60,11 +50,27 @@ class _StatisticsState extends State<Statistics> {
           ? const Center(child: SizedBox.shrink())
           : ListView(
               children: [
-                cardEstatisticas(
-                    'Livros', livrosLendo, livrosParaLer, livrosLidos, accent),
-                cardEstatisticas('Páginas', paginasLendo, paginasParaLer,
-                    paginasLidos, accent),
-                cardAutores('Geral', quantAutores, accent),
+                ListTile(
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Watched Movies'),
+                  trailing: Text(watchedMovies.toString()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Watched Runtime'),
+                  trailing: Text(watchedRuntime.toString()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Not Watched Movies'),
+                  trailing: Text(notWatchedMovies.toString()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Not Watched Movies'),
+                  trailing: Text(notWatchedRuntime.toString()),
+                ),
+
                 const SizedBox(
                   height: 50,
                 ),
@@ -73,8 +79,9 @@ class _StatisticsState extends State<Statistics> {
     );
   }
 }
+/*
 
-Widget cardEstatisticas(String tituloCard, int? valorLendo, int? valorParaLer,
+Widget cardEstatisticas(String title, int? valorLendo, int? valorParaLer,
     int? valorLidos, Color accent) {
   TextStyle styleTrailing = const TextStyle(
     fontSize: 16,
@@ -85,7 +92,7 @@ Widget cardEstatisticas(String tituloCard, int? valorLendo, int? valorParaLer,
   return Column(
     children: [
       ListTile(
-        title: Text(tituloCard,
+        title: Text(title,
             style: TextStyle(
                 fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
       ),
@@ -113,28 +120,7 @@ Widget cardEstatisticas(String tituloCard, int? valorLendo, int? valorParaLer,
         ),
       ),
     ],
-  );
-}
+  );}
+*/
 
-Widget cardAutores(String tituloCard, int? valor, Color accent) {
-  TextStyle styleTrailing =
-      const TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
 
-  //DB CONTA O VALOR VAZIO, QUE ESTÁ CONFIGURADO PARA O LIVRO SEM AUTOR
-  int valorCalculado = valor == 0 ? 0 : (valor! - 1);
-
-  return Column(
-    children: [
-      ListTile(
-        title: Text(tituloCard,
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-      ),
-      ListTile(
-        leading: const Icon(Icons.person_outline_outlined),
-        title: const Text('Autores'),
-        trailing: Text(valorCalculado.toString(), style: styleTrailing),
-      ),
-    ],
-  );
-}

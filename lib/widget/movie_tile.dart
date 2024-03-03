@@ -2,32 +2,44 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../entity/movie.dart';
+import '../service/movie_service.dart';
 
 class MovieTile extends StatefulWidget {
   @override
   _MovieTileState createState() => _MovieTileState();
 
   Movie movie;
+  Function() refreshMovieList;
+  Function(int) removeMovieFromList;
+  int index;
 
   MovieTile({
     Key? key,
     required this.movie,
+    required this.refreshMovieList,
+    required this.removeMovieFromList,
+    required this.index
   }) : super(key: key);
 }
 
 class _MovieTileState extends State<MovieTile> {
-  double posterHeight = 240;
+  MovieService movieService = MovieService();
+  Movie movie = Movie();
+  double posterHeight = 180;
   double posterWidth = 150;
-  RoundedRectangleBorder posterBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(8),
-  );
+  BorderRadius posterBorder = BorderRadius.circular(8);
+  bool deleteAfterTimer = true;
 
   @override
   void initState() {
     super.initState();
+
+    movie = widget.movie;
   }
 
   /* _launchLink() {
@@ -40,9 +52,20 @@ class _MovieTileState extends State<MovieTile> {
     );
   }*/
 
-  void _delete() async {}
+  void _delete() async {
+    movieService.deleteMovie(movie);
+    widget.refreshMovieList();
+  }
 
-  /* void openBottomMenu() {
+  void _markWatched(){
+    movieService.setWatched(movie);
+  }
+
+  void _markNotWatched(){
+    movieService.setNotWatched(movie);
+  }
+
+  void openBottomMenu() {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -53,93 +76,81 @@ class _MovieTileState extends State<MovieTile> {
                 children: <Widget>[
                   ListTile(
                     title: Text(
-                      widget.playlist.title,
+                      movie.getTitle()!,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const Divider(),
-                  ListTile(
+                    ListTile(
                     leading: const Icon(Icons.share_outlined),
                     title: const Text(
                       "Share",
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                      Share.share(
-                          "${widget.playlist.title} - ${widget.playlist.artist!}\n\n${widget.playlist.link}");
+                      Share.share("https://www.imdb.com/title/${movie.getImdbID()}");
                     },
                   ),
-                  Visibility(
-                    visible:
-                    widget.playlist.state != 0 && !widget.isPageDownloads,
+                   Visibility(
+                    visible: movie.getWatched() == NoYes.NO,
                     child: ListTile(
-                      leading: const Icon(Icons.queue_music_outlined),
+                      leading: const Icon(Icons.visibility_outlined),
                       title: const Text(
-                        "Listen",
+                        "Mark Watched",
                       ),
                       onTap: () {
-                        _changePlaylistState(0);
-                        widget.refreshHome();
+                        _markWatched();
+
+                        widget.refreshMovieList();
                         Navigator.of(context).pop();
                       },
                     ),
                   ),
-                  Visibility(
-                    visible:
-                    widget.playlist.state != 1 && !widget.isPageDownloads,
+
+                   Visibility(
+                    visible: movie.getWatched() == NoYes.YES,
                     child: ListTile(
-                      leading: const Icon(Icons.archive_outlined),
+                      leading: const Icon(Icons.visibility_off_outlined),
                       title: const Text(
-                        "Archive",
+                        "Mark Not Watched",
                       ),
                       onTap: () {
-                        _changePlaylistState(1);
-                        widget.refreshHome();
+                        _markNotWatched();
+
+                        widget.refreshMovieList();
                         Navigator.of(context).pop();
                       },
                     ),
                   ),
-                  Visibility(
-                    visible:
-                    widget.playlist.state != 2 && !widget.isPageDownloads,
-                    child: ListTile(
-                      leading: const Icon(Icons.favorite_border_outlined),
-                      title: const Text(
-                        "Favorite",
-                      ),
-                      onTap: () {
-                        _changePlaylistState(2);
-                        widget.refreshHome();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
+
                   ListTile(
-                    leading: const Icon(Icons.edit_outlined),
+                    leading: const Icon(Icons.movie_edit),
                     title: const Text(
                       "Edit",
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.push(
+                    /*  Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (BuildContext context) => EditPlaylist(
                               playlist: widget.playlist,
                               refreshHome: widget.refreshHome,
                             ),
-                          ));
+                          ));*/
                     },
                   ),
+
                   ListTile(
                     leading: const Icon(Icons.delete_outline_outlined),
                     title: const Text(
                       "Delete",
                     ),
                     onTap: () {
-                      widget.removeFromList(widget.index);
+                      widget.removeMovieFromList(widget.index);
                       Navigator.of(context).pop();
                       _showSnackBar();
+
                       Timer(const Duration(seconds: 5), () {
                         if (deleteAfterTimer) {
                           _delete();
@@ -152,61 +163,84 @@ class _MovieTileState extends State<MovieTile> {
             ),
           );
         });
-  }*/
+  }
 
-  /*void _showSnackBar() {
+  void _showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text("Playlist deleted"),
+        content: const Text("Movie deleted"),
         action: SnackBarAction(
           label: "Undo",
           onPressed: () {
             deleteAfterTimer = false;
-            widget.refreshHome();
+            widget.refreshMovieList();
           },
         ),
       ),
     );
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    return InkWell(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Expanded(
-          flex: 1,
-          child: (widget.movie.getPoster() == null)
+    return Card(
+      child: InkWell(
+        borderRadius: posterBorder,
+        onTap: openBottomMenu,
+        //onLongPress: () => (),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          (movie.getPoster() == null)
               ? SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: Card(
-                    elevation: 1,
-                    shape: posterBorder,
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 30,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
-                )
+            height: posterHeight,
+            width: posterWidth,
+            child: Icon(
+              Icons.image_outlined,
+              size: 30,
+              color: Theme.of(context).hintColor,
+            ),
+          )
               : SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: Card(
-                    elevation: 1,
-                    shape: posterBorder,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.memory(
-                        base64Decode(widget.movie.getPoster()!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-        ),
-      ]),
+            height: posterHeight,
+            width: posterWidth,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                base64Decode(movie.getPoster()!),
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 3,
+          ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Text(
+                movie.getTitle()!,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    color: Theme.of(context).hintColor),
+              ),
+            ),
+          ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Text(
+                "${movie.getRuntime()!} Min",
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style:
+                TextStyle(fontSize: 10, color: Theme.of(context).hintColor),
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

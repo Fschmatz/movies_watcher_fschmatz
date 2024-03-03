@@ -46,7 +46,7 @@ class MovieDAO {
             $columnTitle TEXT NOT NULL,
             $columnYear TEXT,
             $columnReleased TEXT,  
-            $columnRuntime TEXT, 
+            $columnRuntime INTEGER NOT NULL, 
             $columnDirector TEXT, 
             $columnPlot TEXT,   
             $columnCountry TEXT,   
@@ -86,4 +86,16 @@ class MovieDAO {
     return await db.rawQuery(
         'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
+
+  Future<int?> countMoviesByWatchedNoYes(NoYes noYes) async {
+    Database db = await instance.database;
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+  }
+
+  Future<int?> countRuntimeByWatchedNoYes(NoYes noYes) async {
+    Database db = await instance.database;
+
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT SUM($columnRuntime) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+  }
+
 }

@@ -5,7 +5,7 @@ class Movie {
   String? _title;
   String? _year;
   String? _released;
-  String? _runtime;
+  int? _runtime;
   String? _director;
   String? _plot;
   String? _country;
@@ -21,7 +21,7 @@ class Movie {
       String? title,
       String? year,
       String? released,
-      String? runtime,
+        int? runtime,
       String? director,
       String? plot,
       String? country,
@@ -54,7 +54,7 @@ class Movie {
 
   String? getReleased() => _released;
 
-  String? getRuntime() => _runtime;
+  int? getRuntime() => _runtime;
 
   String? getDirector() => _director;
 
@@ -90,7 +90,7 @@ class Movie {
     _released = value;
   }
 
-  void setRuntime(String value) {
+  void setRuntime(int value) {
     _runtime = value;
   }
 
@@ -131,12 +131,18 @@ class Movie {
   }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
-    String? runtime = json['Runtime'];
+    String? runtimeString = json['Runtime'];
+    int runtimeInt = 0;
 
-    if (runtime != null) {
-      List<String> parts = runtime.split(' ');
+    if (runtimeString != null) {
+      List<String> parts = runtimeString.split(' ');
       if (parts.isNotEmpty) {
-        runtime = parts.first;
+        String firstPart = parts.first;
+        try {
+          runtimeInt = int.parse(firstPart);
+        } catch (e) {
+          runtimeInt = 0;
+        }
       }
     }
 
@@ -145,7 +151,7 @@ class Movie {
       title: json['Title'],
       year: json['Year'],
       released: json['Released'],
-      runtime: runtime,
+      runtime: runtimeInt,
       director: json['Director'],
       plot: json['Plot'],
       country: json['Country'],
