@@ -16,7 +16,7 @@ class MovieList extends StatefulWidget {
 
 class _MovieListState extends State<MovieList> {
   final dbMovies = MovieDAO.instance;
-  List<Map<String, dynamic>> moviesList = [];
+  List<Map<String, dynamic>> _moviesList = [];
   bool loading = true;
 
   @override
@@ -27,7 +27,7 @@ class _MovieListState extends State<MovieList> {
 
   void getAllMoviesByWatched() async {
     var resp = await dbMovies.queryAllByWatchedNoYes(widget.watched);
-    moviesList = resp;
+    _moviesList = resp;
 
     setState(() {
       loading = false;
@@ -36,7 +36,7 @@ class _MovieListState extends State<MovieList> {
 
   void removeMovieFromList(int index) {
     setState(() {
-      moviesList = List.from(moviesList)..removeAt(index);
+      _moviesList = List.from(_moviesList)..removeAt(index);
     });
   }
 
@@ -47,22 +47,22 @@ class _MovieListState extends State<MovieList> {
         children: [
           (loading)
               ? const Center(child: SizedBox.shrink())
-              : (moviesList.isEmpty)
+              : (_moviesList.isEmpty)
                   ? const Center(
                       child: SizedBox(
                       height: 5,
                     ))
                   : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, mainAxisExtent: 230),
+                                crossAxisCount: 3, mainAxisExtent: 237),
                         physics: const ScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: moviesList.length,
+                        itemCount: _moviesList.length,
                         itemBuilder: (context, index) {
-                          final movie = moviesList[index];
+                          final movie = _moviesList[index];
                           return MovieTile(
                             key: UniqueKey(),
                             movie: Movie.fromMap(movie),

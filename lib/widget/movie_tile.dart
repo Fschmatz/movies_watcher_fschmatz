@@ -18,19 +18,19 @@ class MovieTile extends StatefulWidget {
   Function(int) removeMovieFromList;
   int index;
 
-  MovieTile({
-    Key? key,
-    required this.movie,
-    required this.refreshMovieList,
-    required this.removeMovieFromList,
-    required this.index
-  }) : super(key: key);
+  MovieTile(
+      {Key? key,
+      required this.movie,
+      required this.refreshMovieList,
+      required this.removeMovieFromList,
+      required this.index})
+      : super(key: key);
 }
 
 class _MovieTileState extends State<MovieTile> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 180;
+  double posterHeight = 170;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(8);
   bool deleteAfterTimer = true;
@@ -57,11 +57,11 @@ class _MovieTileState extends State<MovieTile> {
     widget.refreshMovieList();
   }
 
-  void _markWatched(){
+  void _markWatched() {
     movieService.setWatched(movie);
   }
 
-  void _markNotWatched(){
+  void _markNotWatched() {
     movieService.setNotWatched(movie);
   }
 
@@ -81,17 +81,18 @@ class _MovieTileState extends State<MovieTile> {
                     ),
                   ),
                   const Divider(),
-                    ListTile(
+                  ListTile(
                     leading: const Icon(Icons.share_outlined),
                     title: const Text(
                       "Share",
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                      Share.share("https://www.imdb.com/title/${movie.getImdbID()}");
+                      Share.share(
+                          "https://www.imdb.com/title/${movie.getImdbID()}");
                     },
                   ),
-                   Visibility(
+                  Visibility(
                     visible: movie.getWatched() == NoYes.NO,
                     child: ListTile(
                       leading: const Icon(Icons.visibility_outlined),
@@ -100,14 +101,12 @@ class _MovieTileState extends State<MovieTile> {
                       ),
                       onTap: () {
                         _markWatched();
-
                         widget.refreshMovieList();
                         Navigator.of(context).pop();
                       },
                     ),
                   ),
-
-                   Visibility(
+                  Visibility(
                     visible: movie.getWatched() == NoYes.YES,
                     child: ListTile(
                       leading: const Icon(Icons.visibility_off_outlined),
@@ -116,13 +115,11 @@ class _MovieTileState extends State<MovieTile> {
                       ),
                       onTap: () {
                         _markNotWatched();
-
                         widget.refreshMovieList();
                         Navigator.of(context).pop();
                       },
                     ),
                   ),
-
                   ListTile(
                     leading: const Icon(Icons.movie_edit),
                     title: const Text(
@@ -130,7 +127,7 @@ class _MovieTileState extends State<MovieTile> {
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                    /*  Navigator.push(
+                      /*  Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (BuildContext context) => EditPlaylist(
@@ -140,7 +137,6 @@ class _MovieTileState extends State<MovieTile> {
                           ));*/
                     },
                   ),
-
                   ListTile(
                     leading: const Icon(Icons.delete_outline_outlined),
                     title: const Text(
@@ -186,40 +182,40 @@ class _MovieTileState extends State<MovieTile> {
       child: InkWell(
         borderRadius: posterBorder,
         onTap: openBottomMenu,
-        //onLongPress: () => (),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           (movie.getPoster() == null)
               ? SizedBox(
-            height: posterHeight,
-            width: posterWidth,
-            child: Icon(
-              Icons.image_outlined,
-              size: 30,
-              color: Theme.of(context).hintColor,
-            ),
-          )
+                  height: posterHeight,
+                  width: posterWidth,
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: 30,
+                    color: Theme.of(context).hintColor,
+                  ),
+                )
               : SizedBox(
-            height: posterHeight,
-            width: posterWidth,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                base64Decode(movie.getPoster()!),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              ),
-            ),
-          ),
+                  height: posterHeight,
+                  width: posterWidth,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.memory(
+                      base64Decode(movie.getPoster()!),
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    ),
+                  ),
+                ),
           const SizedBox(
             height: 3,
           ),
           Flexible(
+            flex: 3,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
                 movie.getTitle()!,
                 overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+                maxLines: 2,
                 style: TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -228,14 +224,15 @@ class _MovieTileState extends State<MovieTile> {
             ),
           ),
           Flexible(
+            flex: 1,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
                 "${movie.getRuntime()!} Min",
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style:
-                TextStyle(fontSize: 10, color: Theme.of(context).hintColor),
+                    TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
               ),
             ),
           ),

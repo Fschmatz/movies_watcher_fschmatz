@@ -16,10 +16,18 @@ class StoreMovie extends StatefulWidget {
   @override
   State<StoreMovie> createState() => _StoreMovieState();
 
+  Movie movie;
   bool isUpdate;
+  bool isFromSearchPage;
   Function() refreshHome;
 
-  StoreMovie({Key? key, required this.isUpdate, required this.refreshHome}) : super(key: key);
+  StoreMovie(
+      {Key? key,
+      required this.movie,
+      required this.isUpdate,
+      required this.isFromSearchPage,
+      required this.refreshHome})
+      : super(key: key);
 }
 
 class _StoreMovieState extends State<StoreMovie> {
@@ -49,7 +57,11 @@ class _StoreMovieState extends State<StoreMovie> {
   @override
   void initState() {
     super.initState();
-    ctrlImdbId.text = "tt1560653";
+
+    if(widget.isFromSearchPage){
+      ctrlImdbId.text = widget.movie.getImdbID()!;
+      _loadMovieData();
+    }
   }
 
   void _loadMovieData() async {
@@ -58,25 +70,31 @@ class _StoreMovieState extends State<StoreMovie> {
       final String movieId = ctrlImdbId.text;
       final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
 
-      final response = await http.get(Uri.parse(apiUrl));
+      try {
+        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = json.decode(response.body);
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonData = json.decode(response.body);
 
-        String? responseValue = jsonData['Response'];
-        if (responseValue != null && responseValue.toLowerCase() == 'false') {
-          _showNoResultsFound();
+          String? responseValue = jsonData['Response'];
+          if (responseValue != null && responseValue.toLowerCase() == 'false') {
+            _showNoResultsFound();
+          }
+
+          setState(() {
+            movie = Movie.fromJson(jsonData);
+            posterUrl = movie.getPoster();
+            _validImdbId = true;
+            loadTextFields();
+          });
+        } else {
+          Fluttertoast.showToast(
+            msg: "API Error",
+          );
         }
-
-        setState(() {
-          movie = Movie.fromJson(jsonData);
-          posterUrl = movie.getPoster();
-          _validImdbId = true;
-          loadTextFields();
-        });
-      } else {
+      } catch (e) {
         Fluttertoast.showToast(
-          msg: "API Error",
+          msg: "Connection timeout ",
         );
       }
     } else {
@@ -329,11 +347,8 @@ class _StoreMovieState extends State<StoreMovie> {
             child: FilledButton.tonalIcon(
                 onPressed: () {
                   if (validateTextFields()) {
-                    saveMovie().then((v) => {
-                        widget.refreshHome(),
-                        Navigator.of(context).pop()
-                    }
-                    );
+                    saveMovie().then((v) =>
+                        {widget.refreshHome(), Navigator.of(context).pop()});
                   } else {
                     setState(() {
                       _validImdbId;

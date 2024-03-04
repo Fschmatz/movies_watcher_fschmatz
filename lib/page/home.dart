@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:movies_watcher_fschmatz/page/search_page.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings_page.dart';
 import 'package:movies_watcher_fschmatz/page/statistics.dart';
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
@@ -52,11 +53,24 @@ class _HomeState extends State<Home> {
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
-                title: Text(AppDetails.appName),
+                title: Text(AppDetails.appNameHomePage),
                 pinned: false,
                 floating: true,
                 snap: true,
                 actions: [
+                  IconButton(
+                      icon: const Icon(
+                        Icons.search_outlined,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                              SearchPage(refreshHome: refreshHome),
+                            ));
+                      }),
+
                   IconButton(
                       icon: const Icon(
                         Icons.settings_outlined,
@@ -84,7 +98,7 @@ class _HomeState extends State<Home> {
               child: _pageList[_currentIndex]),
         ),
       ),
-      floatingActionButton: Visibility(
+      /*floatingActionButton: Visibility(
         visible: _currentIndex != 2,
         child: FloatingActionButton(
           heroTag: null,
@@ -102,7 +116,7 @@ class _HomeState extends State<Home> {
             Icons.add_outlined,
           ),
         ),
-      ),
+      ),*/
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: _currentIndex,

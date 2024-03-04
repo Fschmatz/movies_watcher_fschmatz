@@ -1,20 +1,25 @@
 class AppDetails{
 
-  static String appVersion = "0.6.0";
+  static String appVersion = "0.7.0";
   static String appName = "Movies Watcher Fschmatz";
+  static String appNameHomePage = "Movies Watcher";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
+0.7.0
+- Search page
+- Bug fixes
+''';
+
+  static String changelogsOld = '''
 0.6.0
 - Load home for watched and not watched
 - Initial statistics page
 - Delete movie
 - Bottom menu
 - Share movie
-- Bug Fixes
-''';
+- Bug fixes
 
-  static String changelogsOld = '''
 0.5.0
 - Save movie
 - Load home
