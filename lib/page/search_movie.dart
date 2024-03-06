@@ -9,32 +9,21 @@ import '../entity/movie.dart';
 import '../entity/search_result.dart';
 import '../widget/search_result_tile.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchMovie extends StatefulWidget {
   Function() refreshHome;
 
-  SearchPage({Key? key, required this.refreshHome}) : super(key: key);
+  SearchMovie({Key? key, required this.refreshHome}) : super(key: key);
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  _SearchMovieState createState() => _SearchMovieState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchMovieState extends State<SearchMovie> {
   bool _isBeforeSearch = true;
   bool _loadingSearch = true;
   String _quantityResults = "0";
   TextEditingController ctrlSearch = TextEditingController();
   List<Movie> _moviesList = [];
-
-  /*
-  final List<Item> _itemList = [];
-
-  String resultsText = "";
-  List<String> listHistoryString = [];
-  bool loadingHistory = true;
-  bool _showSearchHistory = true;
-
-  List<Map<String, dynamic>> titleList = [];
- */
 
   @override
   void initState() {
@@ -50,8 +39,7 @@ class _SearchPageState extends State<SearchPage> {
       final String apiKey = ApiKey.key;
       final String movieName = ctrlSearch.text;
 
-      final String apiUrl =
-          'http://www.omdbapi.com/?type=movie&s=$movieName&apikey=$apiKey';
+      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&apikey=$apiKey';
 
       final response = await http.get(Uri.parse(apiUrl));
 
@@ -99,9 +87,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Search movie"),
-      ),
+      appBar: AppBar(title: const Text("Search movie"), surfaceTintColor: Theme.of(context).colorScheme.background),
       body: Column(
         children: [
           Padding(
@@ -109,7 +95,7 @@ class _SearchPageState extends State<SearchPage> {
             child: TextField(
               minLines: 1,
               maxLines: 3,
-              maxLength: 350,
+              maxLength: 300,
               autofocus: true,
               textInputAction: TextInputAction.go,
               textCapitalization: TextCapitalization.sentences,
@@ -119,7 +105,6 @@ class _SearchPageState extends State<SearchPage> {
                 setState(() {});
               },
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 border: const OutlineInputBorder(),
                 counterText: "",
                 labelText: "Title",
@@ -133,6 +118,11 @@ class _SearchPageState extends State<SearchPage> {
               ),
               onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
             ),
+          ),
+          ListTile(
+            title: Text("${_quantityResults} Results",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)),
           ),
           _isBeforeSearch
               ? const Center(child: SizedBox.shrink())

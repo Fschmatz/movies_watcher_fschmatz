@@ -1,9 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/page/search_page.dart';
-import 'package:movies_watcher_fschmatz/page/settings/settings_page.dart';
+import 'package:movies_watcher_fschmatz/page/search_movie.dart';
+import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
 import 'package:movies_watcher_fschmatz/page/statistics.dart';
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
+import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 import '../util/app_details.dart';
 import 'movie_list.dart';
@@ -58,31 +59,39 @@ class _HomeState extends State<Home> {
                 floating: true,
                 snap: true,
                 actions: [
-                  IconButton(
-                      icon: const Icon(
-                        Icons.search_outlined,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                              SearchPage(refreshHome: refreshHome),
-                            ));
-                      }),
-
-                  IconButton(
-                      icon: const Icon(
-                        Icons.settings_outlined,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  const SettingsPage(),
-                            ));
-                      }),
+                  PopupMenuButton<int>(
+                      icon: const Icon(Icons.more_vert_outlined),
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuItem<int>>[
+                            const PopupMenuItem<int>(
+                                value: 0, child: Text('New movie')),
+                            const PopupMenuItem<int>(
+                                value: 1, child: Text('Settings')),
+                          ],
+                      onSelected: (int value) {
+                        switch (value) {
+                          case 0:
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) => StoreMovie(
+                                    key: UniqueKey(),
+                                    isUpdate: false,
+                                    refreshHome: refreshHome,
+                                    movie: Movie(),
+                                    isFromSearchPage: false,
+                                  ),
+                                ));
+                            break;
+                          case 1:
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      const Settings(),
+                                ));
+                        }
+                      })
                 ],
               ),
             ];
@@ -98,25 +107,20 @@ class _HomeState extends State<Home> {
               child: _pageList[_currentIndex]),
         ),
       ),
-      /*floatingActionButton: Visibility(
-        visible: _currentIndex != 2,
-        child: FloatingActionButton(
-          heroTag: null,
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => StoreMovie(
-                      key: UniqueKey(),
-                      isUpdate: false,
-                      refreshHome: refreshHome),
-                ));
-          },
-          child: const Icon(
-            Icons.add_outlined,
-          ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: null,
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    SearchMovie(refreshHome: refreshHome),
+              ));
+        },
+        child: const Icon(
+          Icons.search_outlined,
         ),
-      ),*/
+      ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: _currentIndex,

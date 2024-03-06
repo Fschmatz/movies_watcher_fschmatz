@@ -1,18 +1,19 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
 import '../../util/app_details.dart';
 import '../../util/dialog_select_theme.dart';
-import 'app_info_page.dart';
-import 'changelog_page.dart';
+import 'app_info.dart';
+import 'changelog.dart';
 
-class SettingsPage extends StatefulWidget {
+class Settings extends StatefulWidget {
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  _SettingsState createState() => _SettingsState();
 
-  const SettingsPage({Key? key}) : super(key: key);
+  const Settings({Key? key}) : super(key: key);
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsState extends State<Settings> {
   String getThemeStringFormatted() {
     String theme = EasyDynamicTheme.of(context)
         .themeMode
@@ -70,6 +71,17 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const PrintMovieList(),
+                  )),
+              leading: const Icon(Icons.print_outlined),
+              title: const Text(
+                "Print movies",
+              ),
+            ),
+            ListTile(
               title: Text("About",
                   style: TextStyle(
                       fontSize: 14,
@@ -87,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => const AppInfoPage(),
+                      builder: (BuildContext context) => const AppInfo(),
                     ));
               },
             ),
@@ -102,7 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => const ChangelogPage(),
+                      builder: (BuildContext context) => const Changelog(),
                     ));
               },
             ),

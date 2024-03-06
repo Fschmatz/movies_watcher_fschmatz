@@ -67,7 +67,7 @@ class _StoreMovieState extends State<StoreMovie> {
   void _loadMovieData() async {
     if (ctrlImdbId.text.isNotEmpty) {
       final String apiKey = ApiKey.key;
-      final String movieId = ctrlImdbId.text;
+      final String movieId = ctrlImdbId.text.trim();
       final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
 
       try {

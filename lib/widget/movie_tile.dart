@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
+import 'package:movies_watcher_fschmatz/page/store_movie.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,12 +19,7 @@ class MovieTile extends StatefulWidget {
   Function(int) removeMovieFromList;
   int index;
 
-  MovieTile(
-      {Key? key,
-      required this.movie,
-      required this.refreshMovieList,
-      required this.removeMovieFromList,
-      required this.index})
+  MovieTile({Key? key, required this.movie, required this.refreshMovieList, required this.removeMovieFromList, required this.index})
       : super(key: key);
 }
 
@@ -34,23 +30,22 @@ class _MovieTileState extends State<MovieTile> {
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(8);
   bool deleteAfterTimer = true;
+  String imbdLink = "";
 
   @override
   void initState() {
     super.initState();
 
     movie = widget.movie;
+    imbdLink = "https://www.imdb.com/title/${movie.getImdbID()}";
   }
 
-  /* _launchLink() {
-
-    Format ID + Default link
-
+  _launchBrowser() {
     launchUrl(
-      Uri.parse(),
+      Uri.parse(imbdLink),
       mode: LaunchMode.externalApplication,
     );
-  }*/
+  }
 
   void _delete() async {
     movieService.deleteMovie(movie);
@@ -81,17 +76,6 @@ class _MovieTileState extends State<MovieTile> {
                     ),
                   ),
                   const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.share_outlined),
-                    title: const Text(
-                      "Share",
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Share.share(
-                          "https://www.imdb.com/title/${movie.getImdbID()}");
-                    },
-                  ),
                   Visibility(
                     visible: movie.getWatched() == NoYes.NO,
                     child: ListTile(
@@ -121,18 +105,40 @@ class _MovieTileState extends State<MovieTile> {
                     ),
                   ),
                   ListTile(
+                    leading: const Icon(Icons.share_outlined),
+                    title: const Text(
+                      "Share",
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Share.share(imbdLink);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.open_in_new_outlined),
+                    title: const Text(
+                      "View in IMDb",
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _launchBrowser();
+                    },
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.movie_edit),
                     title: const Text(
                       "Edit",
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                      /*  Navigator.push(
+                     /* Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (BuildContext context) => EditPlaylist(
-                              playlist: widget.playlist,
-                              refreshHome: widget.refreshHome,
+                            builder: (BuildContext context) => StoreMovie(
+                              movie: movie,
+                              isUpdate: true,
+                              isFromSearchPage: false,
+                              refreshHome: widget.refreshMovieList,
                             ),
                           ));*/
                     },
@@ -216,10 +222,7 @@ class _MovieTileState extends State<MovieTile> {
                 movie.getTitle()!,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                    color: Theme.of(context).hintColor),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Theme.of(context).hintColor),
               ),
             ),
           ),
@@ -231,8 +234,7 @@ class _MovieTileState extends State<MovieTile> {
                 "${movie.getRuntime()!} Min",
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style:
-                    TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
               ),
             ),
           ),
