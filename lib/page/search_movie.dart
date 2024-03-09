@@ -34,6 +34,11 @@ class _SearchMovieState extends State<SearchMovie> {
     if (ctrlSearch.text.isNotEmpty) {
       setState(() {
         _isBeforeSearch = false;
+
+        if (_moviesList.isNotEmpty) {
+          _quantityResults = "0";
+          _moviesList.clear();
+        }
       });
 
       final String apiKey = ApiKey.key;
@@ -52,10 +57,6 @@ class _SearchMovieState extends State<SearchMovie> {
           _showNoResultsFound();
         }
 
-        for (Movie movie in searchResult.getSearch()!) {
-          print(movie.toString());
-        }
-
         setState(() {
           _moviesList = searchResult.getSearch()!;
           _quantityResults = searchResult.getTotalResults()!;
@@ -72,6 +73,10 @@ class _SearchMovieState extends State<SearchMovie> {
   }
 
   void _showNoResultsFound() {
+    setState(() {
+      _loadingSearch = false;
+    });
+
     Fluttertoast.showToast(
       msg: "No Results Found!",
     );
@@ -119,11 +124,6 @@ class _SearchMovieState extends State<SearchMovie> {
               onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
             ),
           ),
-          ListTile(
-            title: Text("${_quantityResults} Results",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)),
-          ),
           _isBeforeSearch
               ? const Center(child: SizedBox.shrink())
               : Flexible(
@@ -131,17 +131,29 @@ class _SearchMovieState extends State<SearchMovie> {
                     duration: const Duration(milliseconds: 750),
                     child: _loadingSearch
                         ? const Center(child: CircularProgressIndicator())
-                        : ListView.builder(
-                            itemCount: _moviesList.length,
-                            itemBuilder: (context, index) {
-                              final movie = _moviesList[index];
+                        : ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              ListTile(
+                                title: Text("$_quantityResults Results",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _moviesList.length,
+                                itemBuilder: (context, index) {
+                                  final movie = _moviesList[index];
 
-                              return SearchResultTile(
-                                key: UniqueKey(),
-                                movie: movie,
-                                refreshHome: widget.refreshHome,
-                              );
-                            },
+                                  return SearchResultTile(
+                                    key: UniqueKey(),
+                                    movie: movie,
+                                    refreshHome: widget.refreshHome,
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                   ),
                 )

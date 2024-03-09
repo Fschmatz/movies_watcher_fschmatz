@@ -97,7 +97,7 @@ class _HomeState extends State<Home> {
             ];
           },
           body: PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 700),
+              duration: const Duration(milliseconds: 650),
               transitionBuilder: (child, animation, secondaryAnimation) =>
                   FadeThroughTransition(
                     animation: animation,

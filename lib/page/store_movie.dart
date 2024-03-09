@@ -21,13 +21,7 @@ class StoreMovie extends StatefulWidget {
   bool isFromSearchPage;
   Function() refreshHome;
 
-  StoreMovie(
-      {Key? key,
-      required this.movie,
-      required this.isUpdate,
-      required this.isFromSearchPage,
-      required this.refreshHome})
-      : super(key: key);
+  StoreMovie({Key? key, required this.movie, required this.isUpdate, required this.isFromSearchPage, required this.refreshHome}) : super(key: key);
 }
 
 class _StoreMovieState extends State<StoreMovie> {
@@ -53,14 +47,22 @@ class _StoreMovieState extends State<StoreMovie> {
   final TextEditingController ctrlCountry = TextEditingController();
   final TextEditingController ctrlPoster = TextEditingController();
   final TextEditingController ctrlImdbRating = TextEditingController();
+  bool isUpdate = false;
 
   @override
   void initState() {
     super.initState();
 
-    if(widget.isFromSearchPage){
+    if (widget.isFromSearchPage) {
       ctrlImdbId.text = widget.movie.getImdbID()!;
       _loadMovieData();
+    }
+
+    if (widget.isUpdate) {
+      isUpdate = true;
+      movie = widget.movie;
+      _validImdbId = true;
+      loadTextFields();
     }
   }
 
@@ -125,6 +127,14 @@ class _StoreMovieState extends State<StoreMovie> {
     movieWatchedState = movie.getWatched()!;
   }
 
+  Future<void> storeMovie()async {
+    if(isUpdate){
+      updateMovie();
+    } else {
+      saveMovie();
+    }
+  }
+
   Future<void> saveMovie() async {
     if (posterUrl != null) {
       Uint8List? base64ImageBytes;
@@ -135,15 +145,7 @@ class _StoreMovieState extends State<StoreMovie> {
       movie.setPoster(base64Encode(compressedPoster));
     }
 
-    int runtimeInt = 0;
-    if (ctrlRuntime.text.isNotEmpty) {
-      String text = ctrlRuntime.text;
-      try {
-        runtimeInt = int.parse(text);
-      } catch (e) {
-        runtimeInt = 0;
-      }
-    }
+    int runtimeInt = _parseRuntime();
 
     movie.setTitle(ctrlTitle.text);
     movie.setYear(ctrlYear.text);
@@ -157,6 +159,36 @@ class _StoreMovieState extends State<StoreMovie> {
     movie.setWatched(movieWatchedState);
 
     movieService.insertMovie(movie);
+  }
+
+  Future<void> updateMovie() async {
+    int runtimeInt = _parseRuntime();
+
+    movie.setTitle(ctrlTitle.text);
+    movie.setYear(ctrlYear.text);
+    movie.setReleased(ctrlReleased.text);
+    movie.setRuntime(runtimeInt);
+    movie.setDirector(ctrlDirector.text);
+    movie.setPlot(ctrlPlot.text);
+    movie.setCountry(ctrlCountry.text);
+    movie.setImdbRating(ctrlImdbRating.text);
+    movie.setWatched(movieWatchedState);
+
+    movieService.updateMovie(movie);
+  }
+
+  int _parseRuntime(){
+    int runtimeInt = 0;
+
+    if (ctrlRuntime.text.isNotEmpty) {
+      String text = ctrlRuntime.text;
+      try {
+        runtimeInt = int.parse(text);
+      } catch (e) {
+        runtimeInt = 0;
+      }
+    }
+    return runtimeInt;
   }
 
   Future<Uint8List> compressCoverImage(Uint8List list) async {
@@ -221,125 +253,120 @@ class _StoreMovieState extends State<StoreMovie> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('New movie'),
+          title: isUpdate ? const Text('Edit movie') : const Text('New movie'),
           actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.refresh_outlined,
-                ),
-                onPressed: () {
-                  if (ctrlImdbId.text.isNotEmpty) {
-                    _loadMovieData();
-                  }
-                }),
+            Visibility(
+              visible: !isUpdate,
+              child: IconButton(
+                  icon: const Icon(
+                    Icons.refresh_outlined,
+                  ),
+                  onPressed: () {
+                    if (ctrlImdbId.text.isNotEmpty) {
+                      _loadMovieData();
+                    }
+                  }),
+            ),
           ],
         ),
         body: ListView(children: [
-          Center(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Image.network(
-                posterUrl ?? '',
-                width: posterWidth,
-                height: posterHeight,
-                fit: BoxFit.fill,
-                filterQuality: FilterQuality.medium,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
+          Visibility(
+            visible: !isUpdate,
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Image.network(
+                  posterUrl ?? '',
+                  width: posterWidth,
+                  height: posterHeight,
+                  fit: BoxFit.fill,
+                  filterQuality: FilterQuality.medium,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return Card(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: child));
+                    }
                     return Card(
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: child));
-                  }
-                  return Card(
+                      child: SizedBox(
+                        width: posterWidth,
+                        height: posterHeight,
+                        child: const Icon(Icons.error),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) => Card(
                     child: SizedBox(
                       width: posterWidth,
                       height: posterHeight,
-                      child: const Icon(
-                          Icons.error), // Placeholder icon while loading
+                      child: const Icon(Icons.image_outlined),
                     ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) => Card(
-                  child: SizedBox(
-                    width: posterWidth,
-                    height: posterHeight,
-                    child: const Icon(Icons.image_outlined),
                   ),
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: TextField(
-                minLines: 1,
-                maxLines: 1,
-                maxLength: 200,
-                onSubmitted: (e) => _loadMovieData(),
-                maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                keyboardType: TextInputType.text,
-                controller: ctrlImdbId,
-                decoration: InputDecoration(
-                    helperText: true ? "* Required" : "",
-                    labelText: "IMDB ID",
-                    border: const OutlineInputBorder(),
-                    errorText: (_validImdbId) ? null : "Link is empty")),
+          Visibility(
+            visible: !isUpdate,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: TextField(
+                  minLines: 1,
+                  maxLines: 1,
+                  maxLength: 200,
+                  onSubmitted: (e) => _loadMovieData(),
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                  keyboardType: TextInputType.text,
+                  controller: ctrlImdbId,
+                  decoration: InputDecoration(
+                      helperText: true ? "* Required" : "",
+                      labelText: "IMDB ID",
+                      border: const OutlineInputBorder(),
+                      errorText: (_validImdbId) ? null : "Link is empty")),
+            ),
           ),
           buildTextField("Title", ctrlTitle, true, 2, 200, _validTitle),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: buildTextField(
-                    "Runtime - Min", ctrlRuntime, true, 1, 30, _validRuntime),
+                child: buildTextField("Runtime - Min", ctrlRuntime, true, 1, 30, _validRuntime),
               ),
               Expanded(
                 child: buildTextField("Year", ctrlYear, true, 1, 4, _validYear),
               ),
             ],
           ),
-          buildTextField("Director", ctrlDirector, false, 2, 200,
-              _validFieldWithoutRequired),
-          buildTextField(
-              "Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
-          buildTextField("Released", ctrlReleased, false, 1, 30,
-              _validFieldWithoutRequired),
-          buildTextField("Country", ctrlCountry, false, 2, 200,
-              _validFieldWithoutRequired),
+          buildTextField("Director", ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
+          buildTextField("Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
+          buildTextField("Released", ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
+          buildTextField("Country", ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: buildTextField("Released", ctrlReleased, false, 1, 30,
-                    _validFieldWithoutRequired),
+                child: buildTextField("Released", ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
               ),
               Expanded(
-                child: buildTextField("IMDB Rating", ctrlImdbRating, false, 1,
-                    4, _validFieldWithoutRequired),
+                child: buildTextField("IMDB Rating", ctrlImdbRating, false, 1, 4, _validFieldWithoutRequired),
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
-            child: SegmentedButton<NoYes>(
-              showSelectedIcon: false,
-              segments: const <ButtonSegment<NoYes>>[
-                ButtonSegment<NoYes>(
-                    value: NoYes.NO,
-                    label: Text('Not Watched'),
-                    icon: Icon(Icons.visibility_off_outlined)),
-                ButtonSegment<NoYes>(
-                    value: NoYes.YES,
-                    label: Text('Watched'),
-                    icon: Icon(Icons.visibility_outlined)),
-              ],
-              selected: <NoYes>{movieWatchedState},
-              onSelectionChanged: (Set<NoYes> newSelection) {
-                setState(() {
-                  movieWatchedState = newSelection.first;
-                });
-              },
+          Visibility(
+            visible: !isUpdate,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
+              child: SegmentedButton<NoYes>(
+                showSelectedIcon: false,
+                segments: const <ButtonSegment<NoYes>>[
+                  ButtonSegment<NoYes>(value: NoYes.NO, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
+                  ButtonSegment<NoYes>(value: NoYes.YES, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
+                ],
+                selected: <NoYes>{movieWatchedState},
+                onSelectionChanged: (Set<NoYes> newSelection) {
+                  setState(() {
+                    movieWatchedState = newSelection.first;
+                  });
+                },
+              ),
             ),
           ),
           Padding(
@@ -347,8 +374,7 @@ class _StoreMovieState extends State<StoreMovie> {
             child: FilledButton.tonalIcon(
                 onPressed: () {
                   if (validateTextFields()) {
-                    saveMovie().then((v) =>
-                        {widget.refreshHome(), Navigator.of(context).pop()});
+                    storeMovie().then((v) => {widget.refreshHome(), Navigator.of(context).pop()});
                   } else {
                     setState(() {
                       _validImdbId;

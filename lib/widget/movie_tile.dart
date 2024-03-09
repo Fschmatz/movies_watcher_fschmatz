@@ -131,7 +131,7 @@ class _MovieTileState extends State<MovieTile> {
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
-                     /* Navigator.push(
+                      Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (BuildContext context) => StoreMovie(
@@ -140,7 +140,7 @@ class _MovieTileState extends State<MovieTile> {
                               isFromSearchPage: false,
                               refreshHome: widget.refreshMovieList,
                             ),
-                          ));*/
+                          ));
                     },
                   ),
                   ListTile(
@@ -222,7 +222,7 @@ class _MovieTileState extends State<MovieTile> {
                 movie.getTitle()!,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Theme.of(context).hintColor),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               ),
             ),
           ),
@@ -234,7 +234,7 @@ class _MovieTileState extends State<MovieTile> {
                 "${movie.getRuntime()!} Min",
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500,color: Theme.of(context).hintColor),
               ),
             ),
           ),

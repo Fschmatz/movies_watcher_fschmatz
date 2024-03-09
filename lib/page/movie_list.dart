@@ -55,9 +55,7 @@ class _MovieListState extends State<MovieList> {
                   : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, mainAxisExtent: 237),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 235),
                         physics: const ScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: _moviesList.length,

@@ -32,8 +32,8 @@ class _StatisticsState extends State<Statistics> {
   Future<void> _loadValues() async {
     var respNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.NO);
     var respWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.YES);
-    var respWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.NO);
-    var respNotWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.YES);
+    var respWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.YES);
+    var respNotWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.NO);
 
     setState(() {
       watchedMovies = respWatchedMovies ?? 0;
@@ -55,19 +55,6 @@ class _StatisticsState extends State<Statistics> {
           : ListView(
               children: [
                 ListTile(
-                  title: Text("Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.movie_outlined),
-                  title: const Text('Movies'),
-                  trailing: Text(watchedMovies.toString(), style: styleTrailing),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.watch_later_outlined),
-                  title: const Text('Runtime - Min'),
-                  trailing: Text(watchedRuntime.toString(), style: styleTrailing),
-                ),
-                ListTile(
                   title: Text("Not Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
                 ),
                 ListTile(
@@ -79,6 +66,19 @@ class _StatisticsState extends State<Statistics> {
                   leading: const Icon(Icons.watch_later_outlined),
                   title: const Text('Runtime - Min'),
                   trailing: Text(notWatchedRuntime.toString(), style: styleTrailing),
+                ),
+                ListTile(
+                  title: Text("Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.movie_outlined),
+                  title: const Text('Movies'),
+                  trailing: Text(watchedMovies.toString(), style: styleTrailing),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.watch_later_outlined),
+                  title: const Text('Runtime - Min'),
+                  trailing: Text(watchedRuntime.toString(), style: styleTrailing),
                 ),
                 const SizedBox(
                   height: 100,
