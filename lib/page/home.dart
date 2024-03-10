@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
     const Statistics()
   ];
 
-  void refreshHome() {
+  Future<void> refreshHome() async{
     setState(() {
       _pageList = [
         MovieList(
@@ -108,13 +108,13 @@ class _HomeState extends State<Home> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: null,
         onPressed: () {
           Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) =>
-                    SearchMovie(refreshHome: refreshHome),
+                    SearchMovie(
+                        refreshHome: refreshHome),
               ));
         },
         child: const Icon(

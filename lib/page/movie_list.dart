@@ -21,11 +21,12 @@ class _MovieListState extends State<MovieList> {
 
   @override
   void initState() {
-    getAllMoviesByWatched();
     super.initState();
+
+    _getAllMoviesByWatched();
   }
 
-  void getAllMoviesByWatched() async {
+  void _getAllMoviesByWatched() async {
     var resp = await dbMovies.queryAllByWatchedNoYes(widget.watched);
     _moviesList = resp;
 
@@ -34,10 +35,8 @@ class _MovieListState extends State<MovieList> {
     });
   }
 
-  void removeMovieFromList(int index) {
-    setState(() {
-      _moviesList = List.from(_moviesList)..removeAt(index);
-    });
+  void refreshMoviesList() async {
+    _getAllMoviesByWatched();
   }
 
   @override
@@ -55,7 +54,7 @@ class _MovieListState extends State<MovieList> {
                   : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 235),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
                         physics: const ScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: _moviesList.length,
@@ -64,8 +63,7 @@ class _MovieListState extends State<MovieList> {
                           return MovieTile(
                             key: UniqueKey(),
                             movie: Movie.fromMap(movie),
-                            refreshMovieList: getAllMoviesByWatched,
-                            removeMovieFromList: removeMovieFromList,
+                            refreshMoviesList: refreshMoviesList,
                             index: index,
                           );
                         },

@@ -127,11 +127,11 @@ class _StoreMovieState extends State<StoreMovie> {
     movieWatchedState = movie.getWatched()!;
   }
 
-  Future<void> storeMovie()async {
+  Future<void> storeMovie() async {
     if(isUpdate){
-      updateMovie();
+      await updateMovie();
     } else {
-      saveMovie();
+      await saveMovie();
     }
   }
 
@@ -158,7 +158,7 @@ class _StoreMovieState extends State<StoreMovie> {
     movie.setImdbID(ctrlImdbId.text);
     movie.setWatched(movieWatchedState);
 
-    movieService.insertMovie(movie);
+    await movieService.insertMovie(movie);
   }
 
   Future<void> updateMovie() async {
@@ -174,7 +174,7 @@ class _StoreMovieState extends State<StoreMovie> {
     movie.setImdbRating(ctrlImdbRating.text);
     movie.setWatched(movieWatchedState);
 
-    movieService.updateMovie(movie);
+    await movieService.updateMovie(movie);
   }
 
   int _parseRuntime(){
@@ -194,9 +194,9 @@ class _StoreMovieState extends State<StoreMovie> {
   Future<Uint8List> compressCoverImage(Uint8List list) async {
     var result = await FlutterImageCompress.compressWithList(
       list,
-      minHeight: 180,
-      minWidth: 150,
-      quality: 70,
+      minHeight: 220,
+      minWidth: 190,
+      quality: 85,
     );
 
     return result;
@@ -253,6 +253,7 @@ class _StoreMovieState extends State<StoreMovie> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          surfaceTintColor: Theme.of(context).colorScheme.background,
           title: isUpdate ? const Text('Edit movie') : const Text('New movie'),
           actions: [
             Visibility(
@@ -337,7 +338,6 @@ class _StoreMovieState extends State<StoreMovie> {
           ),
           buildTextField("Director", ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
           buildTextField("Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
-          buildTextField("Released", ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
           buildTextField("Country", ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,10 @@ class _StoreMovieState extends State<StoreMovie> {
             child: FilledButton.tonalIcon(
                 onPressed: () {
                   if (validateTextFields()) {
-                    storeMovie().then((v) => {widget.refreshHome(), Navigator.of(context).pop()});
+                    storeMovie().then((_) => {
+                      widget.refreshHome(),
+                      Navigator.of(context).pop()
+                    });
                   } else {
                     setState(() {
                       _validImdbId;

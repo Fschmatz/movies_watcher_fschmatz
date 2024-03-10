@@ -194,6 +194,6 @@ class Movie {
 
   @override
   String toString() {
-    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _poster: $_poster, _imdbRating: $_imdbRating, _imdbID: $_imdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched}';
+    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _imdbRating: $_imdbRating, _imdbID: $_imdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched}';
   }
 }

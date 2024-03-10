@@ -25,11 +25,6 @@ class _SearchMovieState extends State<SearchMovie> {
   TextEditingController ctrlSearch = TextEditingController();
   List<Movie> _moviesList = [];
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _loadSearchResults() async {
     if (ctrlSearch.text.isNotEmpty) {
       setState(() {

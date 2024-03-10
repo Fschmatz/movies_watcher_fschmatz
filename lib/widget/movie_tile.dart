@@ -1,12 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
-import 'package:movies_watcher_fschmatz/page/store_movie.dart';
-import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
-
+import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import '../entity/movie.dart';
 import '../service/movie_service.dart';
 
@@ -15,170 +9,31 @@ class MovieTile extends StatefulWidget {
   _MovieTileState createState() => _MovieTileState();
 
   Movie movie;
-  Function() refreshMovieList;
-  Function(int) removeMovieFromList;
+  Function() refreshMoviesList;
   int index;
 
-  MovieTile({Key? key, required this.movie, required this.refreshMovieList, required this.removeMovieFromList, required this.index})
+  MovieTile({Key? key, required this.movie, required this.refreshMoviesList, required this.index})
       : super(key: key);
 }
 
 class _MovieTileState extends State<MovieTile> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 170;
+  double posterHeight = 160;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(8);
-  bool deleteAfterTimer = true;
-  String imbdLink = "";
 
   @override
   void initState() {
     super.initState();
 
     movie = widget.movie;
-    imbdLink = "https://www.imdb.com/title/${movie.getImdbID()}";
   }
 
-  _launchBrowser() {
-    launchUrl(
-      Uri.parse(imbdLink),
-      mode: LaunchMode.externalApplication,
-    );
-  }
-
-  void _delete() async {
-    movieService.deleteMovie(movie);
-    widget.refreshMovieList();
-  }
-
-  void _markWatched() {
-    movieService.setWatched(movie);
-  }
-
-  void _markNotWatched() {
-    movieService.setNotWatched(movie);
-  }
-
-  void openBottomMenu() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-              child: Wrap(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      movie.getTitle()!,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const Divider(),
-                  Visibility(
-                    visible: movie.getWatched() == NoYes.NO,
-                    child: ListTile(
-                      leading: const Icon(Icons.visibility_outlined),
-                      title: const Text(
-                        "Mark Watched",
-                      ),
-                      onTap: () {
-                        _markWatched();
-                        widget.refreshMovieList();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                  Visibility(
-                    visible: movie.getWatched() == NoYes.YES,
-                    child: ListTile(
-                      leading: const Icon(Icons.visibility_off_outlined),
-                      title: const Text(
-                        "Mark Not Watched",
-                      ),
-                      onTap: () {
-                        _markNotWatched();
-                        widget.refreshMovieList();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.share_outlined),
-                    title: const Text(
-                      "Share",
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Share.share(imbdLink);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.open_in_new_outlined),
-                    title: const Text(
-                      "View in IMDb",
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _launchBrowser();
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.movie_edit),
-                    title: const Text(
-                      "Edit",
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => StoreMovie(
-                              movie: movie,
-                              isUpdate: true,
-                              isFromSearchPage: false,
-                              refreshHome: widget.refreshMovieList,
-                            ),
-                          ));
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.delete_outline_outlined),
-                    title: const Text(
-                      "Delete",
-                    ),
-                    onTap: () {
-                      widget.removeMovieFromList(widget.index);
-                      Navigator.of(context).pop();
-                      _showSnackBar();
-
-                      Timer(const Duration(seconds: 5), () {
-                        if (deleteAfterTimer) {
-                          _delete();
-                        }
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  void _showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("Movie deleted"),
-        action: SnackBarAction(
-          label: "Undo",
-          onPressed: () {
-            deleteAfterTimer = false;
-            widget.refreshMovieList();
-          },
-        ),
-      ),
+  void _openMovieInfoDialog(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => MovieInfoDialog(movie: movie , refreshMoviesList: widget.refreshMoviesList,),
     );
   }
 
@@ -187,7 +42,7 @@ class _MovieTileState extends State<MovieTile> {
     return Card(
       child: InkWell(
         borderRadius: posterBorder,
-        onTap: openBottomMenu,
+        onTap: _openMovieInfoDialog,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           (movie.getPoster() == null)
               ? SizedBox(
@@ -206,7 +61,7 @@ class _MovieTileState extends State<MovieTile> {
                     borderRadius: BorderRadius.circular(8),
                     child: Image.memory(
                       base64Decode(movie.getPoster()!),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       gaplessPlayback: true,
                     ),
                   ),

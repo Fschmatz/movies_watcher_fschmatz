@@ -1,11 +1,10 @@
 import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
-
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 
 class MovieService {
 
-  void insertMovie(Movie movie) async {
+  Future<void> insertMovie(Movie movie) async {
     final db = MovieDAO.instance;
 
     Map<String, dynamic> row = {
@@ -27,13 +26,13 @@ class MovieService {
     await db.insert(row);
   }
 
-  void deleteMovie(Movie movie) async {
+  Future<void> deleteMovie(Movie movie) async {
     final db = MovieDAO.instance;
 
     await db.delete(movie.getId()!);
   }
 
-  void updateMovie(Movie movie) async {
+  Future<void> updateMovie(Movie movie) async {
     final db = MovieDAO.instance;
 
     Map<String, dynamic> row = {
@@ -56,7 +55,7 @@ class MovieService {
     await db.update(row);
   }
 
-  void setWatched(Movie movie) async {
+  Future<void> setWatched(Movie movie) async {
     final db = MovieDAO.instance;
 
     Map<String, dynamic> row = {
@@ -68,7 +67,7 @@ class MovieService {
     await db.update(row);
   }
 
-  void setNotWatched(Movie movie) async {
+  Future<void> setNotWatched(Movie movie) async {
     final db = MovieDAO.instance;
 
     Map<String, dynamic> row = {
