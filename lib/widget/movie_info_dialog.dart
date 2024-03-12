@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,10 +23,11 @@ class MovieInfoDialog extends StatefulWidget {
 class _MovieInfoDialogState extends State<MovieInfoDialog> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 170;
-  double posterWidth = 150;
+  double posterHeight = 190;
+  double posterWidth = 160;
   BorderRadius posterBorder = BorderRadius.circular(8);
   String imbdLink = "";
+  bool _isMovieWatched = false;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
     movie = widget.movie;
     imbdLink = "https://www.imdb.com/title/${movie.getImdbID()}";
+    _isMovieWatched = movie.getWatched() == NoYes.YES ? true : false;
   }
 
   _launchBrowser() {
@@ -57,9 +60,15 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor);
+    TextStyle subtitleStyle = const TextStyle(fontSize: 16);
+    String formattedAddedDate = movie.getDateAdded() != null ? Jiffy.parse(movie.getDateAdded()!).format(pattern: 'dd/MM/yyyy') : "";
+    String formattedWatchedDate = movie.getDateWatched() != null ? Jiffy.parse(movie.getDateWatched()!).format(pattern: 'dd/MM/yyyy') : "";
+
     return Dialog.fullscreen(
       child: Scaffold(
         appBar: AppBar(
+          surfaceTintColor: Theme.of(context).colorScheme.background,
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.of(context).pop(),
@@ -106,34 +115,153 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
         ),
         body: ListView(
           children: [
-            Center(
-              child: (movie.getPoster() == null)
-                  ? SizedBox(
-                      height: posterHeight,
-                      width: posterWidth,
-                      child: Icon(
-                        Icons.image_outlined,
-                        size: 30,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    )
-                  : SizedBox(
-                      height: posterHeight,
-                      width: posterWidth,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.memory(
-                          base64Decode(movie.getPoster()!),
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                        ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: (movie.getPoster() == null)
+                          ? SizedBox(
+                              height: posterHeight,
+                              width: posterWidth,
+                              child: Icon(
+                                Icons.image_outlined,
+                                size: 30,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            )
+                          : SizedBox(
+                              height: posterHeight,
+                              width: posterWidth,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.memory(
+                                  base64Decode(movie.getPoster()!),
+                                  fit: BoxFit.fill,
+                                  gaplessPlayback: true,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            movie.getTitle()!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                          Text(
+                            "${movie.getRuntime()!} Min",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                          ),
+                          Text(
+                            movie.getYear()!,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                ],
+              ),
             ),
-            Text(movie.toString()),
+            const SizedBox(
+              height: 10,
+            ),
+            Visibility(
+              visible: movie.getPlot() != null,
+              child: ListTile(
+                  title: Text(
+                movie.getPlot()!,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Theme.of(context).hintColor),
+              )),
+            ),
+            Visibility(
+              visible: movie.getDirector() != null,
+              child: ListTile(
+                  title: Text(
+                    "Director",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    movie.getDirector()!,
+                    style: subtitleStyle,
+                  )),
+            ),
+            Visibility(
+              visible: movie.getReleased() != null,
+              child: ListTile(
+                  title: Text(
+                    "Released",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    movie.getReleased()!,
+                    style: subtitleStyle,
+                  )),
+            ),
+            Visibility(
+              visible: movie.getCountry() != null,
+              child: ListTile(
+                  title: Text(
+                    "Country",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    movie.getCountry()!,
+                    style: subtitleStyle,
+                  )),
+            ),
+            Visibility(
+              visible: movie.getImdbRating() != null,
+              child: ListTile(
+                  title: Text(
+                    "Imdb Rating",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    movie.getImdbRating()!,
+                    style: subtitleStyle,
+                  )),
+            ),
+            Visibility(
+              visible: formattedAddedDate.isNotEmpty,
+              child: ListTile(
+                  title: Text(
+                    "Date added",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    formattedAddedDate,
+                    style: subtitleStyle,
+                  )),
+            ),
+            Visibility(
+              visible: formattedWatchedDate.isNotEmpty && _isMovieWatched,
+              child: ListTile(
+                  title: Text(
+                    "Date watched",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    formattedWatchedDate,
+                    style: subtitleStyle,
+                  )),
+            ),
             const Divider(),
             Visibility(
-              visible: movie.getWatched() == NoYes.YES,
+              visible: _isMovieWatched,
               child: ListTile(
                 leading: const Icon(Icons.visibility_off_outlined),
                 title: const Text(
@@ -147,7 +275,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
               ),
             ),
             Visibility(
-              visible: movie.getWatched() == NoYes.NO,
+              visible: !_isMovieWatched,
               child: ListTile(
                 leading: const Icon(Icons.visibility_outlined),
                 title: const Text(
@@ -159,6 +287,9 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                   Navigator.of(context).pop();
                 },
               ),
+            ),
+            const SizedBox(
+              height: 50,
             ),
           ],
         ),

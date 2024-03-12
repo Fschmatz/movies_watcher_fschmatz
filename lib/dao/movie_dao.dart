@@ -98,4 +98,9 @@ class MovieDAO {
     return Sqflite.firstIntValue(await db.rawQuery('SELECT SUM($columnRuntime) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
   }
 
+  Future<int> deleteAll() async {
+    Database db = await instance.database;
+    return await db.delete(table);
+  }
+
 }

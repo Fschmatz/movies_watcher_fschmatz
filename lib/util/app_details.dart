@@ -1,18 +1,25 @@
 class AppDetails{
 
-  static String appVersion = "0.9.1";
+  static String appVersion = "1.0.0";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Movies Watcher";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
-0.9.1
-- Edit page
-- UI changes
+1.0.0
+- Technically usable
+- Movie info dialog
+- Create backup
+- Restore from backup
 - Bug fixes
 ''';
 
   static String changelogsOld = '''
+0.9.1
+- Edit page
+- UI changes
+- Bug fixes
+
 0.8.0
 - Add movie by IMDb ID
 - UI changes
@@ -54,6 +61,3 @@ class AppDetails{
 ''';
 }
 
-/*
-1.0.0
-- Technically usable*/

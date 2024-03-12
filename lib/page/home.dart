@@ -27,7 +27,9 @@ class _HomeState extends State<Home> {
       key: UniqueKey(),
       watched: NoYes.YES,
     ),
-    const Statistics()
+    Statistics(
+      key: UniqueKey()
+    )
   ];
 
   Future<void> refreshHome() async{
@@ -41,7 +43,9 @@ class _HomeState extends State<Home> {
           key: UniqueKey(),
           watched: NoYes.YES,
         ),
-        const Statistics()
+         Statistics(
+          key: UniqueKey(),
+        )
       ];
     });
   }
@@ -55,16 +59,30 @@ class _HomeState extends State<Home> {
             return <Widget>[
               SliverAppBar(
                 title: Text(AppDetails.appNameHomePage),
+                surfaceTintColor: Theme.of(context).colorScheme.background,
                 pinned: false,
                 floating: true,
                 snap: true,
                 actions: [
+                  IconButton(
+                      icon: const Icon(
+                        Icons.search_outlined,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  SearchMovie(
+                                      refreshHome: refreshHome),
+                            ));
+                      }),
                   PopupMenuButton<int>(
                       icon: const Icon(Icons.more_vert_outlined),
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuItem<int>>[
                             const PopupMenuItem<int>(
-                                value: 0, child: Text('New movie')),
+                                value: 0, child: Text('Add with IMDb ID')),
                             const PopupMenuItem<int>(
                                 value: 1, child: Text('Settings')),
                           ],
@@ -88,7 +106,8 @@ class _HomeState extends State<Home> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      const Settings(),
+                                      Settings(
+                                    refreshHome: refreshHome,),
                                 ));
                         }
                       })
@@ -107,7 +126,7 @@ class _HomeState extends State<Home> {
               child: _pageList[_currentIndex]),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+     /* floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
               context,
@@ -120,7 +139,7 @@ class _HomeState extends State<Home> {
         child: const Icon(
           Icons.search_outlined,
         ),
-      ),
+      ),*/
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: _currentIndex,
