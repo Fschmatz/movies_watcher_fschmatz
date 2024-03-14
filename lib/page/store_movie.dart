@@ -194,9 +194,9 @@ class _StoreMovieState extends State<StoreMovie> {
   Future<Uint8List> compressCoverImage(Uint8List list) async {
     var result = await FlutterImageCompress.compressWithList(
       list,
-      minHeight: 220,
-      minWidth: 190,
-      quality: 85,
+      minHeight: 250,
+      minWidth: 220,
+      quality: 90,
     );
 
     return result;

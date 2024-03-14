@@ -154,7 +154,7 @@ class _HomeState extends State<Home> {
             selectedIcon: Icon(
               Icons.movie,
             ),
-            label: 'Movies',
+            label: 'Watchlist',
           ),
           NavigationDestination(
             icon: Icon(Icons.fact_check_outlined),

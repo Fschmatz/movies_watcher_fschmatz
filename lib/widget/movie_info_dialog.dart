@@ -92,7 +92,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                 onSelected: (int value) {
                   switch (value) {
                     case 0:
-                      Navigator.of(context).pop();
                       _launchBrowser();
                     case 1:
                       Navigator.of(context).pop();
@@ -157,7 +156,8 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                           Text(
                             movie.getTitle()!,
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.left,
                           ),

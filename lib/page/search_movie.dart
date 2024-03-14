@@ -37,29 +37,34 @@ class _SearchMovieState extends State<SearchMovie> {
       });
 
       final String apiKey = ApiKey.key;
-      final String movieName = ctrlSearch.text;
-
+      final String movieName = ctrlSearch.text.trim();
       final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&apikey=$apiKey';
 
-      final response = await http.get(Uri.parse(apiUrl));
+      try {
+        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = json.decode(response.body);
-        SearchResult searchResult = SearchResult.fromJson(jsonData);
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          SearchResult searchResult = SearchResult.fromJson(jsonData);
 
-        String? responseValue = jsonData['Response'];
-        if (responseValue != null && responseValue.toLowerCase() == 'false') {
-          _showNoResultsFound();
+          String? responseValue = jsonData['Response'];
+          if (responseValue != null && responseValue.toLowerCase() == 'false') {
+            _showNoResultsFound();
+          }
+
+          setState(() {
+            _moviesList = searchResult.getSearch()!;
+            _quantityResults = searchResult.getTotalResults()!;
+            _loadingSearch = false;
+          });
+        } else {
+          Fluttertoast.showToast(
+            msg: "API Error",
+          );
         }
-
-        setState(() {
-          _moviesList = searchResult.getSearch()!;
-          _quantityResults = searchResult.getTotalResults()!;
-          _loadingSearch = false;
-        });
-      } else {
+      } catch (e) {
         Fluttertoast.showToast(
-          msg: "API Error",
+          msg: "Connection timeout ",
         );
       }
     } else {

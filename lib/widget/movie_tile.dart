@@ -58,7 +58,7 @@ class _MovieTileState extends State<MovieTile> {
                   height: posterHeight,
                   width: posterWidth,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
                     child: Image.memory(
                       base64Decode(movie.getPoster()!),
                       fit: BoxFit.fill,

@@ -12,6 +12,13 @@ class AppInfo extends StatelessWidget {
     );
   }
 
+  _launchApiPage() {
+    launchUrl(
+      Uri.parse("https://www.omdbapi.com/"),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Color? themeColorApp = Theme.of(context).colorScheme.primary;
@@ -69,6 +76,36 @@ class AppInfo extends StatelessWidget {
                     decoration: TextDecoration.underline,
                     decorationColor: Colors.blue,
                     color: Colors.blue)),
+          ),
+          ListTile(
+            title: Text("API Info",
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: themeColorApp)),
+          ),
+          const ListTile(
+            leading: Icon(
+              Icons.text_snippet_outlined,
+            ),
+            title: Text(
+              "This app uses the Open Movie Database API",
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              _launchApiPage();
+            },
+            leading: const Icon(
+              Icons.open_in_new_outlined,
+            ),
+            title: const Text(
+              "View API Page",
+                style: TextStyle(
+                    decoration: TextDecoration.underline,
+                    decorationColor: Colors.blue,
+                    color: Colors.blue)
+            ),
           ),
           ListTile(
             title: Text("Quote",
