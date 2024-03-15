@@ -17,160 +17,110 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _currentIndex = 0;
-  List<Widget> _pageList = [
-    MovieList(
-      key: UniqueKey(),
-      watched: NoYes.NO,
-    ),
-    MovieList(
-      key: UniqueKey(),
-      watched: NoYes.YES,
-    ),
-    Statistics(
-      key: UniqueKey()
-    )
-  ];
+  late List<Widget> _pageList;
 
-  Future<void> refreshHome() async{
-    setState(() {
-      _pageList = [
-        MovieList(
-          key: UniqueKey(),
-          watched: NoYes.NO,
-        ),
-        MovieList(
-          key: UniqueKey(),
-          watched: NoYes.YES,
-        ),
-         Statistics(
-          key: UniqueKey(),
-        )
-      ];
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    _loadHomeTabs();
+  }
+
+  void _loadHomeTabs(){
+    _pageList = [
+      MovieList(
+        key: UniqueKey(),
+        watched: NoYes.NO,
+      ),
+      MovieList(
+        key: UniqueKey(),
+        watched: NoYes.YES,
+      ),
+    ];
+  }
+
+  Future<void> refreshHome() async {
+    _loadHomeTabs();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                title: Text(AppDetails.appNameHomePage),
-                surfaceTintColor: Theme.of(context).colorScheme.background,
-                pinned: false,
-                floating: true,
-                snap: true,
-                actions: [
-                  IconButton(
-                      icon: const Icon(
-                        Icons.search_outlined,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  SearchMovie(
-                                      refreshHome: refreshHome),
-                            ));
-                      }),
-                  PopupMenuButton<int>(
-                      icon: const Icon(Icons.more_vert_outlined),
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuItem<int>>[
-                            const PopupMenuItem<int>(
-                                value: 0, child: Text('Add with IMDb ID')),
-                            const PopupMenuItem<int>(
-                                value: 1, child: Text('Settings')),
-                          ],
-                      onSelected: (int value) {
-                        switch (value) {
-                          case 0:
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => StoreMovie(
-                                    key: UniqueKey(),
-                                    isUpdate: false,
-                                    refreshHome: refreshHome,
-                                    movie: Movie(),
-                                    isFromSearchPage: false,
-                                  ),
-                                ));
-                            break;
-                          case 1:
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      Settings(
-                                    refreshHome: refreshHome,),
-                                ));
-                        }
-                      })
-                ],
+    return DefaultTabController(
+      length: _pageList.length,
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(
+                icon: const Icon(
+                  Icons.search_outlined,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => SearchMovie(refreshHome: refreshHome),
+                      ));
+                }),
+            PopupMenuButton<int>(
+                icon: const Icon(Icons.more_vert_outlined),
+                itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                      const PopupMenuItem<int>(value: 0, child: Text('Add with IMDb ID')),
+                      const PopupMenuItem<int>(value: 1, child: Text('Statistics')),
+                      const PopupMenuItem<int>(value: 2, child: Text('Settings')),
+                    ],
+                onSelected: (int value) {
+                  switch (value) {
+                    case 0:
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => StoreMovie(
+                              key: UniqueKey(),
+                              isUpdate: false,
+                              refreshHome: refreshHome,
+                              movie: Movie(),
+                              isFromSearchPage: false,
+                            ),
+                          ));
+                      break;
+                    case 1:
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => const Statistics(),
+                          ));
+                    case 2:
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => Settings(
+                              refreshHome: refreshHome,
+                            ),
+                          ));
+                  }
+                })
+          ],
+          bottom: const TabBar(
+            dividerColor: Colors.transparent,
+            tabs: [
+              Tab(
+                text: 'Watchlist',
               ),
-            ];
-          },
-          body: PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 650),
-              transitionBuilder: (child, animation, secondaryAnimation) =>
-                  FadeThroughTransition(
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    child: child,
-                  ),
-              child: _pageList[_currentIndex]),
+              Tab(text: 'Watched')
+            ],
+          ),
+          title: Text(AppDetails.appNameHomePage),
         ),
-      ),
-     /* floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    SearchMovie(
-                        refreshHome: refreshHome),
-              ));
-        },
-        child: const Icon(
-          Icons.search_outlined,
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+          child: TabBarView(
+            children: [
+              _pageList[0],
+              _pageList[1],
+            ],
+          ),
         ),
-      ),*/
-      bottomNavigationBar: NavigationBar(
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.movie_outlined),
-            selectedIcon: Icon(
-              Icons.movie,
-            ),
-            label: 'Watchlist',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fact_check_outlined),
-            selectedIcon: Icon(
-              Icons.fact_check,
-            ),
-            label: 'Watched',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.insert_chart_outlined),
-            selectedIcon: Icon(
-              Icons.insert_chart,
-            ),
-            label: 'Statistics',
-          ),
-        ],
       ),
     );
   }

@@ -31,10 +31,12 @@ class _MovieTileState extends State<MovieTile> {
   }
 
   void _openMovieInfoDialog(){
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => MovieInfoDialog(movie: movie , refreshMoviesList: widget.refreshMoviesList,),
-    );
+    Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return MovieInfoDialog(movie: movie , refreshMoviesList: widget.refreshMoviesList,);
+        },
+        fullscreenDialog: true
+    ));
   }
 
   @override

@@ -14,7 +14,10 @@ class MovieList extends StatefulWidget {
   _MovieListState createState() => _MovieListState();
 }
 
-class _MovieListState extends State<MovieList> {
+class _MovieListState extends State<MovieList> with AutomaticKeepAliveClientMixin<MovieList>{
+  @override
+  bool get wantKeepAlive => true;
+
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> _moviesList = [];
   bool loading = true;
@@ -41,6 +44,7 @@ class _MovieListState extends State<MovieList> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: ListView(
         children: [

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -60,7 +61,8 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor);
+    final theme = Theme.of(context);
+    TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor);
     TextStyle subtitleStyle = const TextStyle(fontSize: 16);
     String formattedAddedDate = movie.getDateAdded() != null ? Jiffy.parse(movie.getDateAdded()!).format(pattern: 'dd/MM/yyyy') : "";
     String formattedWatchedDate = movie.getDateWatched() != null ? Jiffy.parse(movie.getDateWatched()!).format(pattern: 'dd/MM/yyyy') : "";
@@ -68,11 +70,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     return Dialog.fullscreen(
       child: Scaffold(
         appBar: AppBar(
-          surfaceTintColor: Theme.of(context).colorScheme.background,
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
           title: const Text(''),
           actions: [
             IconButton(
@@ -129,7 +126,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                               child: Icon(
                                 Icons.image_outlined,
                                 size: 30,
-                                color: Theme.of(context).hintColor,
+                                color: theme.hintColor,
                               ),
                             )
                           : SizedBox(
@@ -163,11 +160,11 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                           ),
                           Text(
                             "${movie.getRuntime()!} Min",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor),
                           ),
                           Text(
                             movie.getYear()!,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor),
                           ),
                         ],
                       ),
@@ -184,7 +181,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
               child: ListTile(
                   title: Text(
                 movie.getPlot()!,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Theme.of(context).hintColor),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: theme.hintColor),
               )),
             ),
             Visibility(

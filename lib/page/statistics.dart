@@ -50,6 +50,9 @@ class _StatisticsState extends State<Statistics> {
     Color accent = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Statistics"),
+      ),
       body: loading
           ? const Center(child: SizedBox.shrink())
           : ListView(

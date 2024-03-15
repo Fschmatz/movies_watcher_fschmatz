@@ -78,6 +78,8 @@ class BackupUtils {
   }
 
  Future<void> restoreBackupData(String fileName) async {
+   await _loadStoragePermission();
+
     try {
       String directory = await _loadDirectory();
 
