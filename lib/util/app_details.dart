@@ -1,12 +1,12 @@
 class AppDetails{
 
-  static String appVersion = "1.1.1";
+  static String appVersion = "1.1.2";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Movies Watcher";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
-1.1.1
+1.1.2
 - UI changes
 - Bug fixes
 ''';

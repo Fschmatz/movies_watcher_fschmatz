@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -134,10 +135,14 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                               width: posterWidth,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.memory(
-                                  base64Decode(movie.getPoster()!),
-                                  fit: BoxFit.fill,
-                                  gaplessPlayback: true,
+                                child: FadeIn(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeIn,
+                                  child: Image.memory(
+                                    base64Decode(movie.getPoster()!),
+                                    fit: BoxFit.fill,
+                                    gaplessPlayback: true,
+                                  ),
                                 ),
                               ),
                             ),

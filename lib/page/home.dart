@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
@@ -110,8 +109,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 })
           ],
         ),
-        body:
-
-        _pageList[0]);
+        body: _pageList[0]);
   }
 }

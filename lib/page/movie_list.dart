@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/page/store_movie.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_tile.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
@@ -45,34 +44,31 @@ class _MovieListState extends State<MovieList> {
       appBar: widget.watched == NoYes.YES ? AppBar(title: const Text("Watched")) : null,
       body: ListView(
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: (loading)
-                ? const Center(child: SizedBox.shrink())
-                : (_moviesList.isEmpty)
-                    ? const Center(
-                        child: SizedBox(
-                        height: 5,
-                      ))
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
-                          physics: const ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: _moviesList.length,
-                          itemBuilder: (context, index) {
-                            final movie = _moviesList[index];
-                            return MovieTile(
-                              key: UniqueKey(),
-                              movie: Movie.fromMap(movie),
-                              refreshMoviesList: refreshMoviesList,
-                              index: index,
-                            );
-                          },
-                        ),
-                      ),
-          ),
+          (loading)
+              ? const Center(child: SizedBox.shrink())
+              : (_moviesList.isEmpty)
+                  ? const Center(
+                      child: SizedBox(
+                      height: 5,
+                    ))
+                  : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
+                      physics: const ScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: _moviesList.length,
+                      itemBuilder: (context, index) {
+                        final movie = _moviesList[index];
+                        return MovieTile(
+                          key: UniqueKey(),
+                          movie: Movie.fromMap(movie),
+                          refreshMoviesList: refreshMoviesList,
+                          index: index,
+                        );
+                      },
+                    ),
+                  ),
           const SizedBox(
             height: 100,
           )
