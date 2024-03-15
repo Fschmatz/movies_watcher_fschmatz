@@ -16,7 +16,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late List<Widget> _pageList;
 
   @override
@@ -26,15 +26,11 @@ class _HomeState extends State<Home> {
     _loadHomeTabs();
   }
 
-  void _loadHomeTabs(){
+  void _loadHomeTabs() {
     _pageList = [
       MovieList(
         key: UniqueKey(),
         watched: NoYes.NO,
-      ),
-      MovieList(
-        key: UniqueKey(),
-        watched: NoYes.YES,
       ),
     ];
   }
@@ -46,10 +42,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: _pageList.length,
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
+          title: Text(AppDetails.appNameHomePage),
           actions: [
             IconButton(
                 icon: const Icon(
@@ -60,6 +55,19 @@ class _HomeState extends State<Home> {
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) => SearchMovie(refreshHome: refreshHome),
+                      ));
+                }),
+            IconButton(
+                icon: const Icon(
+                  Icons.fact_check_outlined,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => MovieList(
+                          watched: NoYes.YES,
+                        ),
                       ));
                 }),
             PopupMenuButton<int>(
@@ -101,27 +109,9 @@ class _HomeState extends State<Home> {
                   }
                 })
           ],
-          bottom: const TabBar(
-            dividerColor: Colors.transparent,
-            tabs: [
-              Tab(
-                text: 'Watchlist',
-              ),
-              Tab(text: 'Watched')
-            ],
-          ),
-          title: Text(AppDetails.appNameHomePage),
         ),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-          child: TabBarView(
-            children: [
-              _pageList[0],
-              _pageList[1],
-            ],
-          ),
-        ),
-      ),
-    );
+        body:
+
+        _pageList[0]);
   }
 }

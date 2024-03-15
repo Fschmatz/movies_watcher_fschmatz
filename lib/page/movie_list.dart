@@ -14,10 +14,7 @@ class MovieList extends StatefulWidget {
   _MovieListState createState() => _MovieListState();
 }
 
-class _MovieListState extends State<MovieList> with AutomaticKeepAliveClientMixin<MovieList>{
-  @override
-  bool get wantKeepAlive => true;
-
+class _MovieListState extends State<MovieList> {
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> _moviesList = [];
   bool loading = true;
@@ -44,35 +41,38 @@ class _MovieListState extends State<MovieList> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
+      appBar: widget.watched == NoYes.YES ? AppBar(title: const Text("Watched")) : null,
       body: ListView(
         children: [
-          (loading)
-              ? const Center(child: SizedBox.shrink())
-              : (_moviesList.isEmpty)
-                  ? const Center(
-                      child: SizedBox(
-                      height: 5,
-                    ))
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
-                        physics: const ScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: _moviesList.length,
-                        itemBuilder: (context, index) {
-                          final movie = _moviesList[index];
-                          return MovieTile(
-                            key: UniqueKey(),
-                            movie: Movie.fromMap(movie),
-                            refreshMoviesList: refreshMoviesList,
-                            index: index,
-                          );
-                        },
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: (loading)
+                ? const Center(child: SizedBox.shrink())
+                : (_moviesList.isEmpty)
+                    ? const Center(
+                        child: SizedBox(
+                        height: 5,
+                      ))
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
+                          physics: const ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _moviesList.length,
+                          itemBuilder: (context, index) {
+                            final movie = _moviesList[index];
+                            return MovieTile(
+                              key: UniqueKey(),
+                              movie: Movie.fromMap(movie),
+                              refreshMoviesList: refreshMoviesList,
+                              index: index,
+                            );
+                          },
+                        ),
                       ),
-                    ),
+          ),
           const SizedBox(
             height: 100,
           )
