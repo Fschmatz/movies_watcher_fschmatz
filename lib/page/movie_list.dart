@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/widget/movie_tile.dart';
+import 'package:flutter_fadein/flutter_fadein.dart';
+import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
@@ -51,24 +52,28 @@ class _MovieListState extends State<MovieList> {
                       child: SizedBox(
                       height: 5,
                     ))
-                  : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
-                      physics: const ScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _moviesList.length,
-                      itemBuilder: (context, index) {
-                        final movie = _moviesList[index];
-                        return MovieTile(
-                          key: UniqueKey(),
-                          movie: Movie.fromMap(movie),
-                          refreshMoviesList: refreshMoviesList,
-                          index: index,
-                        );
-                      },
+                  : FadeIn(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeIn,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
+                          physics: const ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _moviesList.length,
+                          itemBuilder: (context, index) {
+                            final movie = _moviesList[index];
+                            return MovieCard(
+                              key: UniqueKey(),
+                              movie: Movie.fromMap(movie),
+                              refreshMoviesList: refreshMoviesList,
+                              index: index,
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  ),
           const SizedBox(
             height: 100,
           )

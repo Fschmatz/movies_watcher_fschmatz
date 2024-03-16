@@ -91,7 +91,7 @@ class BackupUtils {
       await _insertMovies(jsonData);
 
       Fluttertoast.showToast(
-        msg: "Sucess!",
+        msg: "Success!",
       );
     } catch (e) {
       Fluttertoast.showToast(

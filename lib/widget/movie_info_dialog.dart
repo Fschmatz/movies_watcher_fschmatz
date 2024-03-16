@@ -26,8 +26,8 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
   double posterHeight = 190;
-  double posterWidth = 160;
-  BorderRadius posterBorder = BorderRadius.circular(8);
+  double posterWidth = 165;
+  BorderRadius posterBorder = BorderRadius.circular(12);
   String imbdLink = "";
   bool _isMovieWatched = false;
 
@@ -60,6 +60,32 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     movieService.setNotWatched(movie);
   }
 
+  showDialogConfirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Confirm",
+          ),
+          content: const Text(
+            "Delete ?",
+          ),
+          actions: [
+            TextButton(
+              child: const Text(
+                "Yes",
+              ),
+              onPressed: () {
+                _delete().then((_) => Navigator.of(context).pop()).then((_) => Navigator.of(context).pop());
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -71,6 +97,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     return Dialog.fullscreen(
       child: Scaffold(
         appBar: AppBar(
+          surfaceTintColor: theme.colorScheme.background,
           title: const Text(''),
           actions: [
             IconButton(
@@ -105,7 +132,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                           ));
                       break;
                     case 2:
-                      _delete().then((_) => Navigator.of(context).pop());
+                      showDialogConfirmDelete(context);
                   }
                 })
           ],
@@ -124,24 +151,28 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                           ? SizedBox(
                               height: posterHeight,
                               width: posterWidth,
-                              child: Icon(
-                                Icons.image_outlined,
-                                size: 30,
-                                color: theme.hintColor,
+                              child: Card(
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 30,
+                                  color: theme.hintColor,
+                                ),
                               ),
                             )
                           : SizedBox(
                               height: posterHeight,
                               width: posterWidth,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: FadeIn(
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeIn,
-                                  child: Image.memory(
-                                    base64Decode(movie.getPoster()!),
-                                    fit: BoxFit.fill,
-                                    gaplessPlayback: true,
+                              child: Card(
+                                child: ClipRRect(
+                                  borderRadius: posterBorder,
+                                  child: FadeIn(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeIn,
+                                    child: Image.memory(
+                                      base64Decode(movie.getPoster()!),
+                                      fit: BoxFit.fill,
+                                      gaplessPlayback: true,
+                                    ),
                                   ),
                                 ),
                               ),

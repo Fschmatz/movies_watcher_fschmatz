@@ -17,7 +17,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
   Movie movie = Movie();
   double posterHeight = 80;
   double posterWidth = 50;
-  BorderRadius posterBorder = BorderRadius.circular(8);
+  BorderRadius posterBorder = BorderRadius.circular(12);
 
   @override
   void initState() {

@@ -17,7 +17,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  String backupFileName = "backup_MWF";
 
   String getThemeStringFormatted() {
     String theme = EasyDynamicTheme.of(context).themeMode.toString().replaceAll('ThemeMode.', '');
@@ -28,11 +27,11 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<void> _createBackup() async {
-    await BackupUtils().backupData(backupFileName);
+    await BackupUtils().backupData(AppDetails.backupFileName);
   }
 
   Future<void> _restoreFromBackup() async {
-    await BackupUtils().restoreBackupData(backupFileName);
+    await BackupUtils().restoreBackupData(AppDetails.backupFileName);
     widget.refreshHome();
   }
 

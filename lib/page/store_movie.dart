@@ -284,7 +284,7 @@ class _StoreMovieState extends State<StoreMovie> {
                   filterQuality: FilterQuality.medium,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) {
-                      return Card(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: child));
+                      return Card(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: child));
                     }
                     return Card(
                       child: SizedBox(

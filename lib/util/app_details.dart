@@ -1,14 +1,16 @@
 class AppDetails{
 
-  static String appVersion = "1.1.2";
+  static String appVersion = "1.1.3";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Movies Watcher";
+  static String backupFileName = "backup_MWF";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
-1.1.2
+1.1.3
 - UI changes
 - Bug fixes
+- Flutter 3.19
 ''';
 
   static String changelogsOld = '''
