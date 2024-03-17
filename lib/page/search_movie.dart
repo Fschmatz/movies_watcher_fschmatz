@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:movies_watcher_fschmatz/page/store_movie.dart';
 import '../api_key.dart';
 import '../entity/movie.dart';
 import '../entity/search_result.dart';
 import '../widget/search_result_tile.dart';
 
 class SearchMovie extends StatefulWidget {
-  Function() refreshHome;
+  Function() loadNotWatchedMovies;
 
-  SearchMovie({Key? key, required this.refreshHome}) : super(key: key);
+  SearchMovie({Key? key, required this.loadNotWatchedMovies}) : super(key: key);
 
   @override
   _SearchMovieState createState() => _SearchMovieState();
@@ -92,7 +93,35 @@ class _SearchMovieState extends State<SearchMovie> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Search movie"), surfaceTintColor: Theme.of(context).colorScheme.background),
+      appBar: AppBar(
+        title: const Text("Search movie"),
+        surfaceTintColor: Theme.of(context).colorScheme.background,
+        actions: [
+          PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert_outlined),
+              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                    const PopupMenuItem<int>(value: 0, child: Text('Add with IMDb ID')),
+                  ],
+              onSelected: (int value) {
+                switch (value) {
+                  case 0:
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => StoreMovie(
+                            key: UniqueKey(),
+                            isUpdate: false,
+                            loadNotWatchedMovies: widget.loadNotWatchedMovies,
+                            movie: Movie(),
+                            isFromSearch: false,
+                          ),
+                        ));
+                    break;
+                }
+              })
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -137,7 +166,11 @@ class _SearchMovieState extends State<SearchMovie> {
                               ListTile(
                                 title: Text("$_quantityResults Results",
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    )),
                               ),
                               ListView.builder(
                                 shrinkWrap: true,
@@ -149,7 +182,7 @@ class _SearchMovieState extends State<SearchMovie> {
                                   return SearchResultTile(
                                     key: UniqueKey(),
                                     movie: movie,
-                                    refreshHome: widget.refreshHome,
+                                    loadNotWatchedMovies: widget.loadNotWatchedMovies,
                                   );
                                 },
                               ),

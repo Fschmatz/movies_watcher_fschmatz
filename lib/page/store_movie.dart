@@ -18,10 +18,13 @@ class StoreMovie extends StatefulWidget {
 
   Movie movie;
   bool isUpdate;
-  bool isFromSearchPage;
-  Function() refreshHome;
+  bool isFromSearch;
+  bool? isFromWatched;
+  Function()? loadWatchedMovies;
+  Function()? loadNotWatchedMovies;
 
-  StoreMovie({Key? key, required this.movie, required this.isUpdate, required this.isFromSearchPage, required this.refreshHome}) : super(key: key);
+  StoreMovie({Key? key, required this.movie, required this.isUpdate, required this.isFromSearch, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched})
+      : super(key: key);
 }
 
 class _StoreMovieState extends State<StoreMovie> {
@@ -53,7 +56,7 @@ class _StoreMovieState extends State<StoreMovie> {
   void initState() {
     super.initState();
 
-    if (widget.isFromSearchPage) {
+    if (widget.isFromSearch) {
       ctrlImdbId.text = widget.movie.getImdbID()!;
       _loadMovieData();
     }
@@ -128,7 +131,7 @@ class _StoreMovieState extends State<StoreMovie> {
   }
 
   Future<void> storeMovie() async {
-    if(isUpdate){
+    if (isUpdate) {
       await updateMovie();
     } else {
       await saveMovie();
@@ -177,7 +180,7 @@ class _StoreMovieState extends State<StoreMovie> {
     await movieService.updateMovie(movie);
   }
 
-  int _parseRuntime(){
+  int _parseRuntime() {
     int runtimeInt = 0;
 
     if (ctrlRuntime.text.isNotEmpty) {
@@ -221,6 +224,15 @@ class _StoreMovieState extends State<StoreMovie> {
       _validYear = false;
     }
     return ok;
+  }
+
+  Future<void> _reloadMoviesList() async {
+    if (widget.loadWatchedMovies != null) {
+      await widget.loadWatchedMovies!();
+    }
+    if (widget.loadNotWatchedMovies != null){
+      await widget.loadNotWatchedMovies!();
+    }
   }
 
   Widget buildTextField(
@@ -329,7 +341,7 @@ class _StoreMovieState extends State<StoreMovie> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: buildTextField("Runtime - Min", ctrlRuntime, true, 1, 30, _validRuntime),
+                child: buildTextField("Runtime - Min", ctrlRuntime, true, 1, 5, _validRuntime),
               ),
               Expanded(
                 child: buildTextField("Year", ctrlYear, true, 1, 4, _validYear),
@@ -374,10 +386,7 @@ class _StoreMovieState extends State<StoreMovie> {
             child: FilledButton.tonalIcon(
                 onPressed: () {
                   if (validateTextFields()) {
-                    storeMovie().then((_) => {
-                      widget.refreshHome(),
-                      Navigator.of(context).pop()
-                    });
+                    storeMovie().then((_) => _reloadMoviesList()).then((_) => Navigator.of(context).pop());
                   } else {
                     setState(() {
                       _validImdbId;

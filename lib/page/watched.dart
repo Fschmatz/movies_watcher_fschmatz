@@ -5,16 +5,16 @@ import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 
-class MovieList extends StatefulWidget {
-  NoYes watched;
+class Watched extends StatefulWidget {
+  Function()? loadNotWatchedMovies;
 
-  MovieList({Key? key, required this.watched}) : super(key: key);
+  Watched({Key? key, this.loadNotWatchedMovies,}) : super(key: key);
 
   @override
-  _MovieListState createState() => _MovieListState();
+  _WatchedState createState() => _WatchedState();
 }
 
-class _MovieListState extends State<MovieList> {
+class _WatchedState extends State<Watched> {
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> _moviesList = [];
   bool loading = true;
@@ -23,11 +23,11 @@ class _MovieListState extends State<MovieList> {
   void initState() {
     super.initState();
 
-    _getAllMoviesByWatched();
+    loadWatchedMovies();
   }
 
-  void _getAllMoviesByWatched() async {
-    var resp = await dbMovies.queryAllByWatchedNoYes(widget.watched);
+  void loadWatchedMovies() async {
+    var resp = await dbMovies.queryAllByWatchedNoYes(NoYes.YES);
     _moviesList = resp;
 
     setState(() {
@@ -35,14 +35,10 @@ class _MovieListState extends State<MovieList> {
     });
   }
 
-  void refreshMoviesList() async {
-    _getAllMoviesByWatched();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.watched == NoYes.YES ? AppBar(title: const Text("Watched")) : null,
+      appBar: AppBar(title: const Text("Watched")),
       body: ListView(
         children: [
           (loading)
@@ -67,8 +63,9 @@ class _MovieListState extends State<MovieList> {
                             return MovieCard(
                               key: UniqueKey(),
                               movie: Movie.fromMap(movie),
-                              refreshMoviesList: refreshMoviesList,
-                              index: index,
+                              loadWatchedMovies: loadWatchedMovies,
+                              loadNotWatchedMovies: widget.loadNotWatchedMovies,
+                              isFromWatched: true,
                             );
                           },
                         ),

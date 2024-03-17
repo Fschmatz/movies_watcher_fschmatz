@@ -7,10 +7,9 @@ class SearchResultTile extends StatefulWidget {
   _SearchResultTileState createState() => _SearchResultTileState();
 
   Movie movie;
-  Function() refreshHome;
+  Function() loadNotWatchedMovies;
 
-  SearchResultTile({Key? key, required this.movie, required this.refreshHome})
-      : super(key: key);
+  SearchResultTile({Key? key, required this.movie, required this.loadNotWatchedMovies}) : super(key: key);
 }
 
 class _SearchResultTileState extends State<SearchResultTile> {
@@ -32,11 +31,12 @@ class _SearchResultTileState extends State<SearchResultTile> {
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => StoreMovie(
-              key: UniqueKey(),
-              movie: movie,
-              isUpdate: false,
-              isFromSearchPage: true,
-              refreshHome: widget.refreshHome),
+            key: UniqueKey(),
+            movie: movie,
+            isUpdate: false,
+            isFromSearch: true,
+            loadNotWatchedMovies: widget.loadNotWatchedMovies,
+          ),
         ));
   }
 
@@ -84,15 +84,14 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     Text(
                       movie.getTitle()!,
                       maxLines: 3,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).hintColor),
+                      style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
                     ),
-                    const SizedBox(height: 5,),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       movie.getYear()!,
-                      style:
-                      TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
                     ),
                   ],
                 ),

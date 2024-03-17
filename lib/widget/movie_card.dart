@@ -10,11 +10,11 @@ class MovieCard extends StatefulWidget {
   _MovieCardState createState() => _MovieCardState();
 
   Movie movie;
-  Function() refreshMoviesList;
-  int index;
+  Function()? loadWatchedMovies;
+  Function()? loadNotWatchedMovies;
+  bool? isFromWatched;
 
-  MovieCard({Key? key, required this.movie, required this.refreshMoviesList, required this.index})
-      : super(key: key);
+  MovieCard({Key? key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched}) : super(key: key);
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -31,13 +31,17 @@ class _MovieCardState extends State<MovieCard> {
     movie = widget.movie;
   }
 
-  void _openMovieInfoDialog(){
+  void _openMovieInfoDialog() {
     Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return MovieInfoDialog(movie: movie , refreshMoviesList: widget.refreshMoviesList,);
+          return MovieInfoDialog(
+            movie: movie,
+            loadWatchedMovies: widget.loadWatchedMovies,
+            loadNotWatchedMovies: widget.loadNotWatchedMovies,
+            isFromWatched: widget.isFromWatched,
+          );
         },
-        fullscreenDialog: true
-    ));
+        fullscreenDialog: true));
   }
 
   @override
@@ -92,7 +96,7 @@ class _MovieCardState extends State<MovieCard> {
                 "${movie.getRuntime()!} Min",
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500,color: Theme.of(context).hintColor),
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
               ),
             ),
           ),

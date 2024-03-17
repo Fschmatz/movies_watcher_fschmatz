@@ -11,9 +11,9 @@ class Settings extends StatefulWidget {
   @override
   _SettingsState createState() => _SettingsState();
 
-  Function() refreshHome;
+  Function()? loadNotWatchedMovies;
 
-  Settings({Key? key, required this.refreshHome}) : super(key: key);
+  Settings({Key? key, this.loadNotWatchedMovies}) : super(key: key);
 }
 
 class _SettingsState extends State<Settings> {
@@ -32,7 +32,7 @@ class _SettingsState extends State<Settings> {
 
   Future<void> _restoreFromBackup() async {
     await BackupUtils().restoreBackupData(AppDetails.backupFileName);
-    widget.refreshHome();
+    widget.loadNotWatchedMovies!();
   }
 
   @override

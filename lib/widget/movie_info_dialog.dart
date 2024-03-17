@@ -14,9 +14,11 @@ import '../service/movie_service.dart';
 
 class MovieInfoDialog extends StatefulWidget {
   Movie movie;
-  Function() refreshMoviesList;
+  Function()? loadWatchedMovies;
+  Function()? loadNotWatchedMovies;
+  bool? isFromWatched;
 
-  MovieInfoDialog({super.key, required this.movie, required this.refreshMoviesList});
+  MovieInfoDialog({super.key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched});
 
   @override
   State<MovieInfoDialog> createState() => _MovieInfoDialogState();
@@ -25,8 +27,8 @@ class MovieInfoDialog extends StatefulWidget {
 class _MovieInfoDialogState extends State<MovieInfoDialog> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 190;
-  double posterWidth = 165;
+  double posterHeight = 200;
+  double posterWidth = 200;
   BorderRadius posterBorder = BorderRadius.circular(12);
   String imbdLink = "";
   bool _isMovieWatched = false;
@@ -49,15 +51,26 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
   Future<void> _delete() async {
     await movieService.deleteMovie(movie);
-    widget.refreshMoviesList();
+    await _reloadMoviesList();
   }
 
-  void _markWatched() {
-    movieService.setWatched(movie);
+  Future<void> _markWatched() async {
+    await movieService.setWatched(movie);
+    _reloadMoviesList();
   }
 
-  void _markNotWatched() {
-    movieService.setNotWatched(movie);
+  Future<void> _markNotWatched() async {
+    await movieService.setNotWatched(movie);
+    _reloadMoviesList();
+  }
+
+  Future<void> _reloadMoviesList() async {
+    if (widget.loadWatchedMovies != null) {
+      await widget.loadWatchedMovies!();
+    }
+    if (widget.loadNotWatchedMovies != null){
+      await widget.loadNotWatchedMovies!();
+    }
   }
 
   showDialogConfirmDelete(BuildContext context) {
@@ -126,8 +139,9 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                             builder: (BuildContext context) => StoreMovie(
                               movie: movie,
                               isUpdate: true,
-                              isFromSearchPage: false,
-                              refreshHome: widget.refreshMoviesList,
+                              isFromSearch: false,
+                              loadWatchedMovies: widget.loadWatchedMovies,
+                              loadNotWatchedMovies: widget.loadNotWatchedMovies,
                             ),
                           ));
                       break;
@@ -144,7 +158,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
               child: Row(
                 children: [
                   Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Container(
                       alignment: Alignment.centerLeft,
                       child: (movie.getPoster() == null)
@@ -180,7 +194,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                     ),
                   ),
                   Expanded(
-                    flex: 4,
+                    flex: 5,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
                       child: Column(
@@ -269,18 +283,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                   )),
             ),
             Visibility(
-              visible: formattedAddedDate.isNotEmpty,
-              child: ListTile(
-                  title: Text(
-                    "Date added",
-                    style: titleStyle,
-                  ),
-                  subtitle: Text(
-                    formattedAddedDate,
-                    style: subtitleStyle,
-                  )),
-            ),
-            Visibility(
               visible: formattedWatchedDate.isNotEmpty && _isMovieWatched,
               child: ListTile(
                   title: Text(
@@ -292,34 +294,26 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                     style: subtitleStyle,
                   )),
             ),
-            const Divider(),
             Visibility(
-              visible: _isMovieWatched,
+              visible: formattedAddedDate.isNotEmpty,
               child: ListTile(
-                leading: const Icon(Icons.visibility_off_outlined),
-                title: const Text(
-                  "Mark Not Watched",
-                ),
-                onTap: () {
-                  _markNotWatched();
-                  widget.refreshMoviesList();
-                  Navigator.of(context).pop();
-                },
-              ),
+                  title: Text(
+                    "Added to watchlist",
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    formattedAddedDate,
+                    style: subtitleStyle,
+                  )),
             ),
-            Visibility(
-              visible: !_isMovieWatched,
-              child: ListTile(
-                leading: const Icon(Icons.visibility_outlined),
-                title: const Text(
-                  "Mark Watched",
-                ),
-                onTap: () {
-                  _markWatched();
-                  widget.refreshMoviesList();
-                  Navigator.of(context).pop();
-                },
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: OutlinedButton.icon(
+                  onPressed: () {
+                    (_isMovieWatched ? _markNotWatched() : _markWatched()).then((_) => Navigator.of(context).pop());
+                  },
+                  icon: Icon(_isMovieWatched ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                  label: Text(_isMovieWatched ? "Set not watched" : "Set watched")),
             ),
             const SizedBox(
               height: 50,
