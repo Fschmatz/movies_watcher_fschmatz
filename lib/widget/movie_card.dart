@@ -20,7 +20,7 @@ class MovieCard extends StatefulWidget {
 class _MovieCardState extends State<MovieCard> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 160;
+  double posterHeight = 170;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
 
@@ -65,7 +65,7 @@ class _MovieCardState extends State<MovieCard> {
                   height: posterHeight,
                   width: posterWidth,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                    borderRadius: posterBorder,
                     child: Image.memory(
                       base64Decode(movie.getPoster()!),
                       fit: BoxFit.fill,

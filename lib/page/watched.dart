@@ -49,12 +49,12 @@ class _WatchedState extends State<Watched> {
                       height: 5,
                     ))
                   : FadeIn(
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 450),
                       curve: Curves.easeIn,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 225),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 236),
                           physics: const ScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: _moviesList.length,

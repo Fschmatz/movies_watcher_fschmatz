@@ -1,8 +1,8 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
-import 'package:movies_watcher_fschmatz/util/backup_utils.dart';
 import '../../util/app_details.dart';
+import '../../util/dialog_backup.dart';
 import '../../util/dialog_select_theme.dart';
 import 'app_info.dart';
 import 'changelog.dart';
@@ -24,15 +24,6 @@ class _SettingsState extends State<Settings> {
       theme = 'system default';
     }
     return theme.replaceFirst(theme[0], theme[0].toUpperCase());
-  }
-
-  Future<void> _createBackup() async {
-    await BackupUtils().backupData(AppDetails.backupFileName);
-  }
-
-  Future<void> _restoreFromBackup() async {
-    await BackupUtils().restoreBackupData(AppDetails.backupFileName);
-    widget.loadNotWatchedMovies!();
   }
 
   @override
@@ -91,14 +82,22 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             ListTile(
-              onTap: _createBackup,
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogBackup( isCreateBackup: true,  reloadHomeFunction: widget.loadNotWatchedMovies,);
+                  }),
               leading: const Icon(Icons.save_outlined),
               title: const Text(
                 "Backup now",
               ),
             ),
             ListTile(
-              onTap: _restoreFromBackup,
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogBackup( isCreateBackup: false,  reloadHomeFunction: widget.loadNotWatchedMovies,);
+                  }),
               leading: const Icon(Icons.settings_backup_restore_outlined),
               title: const Text(
                 "Restore from backup",
