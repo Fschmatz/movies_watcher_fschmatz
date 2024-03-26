@@ -87,6 +87,12 @@ class MovieDAO {
         'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
 
+  Future<List<Map<String, dynamic>>> queryAllByWatchedNoYesAndOrderBy(NoYes noYes, String selectedOrderBy) async {
+    Database db = await instance.database;
+    return await db.rawQuery(
+        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
+  }
+
   Future<int?> countMoviesByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
     return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table WHERE $columnWatched=\'${noYes.id}\''));

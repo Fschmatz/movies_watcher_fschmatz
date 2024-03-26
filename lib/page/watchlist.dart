@@ -21,6 +21,16 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> _moviesList = [];
   bool loading = true;
+  List<String> optionsOrderBy = [
+    "title asc",
+    "title desc",
+    "runtime asc",
+    "runtime desc",
+    "year asc",
+    "year desc",
+    "dateAdded asc",
+    "dateAdded desc"
+  ];
 
   @override
   void initState() {
@@ -38,6 +48,19 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
     });
   }
 
+  void sortListByOption(int optionSelected) async {
+    setState(() {
+      loading = true;
+    });
+
+    var resp = await dbMovies.queryAllByWatchedNoYesAndOrderBy(NoYes.NO, optionsOrderBy[optionSelected]);
+    _moviesList = resp;
+
+    setState(() {
+      loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +69,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
         actions: [
           IconButton(
               icon: const Icon(
-                Icons.search_outlined,
+                Icons.add_outlined,
               ),
               onPressed: () {
                 Navigator.push(
@@ -54,6 +77,38 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
                     MaterialPageRoute(
                       builder: (BuildContext context) => SearchMovie(loadNotWatchedMovies: loadNotWatchedMovies),
                     ));
+              }),
+          PopupMenuButton<int>(
+              icon: const Icon(Icons.sort_outlined),
+              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                    const PopupMenuItem<int>(value: 0, child: Text('Title Asc')),
+                    const PopupMenuItem<int>(value: 1, child: Text('Title Desc')),
+                    const PopupMenuItem<int>(value: 2, child: Text('Runtime Asc')),
+                    const PopupMenuItem<int>(value: 3, child: Text('Runtime Desc')),
+                    const PopupMenuItem<int>(value: 4, child: Text('Year Asc')),
+                    const PopupMenuItem<int>(value: 5, child: Text('Year Desc')),
+                    const PopupMenuItem<int>(value: 6, child: Text('Date Added Asc')),
+                    const PopupMenuItem<int>(value: 7, child: Text('Date Added Desc')),
+                  ],
+              onSelected: (int value) {
+                switch (value) {
+                  case 0:
+                    sortListByOption(value);
+                  case 1:
+                    sortListByOption(value);
+                  case 2:
+                    sortListByOption(value);
+                  case 3:
+                    sortListByOption(value);
+                  case 4:
+                    sortListByOption(value);
+                  case 5:
+                    sortListByOption(value);
+                  case 6:
+                    sortListByOption(value);
+                  case 7:
+                    sortListByOption(value);
+                }
               }),
           PopupMenuButton<int>(
               icon: const Icon(Icons.more_vert_outlined),
@@ -111,7 +166,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
                           itemCount: _moviesList.length,
                           itemBuilder: (context, index) {
                             final movie = _moviesList[index];
-                            return MovieCard(key: UniqueKey(), movie: Movie.fromMap(movie), loadNotWatchedMovies: loadNotWatchedMovies );
+                            return MovieCard(key: UniqueKey(), movie: Movie.fromMap(movie), loadNotWatchedMovies: loadNotWatchedMovies);
                           },
                         ),
                       ),
