@@ -94,7 +94,7 @@ class _SearchMovieState extends State<SearchMovie> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Search movie"),
+        title: const Text("Search"),
         surfaceTintColor: Theme.of(context).colorScheme.background,
         actions: [
           PopupMenuButton<int>(
@@ -139,9 +139,13 @@ class _SearchMovieState extends State<SearchMovie> {
                 setState(() {});
               },
               decoration: InputDecoration(
-                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.all(16),
+                fillColor: Theme.of(context).colorScheme.onInverseSurface,
+                border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(50))),
+                filled: true,
                 counterText: "",
-                labelText: "Title",
+                hintText: "Title",
+                prefixIcon: const Icon(Icons.search_outlined),
                 suffixIcon: ctrlSearch.text.isNotEmpty
                     ? IconButton(
                         onPressed: ctrlSearch.clear,

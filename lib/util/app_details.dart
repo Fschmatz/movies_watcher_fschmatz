@@ -1,20 +1,25 @@
 class AppDetails{
 
-  static String appVersion = "1.2.2";
+  static String appVersion = "1.3.0";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
-  static String backupFileName = "backup_MWF";
+  static String backupFileName = "backup_movies_watcher";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
+1.3.0
+- Statistics page changes
+- UI changes
+- Bug fixes
+''';
+
+  static String changelogsOld = '''
 1.2.2
 - UI changes
 - Added sort options
 - Bug fixes
 - Logic changes
-''';
 
-  static String changelogsOld = '''
 1.1.3
 - UI changes
 - Bug fixes

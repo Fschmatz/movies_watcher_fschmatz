@@ -3,23 +3,24 @@ import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
 import 'package:movies_watcher_fschmatz/page/statistics.dart';
-import 'package:movies_watcher_fschmatz/page/watched.dart';
+import 'package:movies_watcher_fschmatz/page/watched_list.dart';
+import 'package:movies_watcher_fschmatz/service/movie_service.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 import '../util/app_details.dart';
 import '../widget/movie_card.dart';
 
-class Watchlist extends StatefulWidget {
-  const Watchlist({Key? key}) : super(key: key);
+class WatchList extends StatefulWidget {
+  const WatchList({Key? key}) : super(key: key);
 
   @override
-  _WatchlistState createState() => _WatchlistState();
+  _WatchListState createState() => _WatchListState();
 }
 
-class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMixin {
-  final dbMovies = MovieDAO.instance;
-  List<Map<String, dynamic>> _moviesList = [];
+class _WatchListState extends State<WatchList> {
+  //final dbMovies = MovieDAO.instance;
+  List<Movie> _moviesList = [];
   bool loading = true;
   List<String> optionsOrderBy = [
     "title asc",
@@ -40,8 +41,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
   }
 
   void loadNotWatchedMovies() async {
-    var resp = await dbMovies.queryAllByWatchedNoYes(NoYes.NO);
-    _moviesList = resp;
+    _moviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.NO);
 
     setState(() {
       loading = false;
@@ -53,8 +53,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
       loading = true;
     });
 
-    var resp = await dbMovies.queryAllByWatchedNoYesAndOrderBy(NoYes.NO, optionsOrderBy[optionSelected]);
-    _moviesList = resp;
+    _moviesList = await MovieService().queryAllByWatchedNoYesAndOrderByAndConvertToList(NoYes.NO, optionsOrderBy[optionSelected]);
 
     setState(() {
       loading = false;
@@ -123,7 +122,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (BuildContext context) => Watched(
+                          builder: (BuildContext context) => WatchedList(
                             loadNotWatchedMovies: loadNotWatchedMovies,
                           ),
                         ));
@@ -165,8 +164,7 @@ class _WatchlistState extends State<Watchlist> with SingleTickerProviderStateMix
                           shrinkWrap: true,
                           itemCount: _moviesList.length,
                           itemBuilder: (context, index) {
-                            final movie = _moviesList[index];
-                            return MovieCard(key: UniqueKey(), movie: Movie.fromMap(movie), loadNotWatchedMovies: loadNotWatchedMovies);
+                            return MovieCard(key: UniqueKey(), movie: _moviesList[index], loadNotWatchedMovies: loadNotWatchedMovies);
                           },
                         ),
                       ),

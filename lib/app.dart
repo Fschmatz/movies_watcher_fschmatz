@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:movies_watcher_fschmatz/page/watchlist.dart';
+import 'package:movies_watcher_fschmatz/page/watch_list.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -33,6 +33,6 @@ class _AppState extends State<App> {
           systemStatusBarContrastEnforced: false,
           systemNavigationBarIconBrightness: iconBrightness,
         ),
-        child: const Watchlist());
+        child: const WatchList());
   }
 }

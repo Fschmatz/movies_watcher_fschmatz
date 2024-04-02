@@ -4,19 +4,19 @@ import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
+import '../service/movie_service.dart';
 
-class Watched extends StatefulWidget {
+class WatchedList extends StatefulWidget {
   Function()? loadNotWatchedMovies;
 
-  Watched({Key? key, this.loadNotWatchedMovies,}) : super(key: key);
+  WatchedList({Key? key, this.loadNotWatchedMovies,}) : super(key: key);
 
   @override
-  _WatchedState createState() => _WatchedState();
+  _WatchedListState createState() => _WatchedListState();
 }
 
-class _WatchedState extends State<Watched> {
-  final dbMovies = MovieDAO.instance;
-  List<Map<String, dynamic>> _moviesList = [];
+class _WatchedListState extends State<WatchedList> {
+  List<Movie> _moviesList = [];
   bool loading = true;
 
   @override
@@ -27,8 +27,7 @@ class _WatchedState extends State<Watched> {
   }
 
   void loadWatchedMovies() async {
-    var resp = await dbMovies.queryAllByWatchedNoYes(NoYes.YES);
-    _moviesList = resp;
+    _moviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.YES);
 
     setState(() {
       loading = false;
@@ -59,10 +58,9 @@ class _WatchedState extends State<Watched> {
                           shrinkWrap: true,
                           itemCount: _moviesList.length,
                           itemBuilder: (context, index) {
-                            final movie = _moviesList[index];
                             return MovieCard(
                               key: UniqueKey(),
-                              movie: Movie.fromMap(movie),
+                              movie: _moviesList[index],
                               loadWatchedMovies: loadWatchedMovies,
                               loadNotWatchedMovies: widget.loadNotWatchedMovies,
                               isFromWatched: true,

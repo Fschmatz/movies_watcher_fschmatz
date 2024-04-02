@@ -31,7 +31,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
   double posterWidth = 200;
   BorderRadius posterBorder = BorderRadius.circular(12);
   String imbdLink = "";
-  bool _isMovieWatched = false;
 
   @override
   void initState() {
@@ -39,7 +38,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
     movie = widget.movie;
     imbdLink = "https://www.imdb.com/title/${movie.getImdbID()}";
-    _isMovieWatched = movie.getWatched() == NoYes.YES ? true : false;
+    //_isMovieWatched = movie.getWatched() == NoYes.YES ? true : false;
   }
 
   _launchBrowser() {
@@ -56,12 +55,12 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
   Future<void> _markWatched() async {
     await movieService.setWatched(movie);
-    _reloadMoviesList();
+    await _reloadMoviesList();
   }
 
   Future<void> _markNotWatched() async {
     await movieService.setNotWatched(movie);
-    _reloadMoviesList();
+    await _reloadMoviesList();
   }
 
   Future<void> _reloadMoviesList() async {
@@ -104,8 +103,8 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     final theme = Theme.of(context);
     TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor);
     TextStyle subtitleStyle = const TextStyle(fontSize: 16);
-    String formattedAddedDate = movie.getDateAdded() != null ? Jiffy.parse(movie.getDateAdded()!).format(pattern: 'dd/MM/yyyy') : "";
-    String formattedWatchedDate = movie.getDateWatched() != null ? Jiffy.parse(movie.getDateWatched()!).format(pattern: 'dd/MM/yyyy') : "";
+   /* String formattedAddedDate = movie.getDateAdded() != null ? Jiffy.parse(movie.getDateAdded()!).format(pattern: 'dd/MM/yyyy') : "";
+    String formattedWatchedDate = movie.getDateWatched() != null ? Jiffy.parse(movie.getDateWatched()!).format(pattern: 'dd/MM/yyyy') : "";*/
 
     return Dialog.fullscreen(
       child: Scaffold(
@@ -283,26 +282,26 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                   )),
             ),
             Visibility(
-              visible: formattedWatchedDate.isNotEmpty && _isMovieWatched,
+              visible: movie.formattedDateWatched.isNotEmpty && movie.isMovieWatched(),
               child: ListTile(
                   title: Text(
                     "Date watched",
                     style: titleStyle,
                   ),
                   subtitle: Text(
-                    formattedWatchedDate,
+                    movie.formattedDateWatched,
                     style: subtitleStyle,
                   )),
             ),
             Visibility(
-              visible: formattedAddedDate.isNotEmpty,
+              visible: movie.formattedDateAdded.isNotEmpty,
               child: ListTile(
                   title: Text(
                     "Added to watchlist",
                     style: titleStyle,
                   ),
                   subtitle: Text(
-                    formattedAddedDate,
+                    movie.formattedDateAdded,
                     style: subtitleStyle,
                   )),
             ),
@@ -310,10 +309,10 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: OutlinedButton.icon(
                   onPressed: () {
-                    (_isMovieWatched ? _markNotWatched() : _markWatched()).then((_) => Navigator.of(context).pop());
+                    (movie.isMovieWatched() ? _markNotWatched() : _markWatched()).then((_) => Navigator.of(context).pop());
                   },
-                  icon: Icon(_isMovieWatched ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                  label: Text(_isMovieWatched ? "Set not watched" : "Set watched")),
+                  icon: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                  label: Text(movie.isMovieWatched() ? "Set not watched" : "Set watched")),
             ),
             const SizedBox(
               height: 50,

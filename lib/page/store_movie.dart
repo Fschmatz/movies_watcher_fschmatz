@@ -266,7 +266,7 @@ class _StoreMovieState extends State<StoreMovie> {
     return Scaffold(
         appBar: AppBar(
           surfaceTintColor: Theme.of(context).colorScheme.background,
-          title: isUpdate ? const Text('Edit movie') : const Text('New movie'),
+          title: isUpdate ? const Text('Edit') : const Text('New'),
           actions: [
             Visibility(
               visible: !isUpdate,
