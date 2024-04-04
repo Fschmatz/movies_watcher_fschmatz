@@ -2,11 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import '../api_key.dart';
 import '../entity/movie.dart';
@@ -23,7 +22,14 @@ class StoreMovie extends StatefulWidget {
   Function()? loadWatchedMovies;
   Function()? loadNotWatchedMovies;
 
-  StoreMovie({Key? key, required this.movie, required this.isUpdate, required this.isFromSearch, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched})
+  StoreMovie(
+      {Key? key,
+      required this.movie,
+      required this.isUpdate,
+      required this.isFromSearch,
+      this.loadWatchedMovies,
+      this.loadNotWatchedMovies,
+      this.isFromWatched})
       : super(key: key);
 }
 
@@ -51,6 +57,8 @@ class _StoreMovieState extends State<StoreMovie> {
   final TextEditingController ctrlPoster = TextEditingController();
   final TextEditingController ctrlImdbRating = TextEditingController();
   bool isUpdate = false;
+  bool _customPosterSelected = false;
+  BorderRadius posterBorder = BorderRadius.circular(12);
 
   @override
   void initState() {
@@ -139,15 +147,7 @@ class _StoreMovieState extends State<StoreMovie> {
   }
 
   Future<void> saveMovie() async {
-    if (posterUrl != null) {
-      Uint8List? base64ImageBytes;
-      Uint8List? compressedPoster;
-      http.Response response = await http.get(Uri.parse(posterUrl!));
-      base64ImageBytes = response.bodyBytes;
-      compressedPoster = await compressCoverImage(base64ImageBytes);
-      movie.setPoster(base64Encode(compressedPoster));
-    }
-
+    await _loadAndParsePoster();
     int runtimeInt = _parseRuntime();
 
     movie.setTitle(ctrlTitle.text);
@@ -165,6 +165,7 @@ class _StoreMovieState extends State<StoreMovie> {
   }
 
   Future<void> updateMovie() async {
+    await _loadAndParsePoster();
     int runtimeInt = _parseRuntime();
 
     movie.setTitle(ctrlTitle.text);
@@ -230,8 +231,36 @@ class _StoreMovieState extends State<StoreMovie> {
     if (widget.loadWatchedMovies != null) {
       await widget.loadWatchedMovies!();
     }
-    if (widget.loadNotWatchedMovies != null){
+    if (widget.loadNotWatchedMovies != null) {
       await widget.loadNotWatchedMovies!();
+    }
+  }
+
+  Future<void> _loadAndParsePoster() async {
+    Uint8List? base64ImageBytes;
+    Uint8List? compressedPoster;
+
+    if (_customPosterSelected && poster != null) {
+      compressedPoster = await compressCoverImage(poster!.readAsBytesSync());
+      movie.setPoster(base64Encode(compressedPoster));
+    } else if (!_customPosterSelected && posterUrl != null) {
+      http.Response response = await http.get(Uri.parse(posterUrl!));
+      base64ImageBytes = response.bodyBytes;
+      compressedPoster = await compressCoverImage(base64ImageBytes);
+      movie.setPoster(base64Encode(compressedPoster));
+    }
+  }
+
+  pickImageFromGallery() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      File? file = File(pickedFile.path);
+
+      setState(() {
+        poster = file;
+        _customPosterSelected = true;
+      });
     }
   }
 
@@ -268,53 +297,84 @@ class _StoreMovieState extends State<StoreMovie> {
           surfaceTintColor: Theme.of(context).colorScheme.background,
           title: isUpdate ? const Text('Edit') : const Text('New'),
           actions: [
-            Visibility(
-              visible: !isUpdate,
-              child: IconButton(
-                  icon: const Icon(
-                    Icons.refresh_outlined,
-                  ),
-                  onPressed: () {
-                    if (ctrlImdbId.text.isNotEmpty) {
-                      _loadMovieData();
-                    }
-                  }),
+            IconButton(
+              tooltip: "Change Poster",
+              icon: const Icon(
+                Icons.photo_library_outlined,
+              ),
+              onPressed: pickImageFromGallery,
             ),
           ],
         ),
         body: ListView(children: [
-          Visibility(
-            visible: !isUpdate,
-            child: Center(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Image.network(
-                  posterUrl ?? '',
-                  width: posterWidth,
-                  height: posterHeight,
-                  fit: BoxFit.fill,
-                  filterQuality: FilterQuality.medium,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return Card(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: child));
-                    }
-                    return Card(
-                      child: SizedBox(
-                        width: posterWidth,
-                        height: posterHeight,
-                        child: const Icon(Icons.error),
+          Center(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: _customPosterSelected
+                  ? Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: posterBorder,
                       ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => Card(
-                    child: SizedBox(
-                      width: posterWidth,
-                      height: posterHeight,
-                      child: const Icon(Icons.image_outlined),
-                    ),
-                  ),
-                ),
-              ),
+                      elevation: 0,
+                      child: ClipRRect(
+                        borderRadius: posterBorder,
+                        child: Image.file(
+                          poster!,
+                          width: posterWidth,
+                          height: posterHeight,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    )
+                  : isUpdate
+                      ? (movie.getPoster() == null)
+                          ? SizedBox(
+                              height: posterHeight,
+                              width: posterWidth,
+                              child: Icon(
+                                Icons.movie_outlined,
+                                size: 30,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            )
+                          : SizedBox(
+                              height: posterHeight,
+                              width: posterWidth,
+                              child: ClipRRect(
+                                borderRadius: posterBorder,
+                                child: Image.memory(
+                                  base64Decode(movie.getPoster()!),
+                                  fit: BoxFit.fill,
+                                  gaplessPlayback: true,
+                                ),
+                              ),
+                            )
+                      : Image.network(
+                          posterUrl ?? '',
+                          width: posterWidth,
+                          height: posterHeight,
+                          fit: BoxFit.fill,
+                          filterQuality: FilterQuality.medium,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return Card(child: ClipRRect(borderRadius: posterBorder, child: child));
+                            }
+                            return Card(
+                              child: SizedBox(
+                                width: posterWidth,
+                                height: posterHeight,
+                                child: const Icon(Icons.error),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) => Card(
+                            child: SizedBox(
+                              width: posterWidth,
+                              height: posterHeight,
+                              child: const Icon(Icons.image_outlined),
+                            ),
+                          ),
+                        ),
             ),
           ),
           Visibility(
