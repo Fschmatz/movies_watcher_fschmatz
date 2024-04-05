@@ -1,15 +1,16 @@
 class AppDetails{
 
-  static String appVersion = "1.3.1";
+  static String appVersion = "1.3.2";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
   static String backupFileName = "backup_movies_watcher";
   static String repositoryLink = 'https://github.com/Fschmatz/movies_watcher_fschmatz';
 
   static String changelogCurrent = ''' 
-1.3.1
+1.3.2
 - Statistics page changes
 - Select custom poster
+- Page dropdown for search
 - UI changes
 - Bug fixes
 ''';

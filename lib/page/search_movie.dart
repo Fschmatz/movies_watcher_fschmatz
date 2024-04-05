@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
@@ -23,13 +25,17 @@ class _SearchMovieState extends State<SearchMovie> {
   bool _isBeforeSearch = true;
   bool _loadingSearch = true;
   String _quantityResults = "0";
+  final String apiKey = ApiKey.key;
   TextEditingController ctrlSearch = TextEditingController();
   List<Movie> _moviesList = [];
+  int _selectedPage = 1;
+  List<int> dropdownPages = [];
 
   void _loadSearchResults() async {
     if (ctrlSearch.text.isNotEmpty) {
       setState(() {
         _isBeforeSearch = false;
+        _selectedPage = 1;
 
         if (_moviesList.isNotEmpty) {
           _quantityResults = "0";
@@ -37,9 +43,8 @@ class _SearchMovieState extends State<SearchMovie> {
         }
       });
 
-      final String apiKey = ApiKey.key;
       final String movieName = ctrlSearch.text.trim();
-      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&apikey=$apiKey';
+      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&page=$_selectedPage&apikey=$apiKey';
 
       try {
         final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
@@ -47,11 +52,51 @@ class _SearchMovieState extends State<SearchMovie> {
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = json.decode(response.body);
           SearchResult searchResult = SearchResult.fromJson(jsonData);
-
           String? responseValue = jsonData['Response'];
-          if (responseValue != null && responseValue.toLowerCase() == 'false') {
+          bool noResults = responseValue != null && responseValue.toLowerCase() == 'false';
+
+          if (noResults) {
             _showNoResultsFound();
+            _clearDropdownMenu();
+          } else {
+            if (searchResult.getTotalResults() != null && int.parse(searchResult.getTotalResults()!) != 0) {
+              dropdownPages = List.generate((int.parse(searchResult.getTotalResults()!) / 10).ceil(), (index) => (index + 1));
+            } else {
+              _clearDropdownMenu();
+            }
+
+            setState(() {
+              _moviesList = searchResult.getSearch()!;
+              _quantityResults = searchResult.getTotalResults()!;
+              _loadingSearch = false;
+            });
           }
+        } else {
+          Fluttertoast.showToast(
+            msg: "API Error",
+          );
+        }
+      } catch (e) {
+        Fluttertoast.showToast(
+          msg: "Connection timeout ",
+        );
+      }
+    } else {
+      _showNoResultsFound();
+    }
+  }
+
+  void _changePageSearchResults() async {
+    if (ctrlSearch.text.isNotEmpty) {
+      final String movieName = ctrlSearch.text.trim();
+      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&page=$_selectedPage&apikey=$apiKey';
+
+      try {
+        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          SearchResult searchResult = SearchResult.fromJson(jsonData);
 
           setState(() {
             _moviesList = searchResult.getSearch()!;
@@ -68,8 +113,6 @@ class _SearchMovieState extends State<SearchMovie> {
           msg: "Connection timeout ",
         );
       }
-    } else {
-      _showNoResultsFound();
     }
   }
 
@@ -88,6 +131,11 @@ class _SearchMovieState extends State<SearchMovie> {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
     }
+  }
+
+  void _clearDropdownMenu() {
+    dropdownPages.clear();
+    _selectedPage = 1;
   }
 
   @override
@@ -164,36 +212,67 @@ class _SearchMovieState extends State<SearchMovie> {
                     duration: const Duration(milliseconds: 750),
                     child: _loadingSearch
                         ? const Center(child: CircularProgressIndicator())
-                        : ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
+                        : Column(
                             children: [
-                              ListTile(
-                                title: Text("$_quantityResults Results",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    )),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: ListTile(
+                                        title: Text("$_quantityResults Results",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context).colorScheme.primary,
+                                            )),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      child: DropdownButtonFormField<int>(
+                                      value: _selectedPage,
+                                        onChanged: (newValue) {
+                                          _selectedPage = newValue!;
+                                          _loseFocus();
+                                          _changePageSearchResults();
+                                        },
+                                        items: dropdownPages.map<DropdownMenuItem<int>>((int pageNumber) {
+                                          return DropdownMenuItem<int>(
+                                            value: pageNumber,
+                                            child: Text("Page $pageNumber"),
+                                          );
+                                        }).toList(),
+                                        hint: const Text("Page"),
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: _moviesList.length,
-                                itemBuilder: (context, index) {
-                                  final movie = _moviesList[index];
-
-                                  return SearchResultTile(
-                                    key: UniqueKey(),
-                                    movie: movie,
-                                    loadNotWatchedMovies: widget.loadNotWatchedMovies,
-                                  );
-                                },
+                              Expanded(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  itemCount: _moviesList.length,
+                                  itemBuilder: (context, index) {
+                                    final movie = _moviesList[index];
+                                
+                                    return SearchResultTile(
+                                      key: UniqueKey(),
+                                      movie: movie,
+                                      loadNotWatchedMovies: widget.loadNotWatchedMovies,
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
                   ),
-                )
+                ),
+          const SizedBox(height: 50,)
         ],
       ),
     );
