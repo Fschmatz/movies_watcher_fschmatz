@@ -29,7 +29,7 @@ class _SearchMovieState extends State<SearchMovie> {
   TextEditingController ctrlSearch = TextEditingController();
   List<Movie> _moviesList = [];
   int _selectedPage = 1;
-  List<int> dropdownPages = [];
+  List<int> searchResultsPages = [];
 
   void _loadSearchResults() async {
     if (ctrlSearch.text.isNotEmpty) {
@@ -60,7 +60,7 @@ class _SearchMovieState extends State<SearchMovie> {
             _clearDropdownMenu();
           } else {
             if (searchResult.getTotalResults() != null && int.parse(searchResult.getTotalResults()!) != 0) {
-              dropdownPages = List.generate((int.parse(searchResult.getTotalResults()!) / 10).ceil(), (index) => (index + 1));
+              searchResultsPages = List.generate((int.parse(searchResult.getTotalResults()!) / 10).ceil(), (index) => (index + 1));
             } else {
               _clearDropdownMenu();
             }
@@ -134,7 +134,7 @@ class _SearchMovieState extends State<SearchMovie> {
   }
 
   void _clearDropdownMenu() {
-    dropdownPages.clear();
+    searchResultsPages.clear();
     _selectedPage = 1;
   }
 
@@ -212,11 +212,14 @@ class _SearchMovieState extends State<SearchMovie> {
                     duration: const Duration(milliseconds: 750),
                     child: _loadingSearch
                         ? const Center(child: CircularProgressIndicator())
-                        : Column(
+                        : ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            shrinkWrap: true,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
                                       child: ListTile(
@@ -229,50 +232,53 @@ class _SearchMovieState extends State<SearchMovie> {
                                             )),
                                       ),
                                     ),
-                                    Flexible(
-                                      child: DropdownButtonFormField<int>(
-                                      value: _selectedPage,
-                                        onChanged: (newValue) {
-                                          _selectedPage = newValue!;
-                                          _loseFocus();
-                                          _changePageSearchResults();
-                                        },
-                                        items: dropdownPages.map<DropdownMenuItem<int>>((int pageNumber) {
-                                          return DropdownMenuItem<int>(
-                                            value: pageNumber,
-                                            child: Text("Page $pageNumber"),
-                                          );
-                                        }).toList(),
-                                        hint: const Text("Page"),
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(),
+                                    Row(
+                                      children: [
+                                        Visibility(
+                                          visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                          child: OutlinedButton.icon(
+                                              onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
+                                              icon: const Icon(Icons.navigate_before_outlined),
+                                              label: const Text("Previous")),
                                         ),
-                                      ),
+                                        const SizedBox(width: 10,),
+                                        Visibility(
+                                          visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                          child: OutlinedButton.icon(
+                                              onPressed: _selectedPage != searchResultsPages[searchResultsPages.length - 1]
+                                                  ? () => {_selectedPage++, _changePageSearchResults()}
+                                                  : null,
+                                              icon: const Icon(Icons.navigate_next_outlined),
+                                              label: const Text("Next")),
+                                        ),
+                                      ],
                                     ),
+
+
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  itemCount: _moviesList.length,
-                                  itemBuilder: (context, index) {
-                                    final movie = _moviesList[index];
-                                
-                                    return SearchResultTile(
-                                      key: UniqueKey(),
-                                      movie: movie,
-                                      loadNotWatchedMovies: widget.loadNotWatchedMovies,
-                                    );
-                                  },
-                                ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _moviesList.length,
+                                itemBuilder: (context, index) {
+                                  final movie = _moviesList[index];
+
+                                  return SearchResultTile(
+                                    key: UniqueKey(),
+                                    movie: movie,
+                                    loadNotWatchedMovies: widget.loadNotWatchedMovies,
+                                  );
+                                },
                               ),
                             ],
                           ),
                   ),
                 ),
-          const SizedBox(height: 50,)
+          const SizedBox(
+            height: 50,
+          )
         ],
       ),
     );
