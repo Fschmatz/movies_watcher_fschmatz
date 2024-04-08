@@ -170,116 +170,112 @@ class _SearchMovieState extends State<SearchMovie> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
-            child: TextField(
-              minLines: 1,
-              maxLines: 3,
-              maxLength: 300,
-              autofocus: true,
-              textInputAction: TextInputAction.go,
-              textCapitalization: TextCapitalization.sentences,
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              controller: ctrlSearch,
-              onChanged: (text) {
-                setState(() {});
-              },
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(16),
-                fillColor: Theme.of(context).colorScheme.onInverseSurface,
-                border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(50))),
-                filled: true,
-                counterText: "",
-                hintText: "Title",
-                prefixIcon: const Icon(Icons.search_outlined),
-                suffixIcon: ctrlSearch.text.isNotEmpty
-                    ? IconButton(
-                        onPressed: ctrlSearch.clear,
-                        icon: const Icon(
-                          Icons.clear_outlined,
-                        ))
-                    : null,
-              ),
-              onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
-            ),
-          ),
-          _isBeforeSearch
-              ? const Center(child: SizedBox.shrink())
-              : Flexible(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 750),
-                    child: _loadingSearch
-                        ? const Center(child: CircularProgressIndicator())
-                        : ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: ListTile(
-                                        title: Text("$_quantityResults Results",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(context).colorScheme.primary,
-                                            )),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Visibility(
-                                          visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
-                                          child: OutlinedButton.icon(
-                                              onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
-                                              icon: const Icon(Icons.navigate_before_outlined),
-                                              label: const Text("Previous")),
-                                        ),
-                                        const SizedBox(width: 10,),
-                                        Visibility(
-                                          visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
-                                          child: OutlinedButton.icon(
-                                              onPressed: _selectedPage != searchResultsPages[searchResultsPages.length - 1]
-                                                  ? () => {_selectedPage++, _changePageSearchResults()}
-                                                  : null,
-                                              icon: const Icon(Icons.navigate_next_outlined),
-                                              label: const Text("Next")),
-                                        ),
-                                      ],
-                                    ),
-
-
-                                  ],
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: _moviesList.length,
-                                itemBuilder: (context, index) {
-                                  final movie = _moviesList[index];
-
-                                  return SearchResultTile(
-                                    key: UniqueKey(),
-                                    movie: movie,
-                                    loadNotWatchedMovies: widget.loadNotWatchedMovies,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                  ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+              child: TextField(
+                minLines: 1,
+                maxLines: 3,
+                maxLength: 300,
+                autofocus: true,
+                textInputAction: TextInputAction.go,
+                textCapitalization: TextCapitalization.sentences,
+                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                controller: ctrlSearch,
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.all(16),
+                  fillColor: Theme.of(context).colorScheme.onInverseSurface,
+                  border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(50))),
+                  filled: true,
+                  counterText: "",
+                  hintText: "Title",
+                  prefixIcon: const Icon(Icons.search_outlined),
+                  suffixIcon: ctrlSearch.text.isNotEmpty
+                      ? IconButton(
+                          onPressed: ctrlSearch.clear,
+                          icon: const Icon(
+                            Icons.clear_outlined,
+                          ))
+                      : null,
                 ),
-          const SizedBox(
-            height: 50,
-          )
-        ],
+                onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
+              ),
+            ),
+            _isBeforeSearch
+                ? const Center(child: SizedBox.shrink())
+                : AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 750),
+                  child: _loadingSearch
+                      ? const Center(child: CircularProgressIndicator())
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: ListTile(
+                                      title: Text("$_quantityResults Results",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          )),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Visibility(
+                                        visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                        child: OutlinedButton.icon(
+                                            onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
+                                            icon: const Icon(Icons.navigate_before_outlined),
+                                            label: const Text("Previous")),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Visibility(
+                                        visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                        child: OutlinedButton.icon(
+                                            onPressed: _selectedPage != searchResultsPages[searchResultsPages.length - 1]
+                                                ? () => {_selectedPage++, _changePageSearchResults()}
+                                                : null,
+                                            icon: const Icon(Icons.navigate_next_outlined),
+                                            label: const Text("Next")),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _moviesList.length,
+                              itemBuilder: (context, index) {
+                                final movie = _moviesList[index];
+        
+                                return SearchResultTile(
+                                  key: UniqueKey(),
+                                  movie: movie,
+                                  loadNotWatchedMovies: widget.loadNotWatchedMovies,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                ),
+            const SizedBox(
+              height: 50,
+            )
+          ],
+        ),
       ),
     );
   }
