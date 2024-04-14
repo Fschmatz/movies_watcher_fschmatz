@@ -209,7 +209,7 @@ class _SearchMovieState extends State<SearchMovie> {
             _isBeforeSearch
                 ? const Center(child: SizedBox.shrink())
                 : AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 750),
+                  duration: const Duration(milliseconds: 450),
                   child: _loadingSearch
                       ? const Center(child: CircularProgressIndicator())
                       : Column(
@@ -230,26 +230,23 @@ class _SearchMovieState extends State<SearchMovie> {
                                           )),
                                     ),
                                   ),
-                                  Row(
-                                    children: [
-                                      Visibility(
-                                        visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
-                                        child: OutlinedButton.icon(
+                                  Visibility(
+                                    visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                    child: Row(
+                                      children: [
+                                        OutlinedButton.icon(
                                             onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
                                             icon: const Icon(Icons.navigate_before_outlined),
                                             label: const Text("Previous")),
-                                      ),
-                                      const SizedBox(width: 10,),
-                                      Visibility(
-                                        visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
-                                        child: OutlinedButton.icon(
-                                            onPressed: _selectedPage != searchResultsPages[searchResultsPages.length - 1]
+                                        const SizedBox(width: 10,),
+                                        OutlinedButton.icon(
+                                            onPressed: searchResultsPages.isNotEmpty && _selectedPage != searchResultsPages[searchResultsPages.length - 1]
                                                 ? () => {_selectedPage++, _changePageSearchResults()}
                                                 : null,
                                             icon: const Icon(Icons.navigate_next_outlined),
                                             label: const Text("Next")),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
