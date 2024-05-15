@@ -41,7 +41,8 @@ class _StatisticsState extends State<Statistics> {
     var respWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.YES);
     var respNotWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.NO);
 
-    await generateMapMoviesByMonthAndYear();
+    await _generateMapMoviesByMonthAndYear();
+    await _sortMoviesByMonthAndYear();
 
     setState(() {
       countWatchedMovies = respCountWatchedMovies ?? 0;
@@ -52,7 +53,7 @@ class _StatisticsState extends State<Statistics> {
     });
   }
 
-  Future<void> generateMapMoviesByMonthAndYear() async {
+  Future<void> _generateMapMoviesByMonthAndYear() async {
     List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.YES);
 
     for (Movie movie in watchedMoviesList) {
@@ -62,6 +63,18 @@ class _StatisticsState extends State<Statistics> {
       }
       moviesByMonthAndYear[yearMonthKey]!.add(movie);
     }
+  }
+
+  Future<void> _sortMoviesByMonthAndYear() async {
+    List<String> keys = moviesByMonthAndYear.keys.toList();
+    keys.sort((a, b) => Jiffy.parse(b, pattern: 'MM/yyyy').isBefore(Jiffy.parse(a, pattern: 'MM/yyyy')) ? -1 : 1);
+
+    Map<String, List<Movie>> sortedMoviesByMonthAndYear = {};
+    for (String key in keys) {
+      sortedMoviesByMonthAndYear[key] = moviesByMonthAndYear[key]!;
+    }
+
+    moviesByMonthAndYear = sortedMoviesByMonthAndYear;
   }
 
   void _showMoviesWatchedOnMonthAndYearDialog(BuildContext context, String monthYear, List<Movie> movies) {
@@ -108,73 +121,76 @@ class _StatisticsState extends State<Statistics> {
       appBar: AppBar(
         title: const Text("Statistics"),
       ),
-      body: loading
-          ? const Center(child: SizedBox.shrink())
-          : ListView(
-              children: [
-                ListTile(
-                  title: Text("Not Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.movie_outlined),
-                  title: const Text('Movies'),
-                  trailing: Text(countNotWatchedMovies.toString(), style: styleTrailing),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.watch_later_outlined),
-                  title: const Text('Runtime - Min'),
-                  trailing: Text(notWatchedRuntime.toString(), style: styleTrailing),
-                ),
-                ListTile(
-                  title: Text("Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.movie_outlined),
-                  title: const Text('Movies'),
-                  trailing: Text(countWatchedMovies.toString(), style: styleTrailing),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.watch_later_outlined),
-                  title: const Text('Runtime - Min'),
-                  trailing: Text(watchedRuntime.toString(), style: styleTrailing),
-                ),
-                moviesByMonthAndYear.isEmpty
-                    ? const SizedBox.shrink()
-                    : const ListTile(
-                        leading: Icon(Icons.calendar_month_outlined),
-                        title: Text('Movies by Month/Year'),
-                      ),
-                StreamBuilder<Map<String, List<Movie>>>(
-                  stream: moviesStreamController.stream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox.shrink();
-                    }
-                    Map<String, List<Movie>> moviesByYearAndMonth = snapshot.data!;
-                    return ListView.builder(
-                      itemCount: moviesByYearAndMonth.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        String monthYear = moviesByYearAndMonth.keys.elementAt(index);
-                        List<Movie> moviesOnThisMonthYear = moviesByYearAndMonth[monthYear]!;
-
-                        return ListTile(
-                          leading: const Text(""),
-                          title: Text(monthYear),
-                          trailing: Text('${moviesOnThisMonthYear.length}', style: styleTrailing),
-                          onTap: () {
-                            _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear);
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
-              ],
-            ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        child: loading
+            ? const Center(child: SizedBox.shrink())
+            : ListView(
+                children: [
+                  ListTile(
+                    title: Text("Not Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.movie_outlined),
+                    title: const Text('Movies'),
+                    trailing: Text(countNotWatchedMovies.toString(), style: styleTrailing),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.watch_later_outlined),
+                    title: const Text('Runtime - Min'),
+                    trailing: Text(notWatchedRuntime.toString(), style: styleTrailing),
+                  ),
+                  ListTile(
+                    title: Text("Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.movie_outlined),
+                    title: const Text('Movies'),
+                    trailing: Text(countWatchedMovies.toString(), style: styleTrailing),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.watch_later_outlined),
+                    title: const Text('Runtime - Min'),
+                    trailing: Text(watchedRuntime.toString(), style: styleTrailing),
+                  ),
+                  moviesByMonthAndYear.isEmpty
+                      ? const SizedBox.shrink()
+                      : const ListTile(
+                          leading: Icon(Icons.calendar_month_outlined),
+                          title: Text('Movies by Month/Year'),
+                        ),
+                  StreamBuilder<Map<String, List<Movie>>>(
+                    stream: moviesStreamController.stream,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+                      Map<String, List<Movie>> moviesByYearAndMonth = snapshot.data!;
+                      return ListView.builder(
+                        itemCount: moviesByYearAndMonth.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          String monthYear = moviesByYearAndMonth.keys.elementAt(index);
+                          List<Movie> moviesOnThisMonthYear = moviesByYearAndMonth[monthYear]!;
+        
+                          return ListTile(
+                            leading: const Text(""),
+                            title: Text(monthYear),
+                            trailing: Text('${moviesOnThisMonthYear.length}', style: styleTrailing),
+                            onTap: () {
+                              _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear);
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 100,
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
