@@ -51,7 +51,7 @@ class _MovieCardState extends State<MovieCard> {
         borderRadius: posterBorder,
         onTap: _openMovieInfoDialog,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          (movie.getPoster() == null)
+          (movie.getPoster() == null || movie.getPoster()!.isEmpty)
               ? SizedBox(
                   height: posterHeight,
                   width: posterWidth,

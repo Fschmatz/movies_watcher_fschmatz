@@ -245,9 +245,14 @@ class _StoreMovieState extends State<StoreMovie> {
       movie.setPoster(base64Encode(compressedPoster));
     } else if (!_customPosterSelected && posterUrl != null) {
       http.Response response = await http.get(Uri.parse(posterUrl!));
-      base64ImageBytes = response.bodyBytes;
-      compressedPoster = await compressCoverImage(base64ImageBytes);
-      movie.setPoster(base64Encode(compressedPoster));
+
+      if(response.statusCode >= 200 && response.statusCode < 300) {
+        base64ImageBytes = response.bodyBytes;
+        compressedPoster = await compressCoverImage(base64ImageBytes);
+        movie.setPoster(base64Encode(compressedPoster));
+      } else {
+        movie.setPoster("");
+      }
     }
   }
 
@@ -327,7 +332,7 @@ class _StoreMovieState extends State<StoreMovie> {
                       ),
                     )
                   : isUpdate
-                      ? (movie.getPoster() == null)
+                      ? (movie.getPoster() == null || movie.getPoster()!.isEmpty)
                           ? SizedBox(
                               height: posterHeight,
                               width: posterWidth,
@@ -390,7 +395,7 @@ class _StoreMovieState extends State<StoreMovie> {
                   keyboardType: TextInputType.text,
                   controller: ctrlImdbId,
                   decoration: InputDecoration(
-                      helperText: true ? "* Required" : "",
+                      helperText: "* Required",
                       labelText: "IMDB ID",
                       border: const OutlineInputBorder(),
                       errorText: (_validImdbId) ? null : "Link is empty")),

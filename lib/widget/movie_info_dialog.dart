@@ -160,7 +160,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                     flex: 3,
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      child: (movie.getPoster() == null)
+                      child: (movie.getPoster() == null || movie.getPoster()!.isEmpty)
                           ? SizedBox(
                               height: posterHeight,
                               width: posterWidth,
