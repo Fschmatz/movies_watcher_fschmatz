@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
-import 'package:movies_watcher_fschmatz/page/statistics.dart';
+import 'package:movies_watcher_fschmatz/page/stats.dart';
 import 'package:movies_watcher_fschmatz/page/watched_list.dart';
 import 'package:movies_watcher_fschmatz/service/movie_service.dart';
 import '../dao/movie_dao.dart';
@@ -113,7 +113,7 @@ class _WatchListState extends State<WatchList> {
               icon: const Icon(Icons.more_vert_outlined),
               itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
                     const PopupMenuItem<int>(value: 0, child: Text('Watched')),
-                    const PopupMenuItem<int>(value: 1, child: Text('Statistics')),
+                    const PopupMenuItem<int>(value: 1, child: Text('Stats')),
                     const PopupMenuItem<int>(value: 2, child: Text('Settings')),
                   ],
               onSelected: (int value) {
@@ -130,7 +130,7 @@ class _WatchListState extends State<WatchList> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (BuildContext context) => const Statistics(),
+                          builder: (BuildContext context) => const Stats(),
                         ));
                   case 2:
                     Navigator.push(

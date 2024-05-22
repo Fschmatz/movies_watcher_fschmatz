@@ -7,14 +7,14 @@ import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 import '../service/movie_service.dart';
 
-class Statistics extends StatefulWidget {
-  const Statistics({Key? key}) : super(key: key);
+class Stats extends StatefulWidget {
+  const Stats({Key? key}) : super(key: key);
 
   @override
-  _StatisticsState createState() => _StatisticsState();
+  _StatsState createState() => _StatsState();
 }
 
-class _StatisticsState extends State<Statistics> {
+class _StatsState extends State<Stats> {
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> moviesList = [];
   Map<String, List<Movie>> moviesByMonthAndYear = {};
@@ -27,6 +27,9 @@ class _StatisticsState extends State<Statistics> {
   int? countNotWatchedMovies = 0;
   int? watchedRuntime = 0;
   int? notWatchedRuntime = 0;
+  int? watchedMoviesCurrentMonth = 0;
+  int? watchedRuntimeCurrentMonth = 0;
+  int? addedMoviesCurrentMonth = 0;
 
   @override
   void initState() {
@@ -36,19 +39,18 @@ class _StatisticsState extends State<Statistics> {
   }
 
   Future<void> _loadValues() async {
-    var respCountNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.NO);
-    var respCountWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.YES);
-    var respWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.YES);
-    var respNotWatchedRuntime = await dbMovies.countRuntimeByWatchedNoYes(NoYes.NO);
+    countNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.NO);
+    countWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.YES);
+    watchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.YES);
+    notWatchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.NO);
+    watchedMoviesCurrentMonth = await dbMovies.countMovieWatchedCurrentMonth();
+    watchedRuntimeCurrentMonth = await dbMovies.sumRuntimeWatchedCurrentMonth();
+    addedMoviesCurrentMonth = await dbMovies.countMovieAddedCurrentMonth();
 
     await _generateMapMoviesByMonthAndYear();
     await _sortMoviesByMonthAndYear();
 
     setState(() {
-      countWatchedMovies = respCountWatchedMovies ?? 0;
-      watchedRuntime = respWatchedRuntime ?? 0;
-      countNotWatchedMovies = respCountNotWatchedMovies ?? 0;
-      notWatchedRuntime = respNotWatchedRuntime ?? 0;
       loading = false;
     });
   }
@@ -119,7 +121,7 @@ class _StatisticsState extends State<Statistics> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Statistics"),
+        title: const Text("Stats"),
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
@@ -127,6 +129,30 @@ class _StatisticsState extends State<Statistics> {
             ? const Center(child: SizedBox.shrink())
             : ListView(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Card(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text("Current Month", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
+                          ),
+                          ListTile(
+                            title: const Text('Movies Watched'),
+                            trailing: Text(watchedMoviesCurrentMonth.toString(), style: styleTrailing),
+                          ),
+                          ListTile(
+                            title: const Text('Runtime Watched - Min'),
+                            trailing: Text(watchedRuntimeCurrentMonth.toString(), style: styleTrailing),
+                          ),
+                          ListTile(
+                            title: const Text('Movies Added'),
+                            trailing: Text(addedMoviesCurrentMonth.toString(), style: styleTrailing),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   ListTile(
                     title: Text("Not Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
                   ),
@@ -168,11 +194,12 @@ class _StatisticsState extends State<Statistics> {
                       Map<String, List<Movie>> moviesByYearAndMonth = snapshot.data!;
                       return ListView.builder(
                         itemCount: moviesByYearAndMonth.length,
+                        physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           String monthYear = moviesByYearAndMonth.keys.elementAt(index);
                           List<Movie> moviesOnThisMonthYear = moviesByYearAndMonth[monthYear]!;
-        
+
                           return ListTile(
                             leading: const Text(""),
                             title: Text(monthYear),

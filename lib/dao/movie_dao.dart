@@ -62,46 +62,71 @@ class MovieDAO {
 
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
+
     return await db.insert(table, row);
   }
 
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row[columnId];
+
     return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
   }
 
   Future<int> delete(int id) async {
     Database db = await instance.database;
+
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
+
     return await db.query(table);
   }
 
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
+
     return await db.rawQuery(
         'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
 
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYesAndOrderBy(NoYes noYes, String selectedOrderBy) async {
     Database db = await instance.database;
+
     return await db.rawQuery(
         'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
   }
 
   Future<int?> countMoviesByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
   }
 
-  Future<int?> countRuntimeByWatchedNoYes(NoYes noYes) async {
+  Future<int?> sumRuntimeByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT SUM($columnRuntime) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+  }
+
+  Future<int?> sumRuntimeWatchedCurrentMonth() async {
+    Database db = await instance.database;
+
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
+  }
+
+  Future<int?> countMovieWatchedCurrentMonth() async {
+    Database db = await instance.database;
+
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
+  }
+
+  Future<int?> countMovieAddedCurrentMonth() async {
+    Database db = await instance.database;
+
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE strftime(\'%Y-%m\', $columnDateAdded) = strftime(\'%Y-%m\', \'now\')'));
   }
 
   Future<int> deleteAll() async {
