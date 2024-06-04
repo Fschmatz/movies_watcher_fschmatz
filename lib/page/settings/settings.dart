@@ -4,6 +4,7 @@ import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
 import '../../util/app_details.dart';
 import '../../util/dialog_backup.dart';
 import '../../util/dialog_select_theme.dart';
+import '../../util/utils.dart';
 import 'app_info.dart';
 import 'changelog.dart';
 
@@ -17,14 +18,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-
-  String getThemeStringFormatted() {
-    String theme = EasyDynamicTheme.of(context).themeMode.toString().replaceAll('ThemeMode.', '');
-    if (theme == 'system') {
-      theme = 'system default';
-    }
-    return theme.replaceFirst(theme[0], theme[0].toUpperCase());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +57,7 @@ class _SettingsState extends State<Settings> {
                 "App theme",
               ),
               subtitle: Text(
-                getThemeStringFormatted(),
+                Utils().getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
               ),
             ),
             ListTile(

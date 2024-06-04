@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
+import 'package:palette_generator/palette_generator.dart';
 import '../entity/movie.dart';
 import '../service/movie_service.dart';
 
@@ -31,7 +34,12 @@ class _MovieCardState extends State<MovieCard> {
     movie = widget.movie;
   }
 
-  void _openMovieInfoDialog() {
+  void _openMovieInfoDialog() async {
+    Color dominantColorFromPoster = Colors.blue;
+    if ((movie.getPoster() != null || movie.getPoster()!.isNotEmpty)) {
+      dominantColorFromPoster = await _generateDominantColorFromPoster();
+    }
+
     Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return MovieInfoDialog(
@@ -39,13 +47,26 @@ class _MovieCardState extends State<MovieCard> {
             loadWatchedMovies: widget.loadWatchedMovies,
             loadNotWatchedMovies: widget.loadNotWatchedMovies,
             isFromWatched: widget.isFromWatched,
+            dominantColorFromPoster: dominantColorFromPoster,
           );
         },
         fullscreenDialog: true));
   }
 
+  Future<Color> _generateDominantColorFromPoster() async {
+    final Uint8List imageBytes = base64Decode(movie.getPoster()!);
+    final ImageProvider imageProvider = MemoryImage(imageBytes);
+    final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
+      imageProvider,
+    );
+
+    return paletteGenerator.dominantColor?.color ?? Colors.blue;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       child: InkWell(
         borderRadius: posterBorder,
@@ -53,31 +74,31 @@ class _MovieCardState extends State<MovieCard> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           (movie.getPoster() == null || movie.getPoster()!.isEmpty)
               ? SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: Icon(
-                    Icons.movie_outlined,
-                    size: 30,
-                    color: Theme.of(context).hintColor,
-                  ),
-                )
+            height: posterHeight,
+            width: posterWidth,
+            child: Icon(
+              Icons.movie_outlined,
+              size: 30,
+              color: theme.hintColor,
+            ),
+          )
               : SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: ClipRRect(
-                    borderRadius: posterBorder,
-                    child: Image.memory(
-                      base64Decode(movie.getPoster()!),
-                      fit: BoxFit.fill,
-                      gaplessPlayback: true,
-                    ),
-                  ),
-                ),
+            height: posterHeight,
+            width: posterWidth,
+            child: ClipRRect(
+              borderRadius: posterBorder,
+              child: Image.memory(
+                base64Decode(movie.getPoster()!),
+                fit: BoxFit.fill,
+                gaplessPlayback: true,
+              ),
+            ),
+          ),
           const SizedBox(
             height: 3,
           ),
-          Flexible(
-            flex: 3,
+          Expanded(
+            flex: 7,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
@@ -89,14 +110,14 @@ class _MovieCardState extends State<MovieCard> {
             ),
           ),
           Flexible(
-            flex: 1,
+            flex: 4,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
                 "${movie.getRuntime()!} Min",
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: theme.hintColor),
               ),
             ),
           ),
