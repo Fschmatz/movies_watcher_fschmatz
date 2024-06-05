@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
+import 'package:movies_watcher_fschmatz/util/utils.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:palette_generator/palette_generator.dart';
 import '../entity/movie.dart';
@@ -26,6 +27,7 @@ class _MovieCardState extends State<MovieCard> {
   double posterHeight = 170;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
+  late Uint8List? imageBytes;
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class _MovieCardState extends State<MovieCard> {
 
   void _openMovieInfoDialog() async {
     Color dominantColorFromPoster = Colors.blue;
-    if ((movie.getPoster() != null || movie.getPoster()!.isNotEmpty)) {
+    if (imageBytes != null) {
       dominantColorFromPoster = await _generateDominantColorFromPoster();
     }
 
@@ -54,8 +56,7 @@ class _MovieCardState extends State<MovieCard> {
   }
 
   Future<Color> _generateDominantColorFromPoster() async {
-    final Uint8List imageBytes = base64Decode(movie.getPoster()!);
-    final ImageProvider imageProvider = MemoryImage(imageBytes);
+    final ImageProvider imageProvider = MemoryImage(imageBytes!);
     final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
       imageProvider,
     );
@@ -66,34 +67,40 @@ class _MovieCardState extends State<MovieCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    imageBytes = movie.getPoster() != null || movie.getPoster()!.isNotEmpty ? base64Decode(movie.getPoster()!) : null;
+    Image? posterImage = imageBytes != null
+        ? Image.memory(
+            imageBytes!,
+            fit: BoxFit.fill,
+            gaplessPlayback: true,
+          )
+        : null;
+    Color cardColor = Utils().lightenColor(theme.colorScheme.surface, 4);
 
     return Card(
+      color: cardColor,
       child: InkWell(
         borderRadius: posterBorder,
         onTap: _openMovieInfoDialog,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          (movie.getPoster() == null || movie.getPoster()!.isEmpty)
+          (posterImage == null)
               ? SizedBox(
-            height: posterHeight,
-            width: posterWidth,
-            child: Icon(
-              Icons.movie_outlined,
-              size: 30,
-              color: theme.hintColor,
-            ),
-          )
+                  height: posterHeight,
+                  width: posterWidth,
+                  child: Icon(
+                    Icons.movie_outlined,
+                    size: 30,
+                    color: theme.hintColor,
+                  ),
+                )
               : SizedBox(
-            height: posterHeight,
-            width: posterWidth,
-            child: ClipRRect(
-              borderRadius: posterBorder,
-              child: Image.memory(
-                base64Decode(movie.getPoster()!),
-                fit: BoxFit.fill,
-                gaplessPlayback: true,
-              ),
-            ),
-          ),
+                  height: posterHeight,
+                  width: posterWidth,
+                  child: ClipRRect(
+                    borderRadius: posterBorder,
+                    child: posterImage,
+                  ),
+                ),
           const SizedBox(
             height: 3,
           ),

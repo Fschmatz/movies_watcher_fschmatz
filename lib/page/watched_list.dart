@@ -48,7 +48,7 @@ class _WatchedListState extends State<WatchedList> {
                       height: 5,
                     ))
                   : FadeIn(
-                      duration: const Duration(milliseconds: 450),
+                      duration: const Duration(milliseconds: 600),
                       curve: Curves.easeIn,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),

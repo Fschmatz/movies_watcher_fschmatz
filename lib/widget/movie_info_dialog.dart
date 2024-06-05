@@ -1,16 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:movies_watcher_fschmatz/util/utils.dart';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../entity/movie.dart';
-import '../entity/no_yes.dart';
 import '../page/store_movie.dart';
 import '../service/movie_service.dart';
 
@@ -21,7 +14,8 @@ class MovieInfoDialog extends StatefulWidget {
   bool? isFromWatched;
   Color dominantColorFromPoster;
 
-  MovieInfoDialog({super.key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched , required this.dominantColorFromPoster});
+  MovieInfoDialog(
+      {super.key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched, required this.dominantColorFromPoster});
 
   @override
   State<MovieInfoDialog> createState() => _MovieInfoDialogState();
@@ -104,6 +98,13 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     final theme = Theme.of(context);
     TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor);
     TextStyle subtitleStyle = const TextStyle(fontSize: 16);
+    Image? posterImage = movie.getPoster() != null || movie.getPoster()!.isNotEmpty
+        ? Image.memory(
+            base64Decode(movie.getPoster()!),
+            fit: BoxFit.fill,
+            gaplessPlayback: true,
+          )
+        : null;
 
     return Theme(
       data: ThemeData(
@@ -162,38 +163,33 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: (movie.getPoster() == null || movie.getPoster()!.isEmpty)
-                            ? SizedBox(
-                                height: posterHeight,
-                                width: posterWidth,
-                                child: Card(
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: 30,
-                                    color: theme.hintColor,
+                      child: FadeIn(
+                        duration: const Duration(seconds: 1),
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: (posterImage == null)
+                              ? SizedBox(
+                                  height: posterHeight,
+                                  width: posterWidth,
+                                  child: Card(
+                                    child: Icon(
+                                      Icons.image_outlined,
+                                      size: 30,
+                                      color: theme.hintColor,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : SizedBox(
-                                height: posterHeight,
-                                width: posterWidth,
-                                child: Card(
-                                  child: ClipRRect(
-                                    borderRadius: posterBorder,
-                                    child: FadeIn(
-                                      duration: const Duration(milliseconds: 500),
-                                      curve: Curves.easeIn,
-                                      child: Image.memory(
-                                        base64Decode(movie.getPoster()!),
-                                        fit: BoxFit.fill,
-                                        gaplessPlayback: true,
-                                      ),
+                                )
+                              : SizedBox(
+                                  height: posterHeight,
+                                  width: posterWidth,
+                                  child: Card(
+                                    child: ClipRRect(
+                                      borderRadius: posterBorder,
+                                      child: posterImage,
                                     ),
                                   ),
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                     Expanded(

@@ -42,6 +42,21 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
   @override
   Widget build(BuildContext context) {
+    Image? posterImage = Image.network(
+      movie.getPoster()!,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+        return const Center(
+          child: Icon(
+            Icons.error_outline,
+            color: Colors.red,
+            size: 30.0,
+          ),
+        );
+      },
+    );
+
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 5, 16, 5),
       child: InkWell(
@@ -57,20 +72,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                 width: posterWidth,
                 child: ClipRRect(
                   borderRadius: posterBorder,
-                  child: Image.network(
-                    movie.getPoster()!,
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true,
-                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                          size: 30.0,
-                        ),
-                      );
-                    },
-                  ),
+                  child: posterImage,
                 ),
               ),
             ),

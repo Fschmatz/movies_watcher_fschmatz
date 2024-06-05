@@ -1,13 +1,13 @@
 class AppDetails{
 
-  static String appVersion = "1.3.9";
+  static String appVersion = "1.3.10";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
   static String backupFileName = "backup_movies_watcher";
   static String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
   static String changelogCurrent = ''' 
-1.3.9
+1.3.10
 - Stats page changes
 - Use color from poster on the dialog
 - Select custom poster
