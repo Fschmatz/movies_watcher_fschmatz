@@ -4,13 +4,14 @@ import 'package:movies_watcher_fschmatz/dao/movie_dao.dart';
 import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
 
 class PrintMovieList extends StatefulWidget {
-  const PrintMovieList({Key? key}) : super(key: key);
+  const PrintMovieList({super.key});
 
   @override
-  _PrintMovieListState createState() => _PrintMovieListState();
+  State<PrintMovieList> createState() => _PrintMovieListState();
 }
 
 class _PrintMovieListState extends State<PrintMovieList> {
+
   final dbMovie = MovieDAO.instance;
   bool loading = true;
   String formattedList = '';

@@ -2,20 +2,27 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/util/utils.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import '../entity/movie.dart';
 import '../page/store_movie.dart';
 import '../service/movie_service.dart';
 
 class MovieInfoDialog extends StatefulWidget {
-  Movie movie;
-  Function()? loadWatchedMovies;
-  Function()? loadNotWatchedMovies;
-  bool? isFromWatched;
-  Color dominantColorFromPoster;
+  final Movie movie;
+  final Function()? loadWatchedMovies;
+  final Function()? loadNotWatchedMovies;
+  final bool? isFromWatched;
+  final Color dominantColorFromPoster;
+  final Image? posterImage;
 
-  MovieInfoDialog(
-      {super.key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched, required this.dominantColorFromPoster});
+  const MovieInfoDialog(
+      {super.key,
+      required this.movie,
+      this.loadWatchedMovies,
+      this.loadNotWatchedMovies,
+      this.isFromWatched,
+      required this.dominantColorFromPoster,
+      required this.posterImage});
 
   @override
   State<MovieInfoDialog> createState() => _MovieInfoDialogState();
@@ -98,13 +105,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     final theme = Theme.of(context);
     TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor);
     TextStyle subtitleStyle = const TextStyle(fontSize: 16);
-    Image? posterImage = movie.getPoster() != null || movie.getPoster()!.isNotEmpty
-        ? Image.memory(
-            base64Decode(movie.getPoster()!),
-            fit: BoxFit.fill,
-            gaplessPlayback: true,
-          )
-        : null;
 
     return Theme(
       data: ThemeData(
@@ -167,7 +167,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                         duration: const Duration(seconds: 1),
                         child: Container(
                           alignment: Alignment.centerLeft,
-                          child: (posterImage == null)
+                          child: (widget.posterImage == null)
                               ? SizedBox(
                                   height: posterHeight,
                                   width: posterWidth,
@@ -185,7 +185,7 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                                   child: Card(
                                     child: ClipRRect(
                                       borderRadius: posterBorder,
-                                      child: posterImage,
+                                      child: widget.posterImage,
                                     ),
                                   ),
                                 ),

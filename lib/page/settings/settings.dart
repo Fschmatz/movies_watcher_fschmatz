@@ -10,11 +10,11 @@ import 'changelog.dart';
 
 class Settings extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  State<Settings> createState() => _SettingsState();
 
-  Function()? loadNotWatchedMovies;
+  final Function()? loadNotWatchedMovies;
 
-  Settings({Key? key, this.loadNotWatchedMovies}) : super(key: key);
+  const Settings({super.key, this.loadNotWatchedMovies});
 }
 
 class _SettingsState extends State<Settings> {

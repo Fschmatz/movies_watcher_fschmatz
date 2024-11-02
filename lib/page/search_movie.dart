@@ -13,15 +13,16 @@ import '../entity/search_result.dart';
 import '../widget/search_result_tile.dart';
 
 class SearchMovie extends StatefulWidget {
-  Function() loadNotWatchedMovies;
+  final Function() loadNotWatchedMovies;
 
-  SearchMovie({Key? key, required this.loadNotWatchedMovies}) : super(key: key);
+  const SearchMovie({super.key, required this.loadNotWatchedMovies});
 
   @override
-  _SearchMovieState createState() => _SearchMovieState();
+  State<SearchMovie> createState() => _SearchMovieState();
 }
 
 class _SearchMovieState extends State<SearchMovie> {
+
   bool _isBeforeSearch = true;
   bool _loadingSearch = true;
   String _quantityResults = "0";

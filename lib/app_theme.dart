@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/app.dart';
 
 class AppTheme extends StatelessWidget {
-  const AppTheme({Key? key}) : super(key: key);
+  const AppTheme({super.key});
 
   @override
   Widget build(BuildContext context) {

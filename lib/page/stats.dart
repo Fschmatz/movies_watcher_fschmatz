@@ -8,13 +8,14 @@ import '../entity/no_yes.dart';
 import '../service/movie_service.dart';
 
 class Stats extends StatefulWidget {
-  const Stats({Key? key}) : super(key: key);
+  const Stats({super.key});
 
   @override
-  _StatsState createState() => _StatsState();
+  State<Stats>  createState() => _StatsState();
 }
 
 class _StatsState extends State<Stats> {
+
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> moviesList = [];
   Map<String, List<Movie>> moviesByMonthAndYear = {};

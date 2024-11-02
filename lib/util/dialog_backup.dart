@@ -5,13 +5,13 @@ import 'backup_utils.dart';
 
 class DialogBackup extends StatefulWidget {
 
-  bool isCreateBackup;
-  Function()? reloadHomeFunction;
+  final bool isCreateBackup;
+  final Function()? reloadHomeFunction;
 
-  DialogBackup({Key? key, required this.isCreateBackup, required this.reloadHomeFunction}) : super(key: key);
+  const DialogBackup({super.key, required this.isCreateBackup, required this.reloadHomeFunction});
 
   @override
-  _DialogBackupState createState() => _DialogBackupState();
+  State<DialogBackup> createState() => _DialogBackupState();
 }
 
 class _DialogBackupState extends State<DialogBackup> {

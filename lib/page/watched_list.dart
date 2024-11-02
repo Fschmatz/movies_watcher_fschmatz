@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
-import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 import '../service/movie_service.dart';
 
 class WatchedList extends StatefulWidget {
-  Function()? loadNotWatchedMovies;
+  final Function()? loadNotWatchedMovies;
 
-  WatchedList({Key? key, this.loadNotWatchedMovies,}) : super(key: key);
+  const WatchedList({super.key, this.loadNotWatchedMovies,});
 
   @override
-  _WatchedListState createState() => _WatchedListState();
+  State<WatchedList> createState() => _WatchedListState();
 }
 
 class _WatchedListState extends State<WatchedList> {
+
   List<Movie> _moviesList = [];
   bool loading = true;
 

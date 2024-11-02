@@ -15,25 +15,25 @@ class StoreMovie extends StatefulWidget {
   @override
   State<StoreMovie> createState() => _StoreMovieState();
 
-  Movie movie;
-  bool isUpdate;
-  bool isFromSearch;
-  bool? isFromWatched;
-  Function()? loadWatchedMovies;
-  Function()? loadNotWatchedMovies;
+  final Movie movie;
+  final bool isUpdate;
+  final bool isFromSearch;
+  final bool? isFromWatched;
+  final Function()? loadWatchedMovies;
+  final Function()? loadNotWatchedMovies;
 
-  StoreMovie(
-      {Key? key,
+  const StoreMovie(
+      {super.key,
       required this.movie,
       required this.isUpdate,
       required this.isFromSearch,
       this.loadWatchedMovies,
       this.loadNotWatchedMovies,
-      this.isFromWatched})
-      : super(key: key);
+      this.isFromWatched});
 }
 
 class _StoreMovieState extends State<StoreMovie> {
+
   Movie movie = Movie();
   MovieService movieService = MovieService();
   NoYes movieWatchedState = NoYes.NO;

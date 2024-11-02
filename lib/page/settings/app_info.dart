@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../util/app_details.dart';
 import '../../util/utils.dart';
 
 class AppInfo extends StatelessWidget {
-  const AppInfo({Key? key}) : super(key: key);
+  const AppInfo({super.key});
 
   @override
   Widget build(BuildContext context) {

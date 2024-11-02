@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/util/utils.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -11,14 +9,14 @@ import '../service/movie_service.dart';
 
 class MovieCard extends StatefulWidget {
   @override
-  _MovieCardState createState() => _MovieCardState();
+  State<MovieCard> createState() => _MovieCardState();
 
-  Movie movie;
-  Function()? loadWatchedMovies;
-  Function()? loadNotWatchedMovies;
-  bool? isFromWatched;
+  final Movie movie;
+  final Function()? loadWatchedMovies;
+  final Function()? loadNotWatchedMovies;
+  final bool? isFromWatched;
 
-  MovieCard({Key? key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched}) : super(key: key);
+  const MovieCard({super.key, required this.movie, this.loadWatchedMovies, this.loadNotWatchedMovies, this.isFromWatched});
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -28,12 +26,25 @@ class _MovieCardState extends State<MovieCard> {
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
   late Uint8List? imageBytes;
+  Image? posterImage;
 
   @override
   void initState() {
     super.initState();
 
     movie = widget.movie;
+    _loadPosterImage();
+  }
+
+  void _loadPosterImage() {
+    imageBytes = movie.getPoster() != null || movie.getPoster()!.isNotEmpty ? base64Decode(movie.getPoster()!) : null;
+    posterImage = imageBytes != null
+        ? Image.memory(
+            imageBytes!,
+            fit: BoxFit.fill,
+            gaplessPlayback: true,
+          )
+        : null;
   }
 
   void _openMovieInfoDialog() async {
@@ -50,6 +61,7 @@ class _MovieCardState extends State<MovieCard> {
             loadNotWatchedMovies: widget.loadNotWatchedMovies,
             isFromWatched: widget.isFromWatched,
             dominantColorFromPoster: dominantColorFromPoster,
+            posterImage: posterImage,
           );
         },
         fullscreenDialog: true));
@@ -67,18 +79,8 @@ class _MovieCardState extends State<MovieCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    imageBytes = movie.getPoster() != null || movie.getPoster()!.isNotEmpty ? base64Decode(movie.getPoster()!) : null;
-    Image? posterImage = imageBytes != null
-        ? Image.memory(
-            imageBytes!,
-            fit: BoxFit.fill,
-            gaplessPlayback: true,
-          )
-        : null;
-    Color cardColor = Utils().lightenColor(theme.colorScheme.surface, 4);
 
     return Card(
-      color: cardColor,
       child: InkWell(
         borderRadius: posterBorder,
         onTap: _openMovieInfoDialog,

@@ -5,21 +5,20 @@ import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
 import 'package:movies_watcher_fschmatz/page/stats.dart';
 import 'package:movies_watcher_fschmatz/page/watched_list.dart';
 import 'package:movies_watcher_fschmatz/service/movie_service.dart';
-import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../entity/no_yes.dart';
 import '../util/app_details.dart';
 import '../widget/movie_card.dart';
 
 class WatchList extends StatefulWidget {
-  const WatchList({Key? key}) : super(key: key);
+  const WatchList({super.key});
 
   @override
-  _WatchListState createState() => _WatchListState();
+  State<WatchList> createState() => _WatchListState();
 }
 
 class _WatchListState extends State<WatchList> {
-  //final dbMovies = MovieDAO.instance;
+
   List<Movie> _moviesList = [];
   bool loading = true;
   List<String> optionsOrderBy = [

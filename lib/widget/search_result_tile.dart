@@ -4,12 +4,12 @@ import '../page/store_movie.dart';
 
 class SearchResultTile extends StatefulWidget {
   @override
-  _SearchResultTileState createState() => _SearchResultTileState();
+  State<SearchResultTile> createState() => _SearchResultTileState();
 
-  Movie movie;
-  Function() loadNotWatchedMovies;
+  final Movie movie;
+  final Function() loadNotWatchedMovies;
 
-  SearchResultTile({Key? key, required this.movie, required this.loadNotWatchedMovies}) : super(key: key);
+  const SearchResultTile({super.key, required this.movie, required this.loadNotWatchedMovies});
 }
 
 class _SearchResultTileState extends State<SearchResultTile> {
