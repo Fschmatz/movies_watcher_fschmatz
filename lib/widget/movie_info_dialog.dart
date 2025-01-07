@@ -44,7 +44,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     movie = widget.movie;
     dominantColorFromPoster = widget.dominantColorFromPoster;
     imbdLink = "https://www.imdb.com/title/${movie.getImdbID()}";
-    //_isMovieWatched = movie.getWatched() == NoYes.YES ? true : false;
   }
 
   Future<void> _delete() async {
@@ -305,19 +304,16 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                       style: subtitleStyle,
                     )),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                child: OutlinedButton.icon(
-                    onPressed: () {
-                      (movie.isMovieWatched() ? _markNotWatched() : _markWatched()).then((_) => Navigator.of(context).pop());
-                    },
-                    icon: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                    label: Text(movie.isMovieWatched() ? "Set not watched" : "Set watched")),
-              ),
               const SizedBox(
                 height: 50,
               ),
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              (movie.isMovieWatched() ? _markNotWatched() : _markWatched()).then((_) => Navigator.of(context).pop());
+            },
+            child: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
           ),
         ),
       ),

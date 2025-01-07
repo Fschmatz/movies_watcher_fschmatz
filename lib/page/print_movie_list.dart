@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:movies_watcher_fschmatz/dao/movie_dao.dart';
-import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
+import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 
 class PrintMovieList extends StatefulWidget {
   const PrintMovieList({super.key});
@@ -24,8 +24,8 @@ class _PrintMovieListState extends State<PrintMovieList> {
   }
 
   void getPlaylists() async {
-    List<Map<String, dynamic>> listMoviesWatched = await dbMovie.queryAllByWatchedNoYes(NoYes.NO);
-    List<Map<String, dynamic>> listMoviesNotWatched = await dbMovie.queryAllByWatchedNoYes(NoYes.YES);
+    List<Map<String, dynamic>> listMoviesWatched = await dbMovie.queryAllByWatchedNoYes(NoYes.no);
+    List<Map<String, dynamic>> listMoviesNotWatched = await dbMovie.queryAllByWatchedNoYes(NoYes.yes);
 
     formattedList += 'NOT WATCHED - ${listMoviesWatched.length} Movie(s)\n';
     for (int i = 0; i < listMoviesWatched.length; i++) {

@@ -1,4 +1,4 @@
-import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
+import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 
@@ -73,7 +73,7 @@ class MovieService {
   Future<void> setWatched(Movie movie) async {
     Map<String, dynamic> row = {
       MovieDAO.columnId: movie.getId(),
-      MovieDAO.columnWatched: NoYes.YES.id,
+      MovieDAO.columnWatched: NoYes.yes.id,
       MovieDAO.columnDateWatched: DateTime.now().toString()
     };
 
@@ -81,15 +81,17 @@ class MovieService {
   }
 
   Future<void> setNotWatched(Movie movie) async {
-    Map<String, dynamic> row = {MovieDAO.columnId: movie.getId(), MovieDAO.columnWatched: NoYes.NO.id, MovieDAO.columnDateWatched: null};
+    Map<String, dynamic> row = {MovieDAO.columnId: movie.getId(), MovieDAO.columnWatched: NoYes.no.id, MovieDAO.columnDateWatched: null};
 
     await dbMovies.update(row);
   }
 
   Future<void> insertMoviesFromRestoreBackup(List<dynamic> jsonData) async {
-    for (dynamic item in jsonData) {
-      await insertMovieFromBackup(Movie.fromMap(item));
-    }
+    List<Map<String, dynamic>> listToInsert = jsonData.map((item) {
+      return Movie.fromMap(item).toMap();
+    }).toList();
+
+    await dbMovies.insertBatchForBackup(listToInsert);
   }
 
   Future<List<Map<String, dynamic>>> loadAllMovies() {
@@ -111,4 +113,17 @@ class MovieService {
 
     return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
+
+  Future<List<Movie>> findWatchedByYear(String year) async {
+    var resp = await dbMovies.findWatchedByYear(year);
+
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
+  }
+
+  Future<List<String>> findAllYearsWithWatchedMovies() async {
+    var resp = await dbMovies.findAllYearsWithWatchedMovies();
+
+    return resp.isNotEmpty ? resp : [];
+  }
+
 }

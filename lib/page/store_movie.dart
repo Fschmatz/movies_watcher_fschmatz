@@ -5,7 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:movies_watcher_fschmatz/entity/no_yes.dart';
+import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 import 'dart:convert';
 import '../api_key.dart';
 import '../entity/movie.dart';
@@ -36,7 +36,7 @@ class _StoreMovieState extends State<StoreMovie> {
 
   Movie movie = Movie();
   MovieService movieService = MovieService();
-  NoYes movieWatchedState = NoYes.NO;
+  NoYes movieWatchedState = NoYes.no;
   String? posterUrl;
   File? poster;
   double posterHeight = 225;
@@ -434,8 +434,8 @@ class _StoreMovieState extends State<StoreMovie> {
               child: SegmentedButton<NoYes>(
                 showSelectedIcon: false,
                 segments: const <ButtonSegment<NoYes>>[
-                  ButtonSegment<NoYes>(value: NoYes.NO, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
-                  ButtonSegment<NoYes>(value: NoYes.YES, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
+                  ButtonSegment<NoYes>(value: NoYes.no, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
+                  ButtonSegment<NoYes>(value: NoYes.yes, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
                 ],
                 selected: <NoYes>{movieWatchedState},
                 onSelectionChanged: (Set<NoYes> newSelection) {

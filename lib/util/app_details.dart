@@ -1,6 +1,6 @@
 class AppDetails{
 
-  static String appVersion = "1.3.11";
+  static String appVersion = "1.3.12";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
   static String backupFileName = "backup_movies_watcher";
@@ -8,6 +8,8 @@ class AppDetails{
 
   static String changelogCurrent = ''' 
 $appVersion
+- Added menus with checkmark
+- Filter by year for watched
 - Stats page changes
 - Use color from poster on the dialog
 - Select custom poster

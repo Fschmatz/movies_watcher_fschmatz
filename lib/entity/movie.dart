@@ -1,6 +1,6 @@
 import 'package:jiffy/jiffy.dart';
 
-import 'no_yes.dart';
+import '../enum/no_yes.dart';
 
 class Movie {
   int? _id;
@@ -160,7 +160,7 @@ class Movie {
       poster: json['Poster'],
       imdbRating: json['imdbRating'],
       imdbID: json['imdbID'],
-      watched: NoYes.NO,
+      watched: NoYes.no,
       dateAdded: null,
       dateWatched: null,
     );
@@ -188,11 +188,31 @@ class Movie {
       poster: map['poster'],
       imdbRating: map['imdbRating'],
       imdbID: map['imdbID'],
-      watched: map['watched'] == 'Y' ? NoYes.YES : NoYes.NO,
+      watched: map['watched'] == 'Y' ? NoYes.yes : NoYes.no,
       dateAdded: map['dateAdded'],
       dateWatched: map['dateWatched'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': _id,
+      'title': _title,
+      'year': _year,
+      'released': _released,
+      'runtime': _runtime,
+      'director': _director,
+      'plot': _plot,
+      'country': _country,
+      'poster': _poster,
+      'imdbRating': _imdbRating,
+      'imdbID': _imdbID,
+      'watched': _watched == NoYes.yes ? 'Y' : 'N',
+      'dateAdded': _dateAdded,
+      'dateWatched': _dateWatched,
+    };
+  }
+
 
   @override
   String toString() {
@@ -208,6 +228,6 @@ class Movie {
   DateTime? get dateWatchedAsDateTime => _dateWatched != null ? Jiffy.parse(_dateWatched!).dateTime : null;
 
   bool isMovieWatched(){
-    return _watched == NoYes.YES ? true : false;
+    return _watched == NoYes.yes ? true : false;
   }
 }

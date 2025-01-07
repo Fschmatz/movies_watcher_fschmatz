@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import '../entity/no_yes.dart';
+import '../enum/no_yes.dart';
 
 class MovieDAO {
   static const _databaseName = "MovieTracker.db";
@@ -132,6 +132,44 @@ class MovieDAO {
   Future<int> deleteAll() async {
     Database db = await instance.database;
     return await db.delete(table);
+  }
+
+  Future<void> insertBatchForBackup(List<Map<String, dynamic>> list) async {
+    Database db = await instance.database;
+
+    await db.transaction((txn) async {
+      final batch = txn.batch();
+
+      for (final data in list) {
+        batch.insert(table, data);
+      }
+
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> findWatchedByYear(String year) async {
+    Database db = await instance.database;
+
+    return await db.rawQuery('''
+      SELECT * 
+      FROM $table
+      WHERE substr($columnDateWatched, 1, 4) = '$year'
+      AND $columnWatched='Y'
+      ORDER BY $columnTitle
+      ''');
+  }
+
+  Future<List<String>> findAllYearsWithWatchedMovies() async {
+    Database db = await instance.database;
+
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT DISTINCT substr($columnDateWatched, 1, 4) AS year
+      FROM $table
+      WHERE $columnWatched = 'Y';
+    ''');
+
+    return result.map((row) => row['year'] as String).toList();
   }
 
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
-import '../entity/no_yes.dart';
+import '../enum/no_yes.dart';
 import '../service/movie_service.dart';
 
 class Stats extends StatefulWidget {
@@ -40,10 +40,10 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _loadValues() async {
-    countNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.NO);
-    countWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.YES);
-    watchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.YES);
-    notWatchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.NO);
+    countNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.no);
+    countWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.yes);
+    watchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.yes);
+    notWatchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.no);
     watchedMoviesCurrentMonth = await dbMovies.countMovieWatchedCurrentMonth();
     watchedRuntimeCurrentMonth = await dbMovies.sumRuntimeWatchedCurrentMonth();
     addedMoviesCurrentMonth = await dbMovies.countMovieAddedCurrentMonth();
@@ -57,7 +57,7 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _generateMapMoviesByMonthAndYear() async {
-    List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.YES);
+    List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.yes);
 
     for (Movie movie in watchedMoviesList) {
       String yearMonthKey = Jiffy.parse(movie.getDateWatched()!).format(pattern: 'MM/yyyy');
