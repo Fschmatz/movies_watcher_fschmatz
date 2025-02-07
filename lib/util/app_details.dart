@@ -1,6 +1,6 @@
 class AppDetails{
 
-  static String appVersion = "1.3.12";
+  static String appVersion = "1.3.13";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
   static String backupFileName = "backup_movies_watcher";
@@ -15,6 +15,7 @@ $appVersion
 - Select custom poster
 - Page dropdown for search
 - UI changes
+- Added alert when adding duplicates
 - Bug fixes
 ''';
 

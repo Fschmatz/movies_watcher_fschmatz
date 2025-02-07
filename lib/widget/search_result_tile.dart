@@ -14,7 +14,7 @@ class SearchResultTile extends StatefulWidget {
 
 class _SearchResultTileState extends State<SearchResultTile> {
   Movie movie = Movie();
-  double posterHeight = 100;
+  double posterHeight = 90;
   double posterWidth = 60;
   BorderRadius posterBorder = BorderRadius.circular(12);
 

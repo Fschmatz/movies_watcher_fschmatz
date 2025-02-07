@@ -126,4 +126,9 @@ class MovieService {
     return resp.isNotEmpty ? resp : [];
   }
 
+
+  Future<bool> existsByImdbId(String imdbID) async {
+    return await dbMovies.existsByImdbId(imdbID);
+  }
+
 }

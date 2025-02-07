@@ -31,11 +31,14 @@ class MovieInfoDialog extends StatefulWidget {
 class _MovieInfoDialogState extends State<MovieInfoDialog> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 200;
-  double posterWidth = 200;
+  double posterHeight = 220;
+  double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
   String imbdLink = "";
   late Color dominantColorFromPoster;
+  late TextStyle titleStyle;
+
+  late TextStyle subtitleStyle;
 
   @override
   void initState() {
@@ -96,14 +99,25 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
     );
   }
 
+  Widget buildMovieDetailTile(String title, String? value) {
+    return ListTile(
+      title: Text(title, style: titleStyle),
+      subtitle: Text(
+        value == null || value.isEmpty ? "-" : value,
+        style: subtitleStyle,
+      ),
+      dense: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentScheme = Theme.of(context).brightness == Brightness.light
         ? ColorScheme.fromSeed(seedColor: dominantColorFromPoster)
         : ColorScheme.fromSeed(seedColor: dominantColorFromPoster, brightness: Brightness.dark);
     final theme = Theme.of(context);
-    TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor);
-    TextStyle subtitleStyle = const TextStyle(fontSize: 16);
+    titleStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: theme.hintColor);
+    subtitleStyle = const TextStyle(fontSize: 14);
 
     return Theme(
       data: ThemeData(
@@ -156,73 +170,41 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
           ),
           body: ListView(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: FadeIn(
-                        duration: const Duration(seconds: 1),
-                        child: Container(
-                          alignment: Alignment.centerLeft,
-                          child: (widget.posterImage == null)
-                              ? SizedBox(
-                                  height: posterHeight,
-                                  width: posterWidth,
-                                  child: Card(
-                                    child: Icon(
-                                      Icons.image_outlined,
-                                      size: 30,
-                                      color: theme.hintColor,
-                                    ),
-                                  ),
-                                )
-                              : SizedBox(
-                                  height: posterHeight,
-                                  width: posterWidth,
-                                  child: Card(
-                                    child: ClipRRect(
-                                      borderRadius: posterBorder,
-                                      child: widget.posterImage,
-                                    ),
-                                  ),
-                                ),
+              FadeIn(
+                duration: const Duration(milliseconds: 600),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: (widget.posterImage == null)
+                      ? SizedBox(
+                          height: posterHeight,
+                          width: posterWidth,
+                          child: Card(
+                            child: Icon(
+                              Icons.image_outlined,
+                              size: 30,
+                              color: theme.hintColor,
+                            ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: posterHeight,
+                          width: posterWidth,
+                          child: Card(
+                            child: ClipRRect(
+                              borderRadius: posterBorder,
+                              child: widget.posterImage,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              movie.getTitle()!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            Text(
-                              "${movie.getRuntime()!} Min",
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor),
-                            ),
-                            Text(
-                              movie.getYear()!,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: theme.hintColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
-              const SizedBox(
-                height: 10,
+              const SizedBox(height: 5,),
+              ListTile(
+                title: Text(movie.getTitle()!,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    )),
               ),
               Visibility(
                 visible: movie.getPlot() != null,
@@ -232,77 +214,27 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: theme.hintColor),
                 )),
               ),
-              Visibility(
-                visible: movie.getDirector() != null,
-                child: ListTile(
-                    title: Text(
-                      "Director",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.getDirector()!,
-                      style: subtitleStyle,
-                    )),
+              const Divider(
+                indent: 16,
+                endIndent: 16,
               ),
-              Visibility(
-                visible: movie.getReleased() != null,
-                child: ListTile(
-                    title: Text(
-                      "Released",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.getReleased()!,
-                      style: subtitleStyle,
-                    )),
-              ),
-              Visibility(
-                visible: movie.getCountry() != null,
-                child: ListTile(
-                    title: Text(
-                      "Country",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.getCountry()!,
-                      style: subtitleStyle,
-                    )),
-              ),
-              Visibility(
-                visible: movie.getImdbRating() != null,
-                child: ListTile(
-                    title: Text(
-                      "Imdb Rating",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.getImdbRating()!,
-                      style: subtitleStyle,
-                    )),
-              ),
-              Visibility(
-                visible: movie.formattedDateWatched.isNotEmpty && movie.isMovieWatched(),
-                child: ListTile(
-                    title: Text(
-                      "Date watched",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.formattedDateWatched,
-                      style: subtitleStyle,
-                    )),
-              ),
-              Visibility(
-                visible: movie.formattedDateAdded.isNotEmpty,
-                child: ListTile(
-                    title: Text(
-                      "Added to watchlist",
-                      style: titleStyle,
-                    ),
-                    subtitle: Text(
-                      movie.formattedDateAdded,
-                      style: subtitleStyle,
-                    )),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 3,
+                children: [
+                  buildMovieDetailTile("Runtime", "${movie.getRuntime()!} Min"),
+                  buildMovieDetailTile("Year", movie.getYear()!),
+                  buildMovieDetailTile("Director", movie.getDirector()),
+                  buildMovieDetailTile("Released", movie.getReleased()),
+                  buildMovieDetailTile("Country", movie.getCountry()),
+                  buildMovieDetailTile("Imdb Rating", movie.getImdbRating()),
+                  buildMovieDetailTile("Added", movie.formattedDateAdded),
+                  movie.isMovieWatched()
+                      ? buildMovieDetailTile("Watched", movie.isMovieWatched() ? movie.formattedDateWatched : null)
+                      : const SizedBox.shrink(),
+                ],
               ),
               const SizedBox(
                 height: 50,

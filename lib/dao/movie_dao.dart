@@ -172,4 +172,12 @@ class MovieDAO {
     return result.map((row) => row['year'] as String).toList();
   }
 
+  Future<bool> existsByImdbId(String imdbID) async {
+    Database db = await instance.database;
+
+    final result = await db.rawQuery('SELECT 1 FROM $table WHERE $columnImdbID = ?', [imdbID]);
+
+    return result.isNotEmpty;
+  }
+
 }

@@ -33,14 +33,13 @@ class StoreMovie extends StatefulWidget {
 }
 
 class _StoreMovieState extends State<StoreMovie> {
-
   Movie movie = Movie();
   MovieService movieService = MovieService();
   NoYes movieWatchedState = NoYes.no;
   String? posterUrl;
   File? poster;
-  double posterHeight = 225;
-  double posterWidth = 140;
+  double posterHeight = 220;
+  double posterWidth = 150;
   final bool _validFieldWithoutRequired = true;
   bool _validImdbId = true;
   bool _validTitle = true;
@@ -138,15 +137,47 @@ class _StoreMovieState extends State<StoreMovie> {
     movieWatchedState = movie.getWatched()!;
   }
 
-  Future<void> storeMovie() async {
+  void _beforeStoreMovie() async {
+    if (!isUpdate) {
+      bool exists = await movieService.existsByImdbId(ctrlImdbId.text);
+
+      if (exists) {
+        bool? confirm = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Duplicate Entry"),
+            content: const Text("This movie already exists on the collection. Do you want to save it anyway?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Save"),
+              ),
+            ],
+          ),
+        );
+
+        if (confirm != true) {
+          return;
+        }
+      }
+    }
+
+    _storeMovie().then((_) => _reloadMoviesList()).then((_) => Navigator.of(context).pop());
+  }
+
+  Future<void> _storeMovie() async {
     if (isUpdate) {
-      await updateMovie();
+      await _updateMovie();
     } else {
-      await saveMovie();
+      await _insertMovie();
     }
   }
 
-  Future<void> saveMovie() async {
+  Future<void> _insertMovie() async {
     await _loadAndParsePoster();
     int runtimeInt = _parseRuntime();
 
@@ -164,7 +195,7 @@ class _StoreMovieState extends State<StoreMovie> {
     await movieService.insertMovie(movie);
   }
 
-  Future<void> updateMovie() async {
+  Future<void> _updateMovie() async {
     await _loadAndParsePoster();
     int runtimeInt = _parseRuntime();
 
@@ -246,7 +277,7 @@ class _StoreMovieState extends State<StoreMovie> {
     } else if (!_customPosterSelected && posterUrl != null) {
       http.Response response = await http.get(Uri.parse(posterUrl!));
 
-      if(response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         base64ImageBytes = response.bodyBytes;
         compressedPoster = await compressCoverImage(base64ImageBytes);
         movie.setPoster(base64Encode(compressedPoster));
@@ -298,179 +329,196 @@ class _StoreMovieState extends State<StoreMovie> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          surfaceTintColor: Theme.of(context).colorScheme.background,
-          title: isUpdate ? const Text('Edit') : const Text('New'),
-          actions: [
-            IconButton(
-              tooltip: "Change Poster",
-              icon: const Icon(
-                Icons.photo_library_outlined,
-              ),
-              onPressed: pickImageFromGallery,
+      appBar: AppBar(
+        surfaceTintColor: Theme.of(context).colorScheme.background,
+        title: isUpdate ? const Text('Edit') : const Text('New'),
+        actions: [
+          IconButton(
+            tooltip: "Change Poster",
+            icon: const Icon(
+              Icons.photo_library_outlined,
             ),
-          ],
-        ),
-        body: ListView(children: [
-          Center(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: _customPosterSelected
-                  ? Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: posterBorder,
+            onPressed: pickImageFromGallery,
+          ),
+        ],
+      ),
+      body: ListView(children: [
+        Center(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: _customPosterSelected
+                ? Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: posterBorder,
+                    ),
+                    elevation: 0,
+                    child: ClipRRect(
+                      borderRadius: posterBorder,
+                      child: Image.file(
+                        poster!,
+                        width: posterWidth,
+                        height: posterHeight,
+                        fit: BoxFit.fill,
                       ),
-                      elevation: 0,
-                      child: ClipRRect(
-                        borderRadius: posterBorder,
-                        child: Image.file(
-                          poster!,
-                          width: posterWidth,
-                          height: posterHeight,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    )
-                  : isUpdate
-                      ? (movie.getPoster() == null || movie.getPoster()!.isEmpty)
-                          ? SizedBox(
-                              height: posterHeight,
-                              width: posterWidth,
-                              child: Icon(
-                                Icons.movie_outlined,
-                                size: 30,
-                                color: Theme.of(context).hintColor,
+                    ),
+                  )
+                : isUpdate
+                    ? (movie.getPoster() == null || movie.getPoster()!.isEmpty)
+                        ? SizedBox(
+                            height: posterHeight,
+                            width: posterWidth,
+                            child: Icon(
+                              Icons.movie_outlined,
+                              size: 30,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          )
+                        : SizedBox(
+                            height: posterHeight,
+                            width: posterWidth,
+                            child: ClipRRect(
+                              borderRadius: posterBorder,
+                              child: Image.memory(
+                                base64Decode(movie.getPoster()!),
+                                fit: BoxFit.fill,
+                                gaplessPlayback: true,
                               ),
-                            )
-                          : SizedBox(
-                              height: posterHeight,
-                              width: posterWidth,
-                              child: ClipRRect(
-                                borderRadius: posterBorder,
-                                child: Image.memory(
-                                  base64Decode(movie.getPoster()!),
-                                  fit: BoxFit.fill,
-                                  gaplessPlayback: true,
-                                ),
-                              ),
-                            )
-                      : Image.network(
-                          posterUrl ?? '',
-                          width: posterWidth,
-                          height: posterHeight,
-                          fit: BoxFit.fill,
-                          filterQuality: FilterQuality.medium,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return Card(child: ClipRRect(borderRadius: posterBorder, child: child));
-                            }
-                            return Card(
-                              child: SizedBox(
-                                width: posterWidth,
-                                height: posterHeight,
-                                child: const Icon(Icons.error),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) => Card(
+                            ),
+                          )
+                    : Image.network(
+                        posterUrl ?? '',
+                        width: posterWidth,
+                        height: posterHeight,
+                        fit: BoxFit.fill,
+                        filterQuality: FilterQuality.medium,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return Card(child: ClipRRect(borderRadius: posterBorder, child: child));
+                          }
+                          return Card(
                             child: SizedBox(
                               width: posterWidth,
                               height: posterHeight,
-                              child: const Icon(Icons.image_outlined),
+                              child: const Icon(Icons.error),
                             ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) => Card(
+                          child: SizedBox(
+                            width: posterWidth,
+                            height: posterHeight,
+                            child: const Icon(Icons.image_outlined),
                           ),
                         ),
+                      ),
+          ),
+        ),
+        Visibility(
+          visible: !isUpdate,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: TextField(
+                minLines: 1,
+                maxLines: 1,
+                maxLength: 200,
+                onSubmitted: (e) => _loadMovieData(),
+                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                keyboardType: TextInputType.text,
+                controller: ctrlImdbId,
+                decoration: InputDecoration(
+                    helperText: "* Required",
+                    labelText: "IMDB ID",
+                    border: const OutlineInputBorder(),
+                    errorText: (_validImdbId) ? null : "Link is empty")),
+          ),
+        ),
+        buildTextField("Title", ctrlTitle, true, 2, 200, _validTitle),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: buildTextField("Runtime - Min", ctrlRuntime, true, 1, 5, _validRuntime),
+            ),
+            Expanded(
+              child: buildTextField("Year", ctrlYear, true, 1, 4, _validYear),
+            ),
+          ],
+        ),
+        buildTextField("Director", ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
+        buildTextField("Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
+        buildTextField("Country", ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: buildTextField("Released", ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
+            ),
+            Expanded(
+              child: buildTextField("IMDB Rating", ctrlImdbRating, false, 1, 4, _validFieldWithoutRequired),
+            ),
+          ],
+        ),
+        Visibility(
+          visible: !isUpdate,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
+            child: SegmentedButton<NoYes>(
+              showSelectedIcon: false,
+              segments: const <ButtonSegment<NoYes>>[
+                ButtonSegment<NoYes>(value: NoYes.no, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
+                ButtonSegment<NoYes>(value: NoYes.yes, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
+              ],
+              selected: <NoYes>{movieWatchedState},
+              onSelectionChanged: (Set<NoYes> newSelection) {
+                setState(() {
+                  movieWatchedState = newSelection.first;
+                });
+              },
             ),
           ),
-          Visibility(
-            visible: !isUpdate,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: TextField(
-                  minLines: 1,
-                  maxLines: 1,
-                  maxLength: 200,
-                  onSubmitted: (e) => _loadMovieData(),
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  keyboardType: TextInputType.text,
-                  controller: ctrlImdbId,
-                  decoration: InputDecoration(
-                      helperText: "* Required",
-                      labelText: "IMDB ID",
-                      border: const OutlineInputBorder(),
-                      errorText: (_validImdbId) ? null : "Link is empty")),
-            ),
-          ),
-          buildTextField("Title", ctrlTitle, true, 2, 200, _validTitle),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: buildTextField("Runtime - Min", ctrlRuntime, true, 1, 5, _validRuntime),
-              ),
-              Expanded(
-                child: buildTextField("Year", ctrlYear, true, 1, 4, _validYear),
-              ),
-            ],
-          ),
-          buildTextField("Director", ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
-          buildTextField("Plot", ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
-          buildTextField("Country", ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: buildTextField("Released", ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
-              ),
-              Expanded(
-                child: buildTextField("IMDB Rating", ctrlImdbRating, false, 1, 4, _validFieldWithoutRequired),
-              ),
-            ],
-          ),
-          Visibility(
-            visible: !isUpdate,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
-              child: SegmentedButton<NoYes>(
-                showSelectedIcon: false,
-                segments: const <ButtonSegment<NoYes>>[
-                  ButtonSegment<NoYes>(value: NoYes.no, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
-                  ButtonSegment<NoYes>(value: NoYes.yes, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
-                ],
-                selected: <NoYes>{movieWatchedState},
-                onSelectionChanged: (Set<NoYes> newSelection) {
+        ),
+        /* Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: FilledButton.tonalIcon(
+              onPressed: () {
+                if (validateTextFields()) {
+                  _beforeStoreMovie();
+                  //_storeMovie().then((_) => _reloadMoviesList()).then((_) => Navigator.of(context).pop());
+                } else {
                   setState(() {
-                    movieWatchedState = newSelection.first;
+                    _validImdbId;
+                    _validTitle;
+                    _validRuntime;
+                    _validYear;
                   });
-                },
+                }
+              },
+              icon: const Icon(
+                Icons.save_outlined,
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-            child: FilledButton.tonalIcon(
-                onPressed: () {
-                  if (validateTextFields()) {
-                    storeMovie().then((_) => _reloadMoviesList()).then((_) => Navigator.of(context).pop());
-                  } else {
-                    setState(() {
-                      _validImdbId;
-                      _validTitle;
-                      _validRuntime;
-                      _validYear;
-                    });
-                  }
-                },
-                icon: const Icon(
-                  Icons.save_outlined,
-                ),
-                label: const Text(
-                  'Save',
-                )),
-          ),
-          const SizedBox(
-            height: 50,
-          )
-        ]));
+              label: const Text(
+                'Save',
+              )),
+        ),*/
+        const SizedBox(
+          height: 100,
+        )
+      ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (validateTextFields()) {
+            _beforeStoreMovie();
+          } else {
+            setState(() {
+              _validImdbId;
+              _validTitle;
+              _validRuntime;
+              _validYear;
+            });
+          }
+        },
+        child: const Icon(Icons.save_outlined),
+      ),
+    );
   }
 }

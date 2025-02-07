@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/util/utils.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:palette_generator/palette_generator.dart';
 import '../entity/movie.dart';
@@ -22,7 +21,7 @@ class MovieCard extends StatefulWidget {
 class _MovieCardState extends State<MovieCard> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 170;
+  double posterHeight = 172;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
   late Uint8List? imageBytes;
