@@ -21,7 +21,7 @@ class MovieCard extends StatefulWidget {
 class _MovieCardState extends State<MovieCard> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 172;
+  double posterHeight = 180;
   double posterWidth = 150;
   BorderRadius posterBorder = BorderRadius.circular(12);
   late Uint8List? imageBytes;
@@ -39,10 +39,10 @@ class _MovieCardState extends State<MovieCard> {
     imageBytes = movie.getPoster() != null || movie.getPoster()!.isNotEmpty ? base64Decode(movie.getPoster()!) : null;
     posterImage = imageBytes != null
         ? Image.memory(
-            imageBytes!,
-            fit: BoxFit.fill,
-            gaplessPlayback: true,
-          )
+      imageBytes!,
+      fit: BoxFit.fill,
+      gaplessPlayback: true,
+    )
         : null;
   }
 
@@ -79,57 +79,66 @@ class _MovieCardState extends State<MovieCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
+    return Card.outlined(
       child: InkWell(
         borderRadius: posterBorder,
         onTap: _openMovieInfoDialog,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          (posterImage == null)
-              ? SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: Icon(
-                    Icons.movie_outlined,
-                    size: 30,
-                    color: theme.hintColor,
-                  ),
-                )
-              : SizedBox(
-                  height: posterHeight,
-                  width: posterWidth,
-                  child: ClipRRect(
+        child: Stack(
+          children: [
+            (posterImage == null)
+                ? SizedBox(
+              height: posterHeight,
+              width: posterWidth,
+              child: Icon(
+                Icons.movie_outlined,
+                size: 30,
+                color: theme.hintColor,
+              ),
+            )
+                : SizedBox(
+              height: posterHeight,
+              width: posterWidth,
+              child: ClipRRect(
+                borderRadius: posterBorder,
+                child: posterImage,
+              ),
+            ),
+            if (movie.getRuntime() != null)
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.black.withOpacity(0.6),
                     borderRadius: posterBorder,
-                    child: posterImage,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time_outlined,
+                        size: 12,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${movie.getRuntime()!}",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-          const SizedBox(
-            height: 3,
-          ),
-          Expanded(
-            flex: 7,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                movie.getTitle()!,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               ),
-            ),
-          ),
-          Flexible(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                "${movie.getRuntime()!} Min",
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: theme.hintColor),
-              ),
-            ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

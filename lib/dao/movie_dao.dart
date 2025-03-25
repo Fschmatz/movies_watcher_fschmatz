@@ -180,4 +180,25 @@ class MovieDAO {
     return result.isNotEmpty;
   }
 
+  Future<List<Map<String, dynamic>>> queryAllByWatchedForStatsPage(NoYes noYes) async {
+    Database db = await instance.database;
+
+    return await db.rawQuery(
+      '''
+    SELECT 
+      $columnId, 
+      $columnTitle,
+      $columnRuntime, 
+      $columnImdbID, 
+      $columnWatched, 
+      $columnDateAdded, 
+      $columnDateWatched 
+    FROM $table 
+    WHERE $columnWatched = ?
+    ORDER BY $columnTitle
+    ''',
+      [noYes.id],
+    );
+  }
+
 }

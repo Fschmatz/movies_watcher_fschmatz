@@ -126,9 +126,14 @@ class MovieService {
     return resp.isNotEmpty ? resp : [];
   }
 
-
   Future<bool> existsByImdbId(String imdbID) async {
     return await dbMovies.existsByImdbId(imdbID);
+  }
+
+  Future<List<Movie>> queryAllByWatchedForStatsPage(NoYes noYes) async {
+    var resp = await dbMovies.queryAllByWatchedForStatsPage(noYes);
+
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
 
 }

@@ -31,6 +31,8 @@ class _StatsState extends State<Stats> {
   int? watchedMoviesCurrentMonth = 0;
   int? watchedRuntimeCurrentMonth = 0;
   int? addedMoviesCurrentMonth = 0;
+  int watchedMoviesCurrentYear = 0;
+  int watchedRuntimeCurrentYear = 0;
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _StatsState extends State<Stats> {
 
     await _generateMapMoviesByMonthAndYear();
     await _sortMoviesByMonthAndYear();
+    await _setCurrentYearStats();
 
     setState(() {
       loading = false;
@@ -57,7 +60,7 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _generateMapMoviesByMonthAndYear() async {
-    List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedNoYesAndConvertToList(NoYes.yes);
+    List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedForStatsPage(NoYes.yes);
 
     for (Movie movie in watchedMoviesList) {
       String yearMonthKey = Jiffy.parse(movie.getDateWatched()!).format(pattern: 'MM/yyyy');
@@ -78,6 +81,19 @@ class _StatsState extends State<Stats> {
     }
 
     moviesByMonthAndYear = sortedMoviesByMonthAndYear;
+  }
+
+  Future<void> _setCurrentYearStats() async {
+    String currentYear = DateTime.now().year.toString();
+
+    moviesByMonthAndYear.forEach((key, movies) {
+      if (key.endsWith(currentYear)) {
+        for (Movie movie in movies) {
+          watchedRuntimeCurrentYear += movie.getRuntime()!;
+          watchedMoviesCurrentYear++;
+        }
+      }
+    });
   }
 
   void _showMoviesWatchedOnMonthAndYearDialog(BuildContext context, String monthYear, List<Movie> movies) {
@@ -125,7 +141,7 @@ class _StatsState extends State<Stats> {
         title: const Text("Stats"),
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 450),
         child: loading
             ? const Center(child: SizedBox.shrink())
             : ListView(
@@ -136,17 +152,44 @@ class _StatsState extends State<Stats> {
                       child: Column(
                         children: [
                           ListTile(
+                            visualDensity: VisualDensity.compact,
+                            title: Text("Current Year", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
+                          ),
+                          ListTile(
+                            visualDensity: VisualDensity.compact,
+                            title: const Text('Movies Watched'),
+                            trailing: Text(watchedMoviesCurrentYear.toString(), style: styleTrailing),
+                          ),
+                          ListTile(
+                            visualDensity: VisualDensity.compact,
+                            title: const Text('Runtime Watched - Min'),
+                            trailing: Text(watchedRuntimeCurrentYear.toString(), style: styleTrailing),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Card(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            visualDensity: VisualDensity.compact,
                             title: Text("Current Month", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
                           ),
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             title: const Text('Movies Watched'),
                             trailing: Text(watchedMoviesCurrentMonth.toString(), style: styleTrailing),
                           ),
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             title: const Text('Runtime Watched - Min'),
                             trailing: Text(watchedRuntimeCurrentMonth.toString(), style: styleTrailing),
                           ),
                           ListTile(
+                            visualDensity: VisualDensity.compact,
                             title: const Text('Movies Added'),
                             trailing: Text(addedMoviesCurrentMonth.toString(), style: styleTrailing),
                           ),

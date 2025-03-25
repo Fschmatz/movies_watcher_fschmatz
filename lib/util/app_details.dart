@@ -1,13 +1,20 @@
 class AppDetails{
 
-  static String appVersion = "1.3.13";
+  static String appVersion = "1.4.0";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
-  static String backupFileName = "backup_movies_watcher";
+  static String backupFileName = "movies_watcher_backup";
   static String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
   static String changelogCurrent = ''' 
 $appVersion
+- New cards for home
+- Year total on stats page
+- Logic changes
+''';
+
+  static String changelogsOld = '''
+1.3.13
 - Added menus with checkmark
 - Filter by year for watched
 - Stats page changes
@@ -17,9 +24,7 @@ $appVersion
 - UI changes
 - Added alert when adding duplicates
 - Bug fixes
-''';
-
-  static String changelogsOld = '''
+  
 1.2.2
 - UI changes
 - Added sort options

@@ -135,7 +135,7 @@ class _WatchListState extends State<WatchList> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 236),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 185),
                 physics: const ScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _moviesList.length,
