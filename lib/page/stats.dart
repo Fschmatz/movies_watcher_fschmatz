@@ -11,11 +11,10 @@ class Stats extends StatefulWidget {
   const Stats({super.key});
 
   @override
-  State<Stats>  createState() => _StatsState();
+  State<Stats> createState() => _StatsState();
 }
 
 class _StatsState extends State<Stats> {
-
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> moviesList = [];
   Map<String, List<Movie>> moviesByMonthAndYear = {};
@@ -42,21 +41,31 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _loadValues() async {
-    countNotWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.no);
-    countWatchedMovies = await dbMovies.countMoviesByWatchedNoYes(NoYes.yes);
-    watchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.yes);
-    notWatchedRuntime = await dbMovies.sumRuntimeByWatchedNoYes(NoYes.no);
-    watchedMoviesCurrentMonth = await dbMovies.countMovieWatchedCurrentMonth();
-    watchedRuntimeCurrentMonth = await dbMovies.sumRuntimeWatchedCurrentMonth();
-    addedMoviesCurrentMonth = await dbMovies.countMovieAddedCurrentMonth();
+    final results = await Future.wait([
+      dbMovies.countMoviesByWatchedNoYes(NoYes.no),
+      dbMovies.countMoviesByWatchedNoYes(NoYes.yes),
+      dbMovies.sumRuntimeByWatchedNoYes(NoYes.yes),
+      dbMovies.sumRuntimeByWatchedNoYes(NoYes.no),
+      dbMovies.countMovieWatchedCurrentMonth(),
+      dbMovies.sumRuntimeWatchedCurrentMonth(),
+      dbMovies.countMovieAddedCurrentMonth(),
+    ]);
 
-    await _generateMapMoviesByMonthAndYear();
-    await _sortMoviesByMonthAndYear();
-    await _setCurrentYearStats();
+    countNotWatchedMovies = results[0] as int;
+    countWatchedMovies = results[1] as int;
+    watchedRuntime = results[2] as int;
+    notWatchedRuntime = results[3] as int;
+    watchedMoviesCurrentMonth = results[4] as int;
+    watchedRuntimeCurrentMonth = results[5] as int;
+    addedMoviesCurrentMonth = results[6] as int;
 
-    setState(() {
-      loading = false;
-    });
+    await Future.wait([
+      _generateMapMoviesByMonthAndYear(),
+      _sortMoviesByMonthAndYear(),
+      _setCurrentYearStats(),
+    ]);
+
+    setState(() => loading = false);
   }
 
   Future<void> _generateMapMoviesByMonthAndYear() async {
@@ -128,13 +137,25 @@ class _StatsState extends State<Stats> {
     );
   }
 
+  Widget buildCompactListTile(String title, String trailingText) {
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      title: Text(title),
+      trailing: Text(trailingText, style: styleTrailing),
+    );
+  }
+
+  Widget buildCompactListTileTitle(String title, TextStyle style) {
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      title: Text(title, style: style),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Color accent = Theme.of(context).colorScheme.primary;
-
-    StreamController<Map<String, List<Movie>>> moviesStreamController = StreamController<Map<String, List<Movie>>>();
-    moviesStreamController.add(moviesByMonthAndYear);
-    moviesStreamController.close();
+    TextStyle titleTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent);
 
     return Scaffold(
       appBar: AppBar(
@@ -146,118 +167,37 @@ class _StatsState extends State<Stats> {
             ? const Center(child: SizedBox.shrink())
             : ListView(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Card(
-                      child: Column(
-                        children: [
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: Text("Current Year", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: const Text('Movies Watched'),
-                            trailing: Text(watchedMoviesCurrentYear.toString(), style: styleTrailing),
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: const Text('Runtime Watched - Min'),
-                            trailing: Text(watchedRuntimeCurrentYear.toString(), style: styleTrailing),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Card(
-                      child: Column(
-                        children: [
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: Text("Current Month", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: const Text('Movies Watched'),
-                            trailing: Text(watchedMoviesCurrentMonth.toString(), style: styleTrailing),
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: const Text('Runtime Watched - Min'),
-                            trailing: Text(watchedRuntimeCurrentMonth.toString(), style: styleTrailing),
-                          ),
-                          ListTile(
-                            visualDensity: VisualDensity.compact,
-                            title: const Text('Movies Added'),
-                            trailing: Text(addedMoviesCurrentMonth.toString(), style: styleTrailing),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    title: Text("Not Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.movie_outlined),
-                    title: const Text('Movies'),
-                    trailing: Text(countNotWatchedMovies.toString(), style: styleTrailing),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.watch_later_outlined),
-                    title: const Text('Runtime - Min'),
-                    trailing: Text(notWatchedRuntime.toString(), style: styleTrailing),
-                  ),
-                  ListTile(
-                    title: Text("Watched", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent)),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.movie_outlined),
-                    title: const Text('Movies'),
-                    trailing: Text(countWatchedMovies.toString(), style: styleTrailing),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.watch_later_outlined),
-                    title: const Text('Runtime - Min'),
-                    trailing: Text(watchedRuntime.toString(), style: styleTrailing),
-                  ),
-                  moviesByMonthAndYear.isEmpty
-                      ? const SizedBox.shrink()
-                      : const ListTile(
-                          leading: Icon(Icons.calendar_month_outlined),
-                          title: Text('Movies by Month/Year'),
-                        ),
-                  StreamBuilder<Map<String, List<Movie>>>(
-                    stream: moviesStreamController.stream,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const SizedBox.shrink();
-                      }
-                      Map<String, List<Movie>> moviesByYearAndMonth = snapshot.data!;
-                      return ListView.builder(
-                        itemCount: moviesByYearAndMonth.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          String monthYear = moviesByYearAndMonth.keys.elementAt(index);
-                          List<Movie> moviesOnThisMonthYear = moviesByYearAndMonth[monthYear]!;
-
-                          return ListTile(
-                            leading: const Text(""),
-                            title: Text(monthYear),
-                            trailing: Text('${moviesOnThisMonthYear.length}', style: styleTrailing),
-                            onTap: () {
-                              _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear);
-                            },
-                          );
-                        },
+                  buildCompactListTileTitle('Not Watched', titleTextStyle),
+                  buildCompactListTile('Movies', countNotWatchedMovies.toString()),
+                  buildCompactListTile('Runtime - Min', notWatchedRuntime.toString()),
+                  const Divider(),
+                  buildCompactListTileTitle('Watched Current Year', titleTextStyle),
+                  buildCompactListTile('Movies Watched', watchedMoviesCurrentYear.toString()),
+                  buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentYear.toString()),
+                  const Divider(),
+                  buildCompactListTileTitle('Watched Current Month', titleTextStyle),
+                  buildCompactListTile('Movies Watched', watchedMoviesCurrentMonth.toString()),
+                  buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentMonth.toString()),
+                  buildCompactListTile('Movies Added', addedMoviesCurrentMonth.toString()),
+                  const Divider(),
+                  buildCompactListTileTitle('Watched All', titleTextStyle),
+                  buildCompactListTile('Movies', countWatchedMovies.toString()),
+                  buildCompactListTile('Runtime - Min', watchedRuntime.toString()),
+                  const Divider(),
+                  buildCompactListTileTitle('Watched by Month/Year', titleTextStyle),
+                  Column(
+                    children: moviesByMonthAndYear.entries.map((entry) {
+                      String monthYear = entry.key;
+                      List<Movie> moviesOnThisMonthYear = entry.value;
+                      return ListTile(
+                        title: Text(monthYear),
+                        trailing: Text('${moviesOnThisMonthYear.length}', style: styleTrailing),
+                        onTap: () => _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear),
                       );
-                    },
+                    }).toList(),
                   ),
                   const SizedBox(
-                    height: 100,
+                    height: 75,
                   ),
                 ],
               ),
