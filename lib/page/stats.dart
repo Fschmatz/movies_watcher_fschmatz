@@ -59,11 +59,9 @@ class _StatsState extends State<Stats> {
     watchedRuntimeCurrentMonth = results[5] as int;
     addedMoviesCurrentMonth = results[6] as int;
 
-    await Future.wait([
-      _generateMapMoviesByMonthAndYear(),
-      _sortMoviesByMonthAndYear(),
-      _setCurrentYearStats(),
-    ]);
+    await _generateMapMoviesByMonthAndYear();
+    await _sortMoviesByMonthAndYear();
+    await _setCurrentYearStats();
 
     setState(() => loading = false);
   }

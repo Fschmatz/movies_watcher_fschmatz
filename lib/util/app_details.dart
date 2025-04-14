@@ -1,6 +1,6 @@
 class AppDetails{
 
-  static String appVersion = "1.4.2";
+  static String appVersion = "1.4.3";
   static String appName = "Movies Watcher Fschmatz";
   static String appNameHomePage = "Watchlist";
   static String backupFileName = "movies_watcher_backup";
@@ -12,6 +12,7 @@ $appVersion
 - Year total on stats page
 - UI changes on stats page
 - Logic changes
+- Bug fixes
 ''';
 
   static String changelogsOld = '''
