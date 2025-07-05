@@ -19,7 +19,6 @@ class SearchMovie extends StatefulWidget {
 }
 
 class _SearchMovieState extends State<SearchMovie> {
-
   bool _isBeforeSearch = true;
   bool _loadingSearch = true;
   String _quantityResults = "0";
@@ -249,7 +248,8 @@ class _SearchMovieState extends State<SearchMovie> {
                                 ],
                               ),
                             ),
-                            ListView.builder(
+                            ListView.separated(
+                              separatorBuilder:  (BuildContext context, int index) => const Divider( height: 0,),
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: _moviesList.length,

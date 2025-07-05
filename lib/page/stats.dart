@@ -48,7 +48,7 @@ class _StatsState extends State<Stats> {
       dbMovies.sumRuntimeByWatchedNoYes(NoYes.no),
       dbMovies.countMovieWatchedCurrentMonth(),
       dbMovies.sumRuntimeWatchedCurrentMonth(),
-      dbMovies.countMovieAddedCurrentMonth(),
+      //dbMovies.countMovieAddedCurrentMonth(),
     ]);
 
     countNotWatchedMovies = results[0] as int;
@@ -57,7 +57,7 @@ class _StatsState extends State<Stats> {
     notWatchedRuntime = results[3] as int;
     watchedMoviesCurrentMonth = results[4] as int;
     watchedRuntimeCurrentMonth = results[5] as int;
-    addedMoviesCurrentMonth = results[6] as int;
+    //addedMoviesCurrentMonth = results[6] as int;
 
     await _generateMapMoviesByMonthAndYear();
     await _sortMoviesByMonthAndYear();
@@ -104,11 +104,13 @@ class _StatsState extends State<Stats> {
   }
 
   void _showMoviesWatchedOnMonthAndYearDialog(BuildContext context, String monthYear, List<Movie> movies) {
+    int sumRuntimesMonthYear = movies.fold<int>(0, (sum, movie) => sum + (movie.getRuntime() ?? 0));
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(monthYear),
+          title: Text("$monthYear - $sumRuntimesMonthYear Min"),
           content: SizedBox(
             height: 250,
             width: double.maxFinite,
@@ -150,9 +152,55 @@ class _StatsState extends State<Stats> {
     );
   }
 
+  Widget buildStatusCard(Color backgroundColor, Color textColor, String title, int? movies, int? runtime) {
+    return SizedBox(
+      height: 110,
+      child: Card(
+        color: backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                "$movies movie${movies == 1 ? "" : "s"}",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                "$runtime minute${runtime == 1 ? "" : "s"}",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Color accent = Theme.of(context).colorScheme.primary;
+    Color cardBackgroundColor = Theme.of(context).colorScheme.tertiaryContainer;
+    Color cardTextColor = Theme.of(context).colorScheme.onTertiaryContainer;
+    Color currentCardBackgroundColor = Theme.of(context).colorScheme.primaryContainer;
+    Color currentCardTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
     TextStyle titleTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: accent);
 
     return Scaffold(
@@ -165,22 +213,51 @@ class _StatsState extends State<Stats> {
             ? const Center(child: SizedBox.shrink())
             : ListView(
                 children: [
-                  buildCompactListTileTitle('Not Watched', titleTextStyle),
-                  buildCompactListTile('Movies', countNotWatchedMovies.toString()),
-                  buildCompactListTile('Runtime - Min', notWatchedRuntime.toString()),
-                  const Divider(),
-                  buildCompactListTileTitle('Watched Current Year', titleTextStyle),
-                  buildCompactListTile('Movies Watched', watchedMoviesCurrentYear.toString()),
-                  buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentYear.toString()),
-                  const Divider(),
-                  buildCompactListTileTitle('Watched Current Month', titleTextStyle),
-                  buildCompactListTile('Movies Watched', watchedMoviesCurrentMonth.toString()),
-                  buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentMonth.toString()),
-                  buildCompactListTile('Movies Added', addedMoviesCurrentMonth.toString()),
-                  const Divider(),
-                  buildCompactListTileTitle('Watched All', titleTextStyle),
-                  buildCompactListTile('Movies', countWatchedMovies.toString()),
-                  buildCompactListTile('Runtime - Min', watchedRuntime.toString()),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(child: buildStatusCard(cardBackgroundColor, cardTextColor, 'Total watched', countWatchedMovies, watchedRuntime)),
+                        SizedBox(width: 4),
+                        Expanded(
+                            child:
+                                buildStatusCard(cardBackgroundColor, cardTextColor, 'Total not watched', countNotWatchedMovies, notWatchedRuntime)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: buildStatusCard(currentCardBackgroundColor, currentCardTextColor, 'Watched current month', watchedMoviesCurrentMonth,
+                                watchedRuntimeCurrentMonth)),
+                        SizedBox(width: 4),
+                        Expanded(
+                            child: buildStatusCard(currentCardBackgroundColor, currentCardTextColor, 'Watched current year', watchedMoviesCurrentYear,
+                                watchedRuntimeCurrentYear)),
+                      ],
+                    ),
+                  ),
+
+                  // buildCompactListTileTitle('Not Watched', titleTextStyle),
+                  // buildCompactListTile('Movies', countNotWatchedMovies.toString()),
+                  // buildCompactListTile('Runtime - Min', notWatchedRuntime.toString()),
+                  // const Divider(),
+                  // buildCompactListTileTitle('Watched Current Year', titleTextStyle),
+                  // buildCompactListTile('Movies Watched', watchedMoviesCurrentYear.toString()),
+                  // buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentYear.toString()),
+                  // const Divider(),
+                  // buildCompactListTileTitle('Watched Current Month', titleTextStyle),
+                  // buildCompactListTile('Movies Watched', watchedMoviesCurrentMonth.toString()),
+                  // buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentMonth.toString()),
+                  // buildCompactListTile('Movies Added', addedMoviesCurrentMonth.toString()),
+                  // const Divider(),
+                  // buildCompactListTileTitle('Watched All', titleTextStyle),
+                  // buildCompactListTile('Movies', countWatchedMovies.toString()),
+                  // buildCompactListTile('Runtime - Min', watchedRuntime.toString()),
+                  SizedBox(height: 12),
                   const Divider(),
                   buildCompactListTileTitle('Watched by Month/Year', titleTextStyle),
                   Column(

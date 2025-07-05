@@ -24,8 +24,9 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.fschmatz.movies_watcher_fschmatz"
-    compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 35
+    //ndkVersion flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

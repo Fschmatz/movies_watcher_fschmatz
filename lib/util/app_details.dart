@@ -1,21 +1,27 @@
 class AppDetails{
 
-  static String appVersion = "1.4.3";
-  static String appName = "Movies Watcher Fschmatz";
-  static String appNameHomePage = "Watchlist";
-  static String backupFileName = "movies_watcher_backup";
-  static String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
+  static final String appVersion = "1.5.0";
+  static final String appName = "Movies Watcher Fschmatz";
+  static final String appNameHomePage = "Watchlist";
+  static final String backupFileName = "movies_watcher_backup";
+  static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
   static String changelogCurrent = ''' 
 $appVersion
+- UI changes
+- Update Flutter 3.32
+- Themed icon
+- Bug fixes
+''';
+
+  static String changelogsOld = '''
+1.4.4
 - New cards for home
 - Year total on stats page
 - UI changes on stats page
 - Logic changes
 - Bug fixes
-''';
 
-  static String changelogsOld = '''
 1.3.13
 - Added menus with checkmark
 - Filter by year for watched

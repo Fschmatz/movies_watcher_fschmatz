@@ -14,8 +14,8 @@ class SearchResultTile extends StatefulWidget {
 
 class _SearchResultTileState extends State<SearchResultTile> {
   Movie movie = Movie();
-  double posterHeight = 90;
-  double posterWidth = 60;
+  double posterHeight = 110;
+  double posterWidth = 70;
   BorderRadius posterBorder = BorderRadius.circular(12);
 
   @override
@@ -57,11 +57,10 @@ class _SearchResultTileState extends State<SearchResultTile> {
       },
     );
 
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 5, 16, 5),
-      child: InkWell(
-        borderRadius: posterBorder,
-        onTap: _openStoreMoviePage,
+    return InkWell(
+      onTap: _openStoreMoviePage,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
