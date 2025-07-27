@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+
 import '../entity/movie.dart';
 import '../page/store_movie.dart';
 
 class SearchResultTile extends StatefulWidget {
+  final Movie movie;
+
+  const SearchResultTile({
+    super.key,
+    required this.movie,
+  });
+
   @override
   State<SearchResultTile> createState() => _SearchResultTileState();
-
-  final Movie movie;
-  final Function() loadNotWatchedMovies;
-
-  const SearchResultTile({super.key, required this.movie, required this.loadNotWatchedMovies});
 }
 
 class _SearchResultTileState extends State<SearchResultTile> {
@@ -35,7 +38,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
             movie: movie,
             isUpdate: false,
             isFromSearch: true,
-            loadNotWatchedMovies: widget.loadNotWatchedMovies,
           ),
         ));
   }

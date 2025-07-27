@@ -2,26 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/util/utils.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../entity/movie.dart';
 import '../page/store_movie.dart';
 import '../service/movie_service.dart';
 
 class MovieInfoDialog extends StatefulWidget {
   final Movie movie;
-  final Function()? loadWatchedMovies;
-  final Function()? loadNotWatchedMovies;
   final bool? isFromWatched;
   final Color dominantColorFromPoster;
   final Image? posterImage;
 
-  const MovieInfoDialog(
-      {super.key,
-      required this.movie,
-      this.loadWatchedMovies,
-      this.loadNotWatchedMovies,
-      this.isFromWatched,
-      required this.dominantColorFromPoster,
-      required this.posterImage});
+  const MovieInfoDialog({super.key, required this.movie, this.isFromWatched, required this.dominantColorFromPoster, required this.posterImage});
 
   @override
   State<MovieInfoDialog> createState() => _MovieInfoDialogState();
@@ -50,29 +42,17 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
 
   Future<void> _delete() async {
     await movieService.deleteMovie(movie);
-    await _reloadMoviesList();
   }
 
   Future<void> _markWatched() async {
     await movieService.setWatched(movie);
-    await _reloadMoviesList();
   }
 
   Future<void> _markNotWatched() async {
     await movieService.setNotWatched(movie);
-    await _reloadMoviesList();
   }
 
-  Future<void> _reloadMoviesList() async {
-    if (widget.loadWatchedMovies != null) {
-      await widget.loadWatchedMovies!();
-    }
-    if (widget.loadNotWatchedMovies != null) {
-      await widget.loadNotWatchedMovies!();
-    }
-  }
-
-  showDialogConfirmDelete(BuildContext context) {
+  void showDialogConfirmDelete(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -156,8 +136,6 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                                 movie: movie,
                                 isUpdate: true,
                                 isFromSearch: false,
-                                loadWatchedMovies: widget.loadWatchedMovies,
-                                loadNotWatchedMovies: widget.loadNotWatchedMovies,
                               ),
                             ));
                         break;
@@ -197,7 +175,9 @@ class _MovieInfoDialogState extends State<MovieInfoDialog> {
                         ),
                 ),
               ),
-              const SizedBox(height: 5,),
+              const SizedBox(
+                height: 5,
+              ),
               ListTile(
                 title: Text(movie.getTitle()!,
                     style: const TextStyle(

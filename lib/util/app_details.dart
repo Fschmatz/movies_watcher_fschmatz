@@ -1,20 +1,24 @@
-class AppDetails{
-
-  static final String appVersion = "1.5.0";
+class AppDetails {
+  static final String appVersion = "1.6.0";
   static final String appName = "Movies Watcher Fschmatz";
   static final String appNameHomePage = "Watchlist";
   static final String backupFileName = "movies_watcher_backup";
   static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
-  static String changelogCurrent = ''' 
+  static String changelogCurrent =
+      ''' 
 $appVersion
-- UI changes
-- Update Flutter 3.32
-- Themed icon
+- Async Redux
 - Bug fixes
 ''';
 
   static String changelogsOld = '''
+1.5.0  
+- UI changes
+- Update Flutter 3.32
+- Themed icon
+- Bug fixes
+
 1.4.4
 - New cards for home
 - Year total on stats page
@@ -96,4 +100,3 @@ $appVersion
 - Project start
 ''';
 }
-

@@ -1,7 +1,13 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fadein/flutter_fadein.dart';
+import 'package:movies_watcher_fschmatz/redux/actions.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
+
 import '../entity/movie.dart';
+import '../main.dart';
+import '../redux/app_state.dart';
+import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 
 class WatchedList extends StatefulWidget {
@@ -17,39 +23,20 @@ class WatchedList extends StatefulWidget {
 }
 
 class _WatchedListState extends State<WatchedList> {
-  List<Movie> _moviesList = [];
-  bool _isLoading = true;
-  String _selectedYear = '';
   List<String> _yearsWithWatchedMovies = [];
 
   @override
   void initState() {
     super.initState();
 
-    _setCurrentYearOnLoad();
     _loadYearsWithWatchedMovies();
-    _loadWatchedMoviesOnStart();
-  }
-
-  Future<void> _loadWatchedMoviesOnStart() async {
-    await _loadWatchedMovies();
-
-    _changeLoadingState(false);
-  }
-
-  Future<void> _loadWatchedMovies() async {
-    _moviesList = await MovieService().findWatchedByYear(_selectedYear);
-  }
-
-  void _setCurrentYearOnLoad() {
-    _selectedYear = _getCurrentYear();
   }
 
   void _loadYearsWithWatchedMovies() async {
     _yearsWithWatchedMovies = await MovieService().findAllYearsWithWatchedMovies();
 
-    if (!_yearsWithWatchedMovies.contains(_getCurrentYear())) {
-      _yearsWithWatchedMovies.add(_getCurrentYear());
+    if (!_yearsWithWatchedMovies.contains(_getSelectedYear())) {
+      _yearsWithWatchedMovies.add(_getSelectedYear());
     }
 
     if (_yearsWithWatchedMovies.length > 1) {
@@ -57,80 +44,74 @@ class _WatchedListState extends State<WatchedList> {
     }
   }
 
-  String _getCurrentYear() {
-    return DateTime.now().year.toString();
+  String _getSelectedYear() {
+    return selectSelectedYearWatchedList();
   }
 
   Future<void> _onYearSelected(String selectedYear) async {
-    _selectedYear = selectedYear;
-    _changeLoadingState(true);
-    await _loadWatchedMovies();
-    _changeLoadingState(false);
-  }
-
-  void _changeLoadingState(bool value) {
-    setState(() {
-      _isLoading = value;
-    });
+    await store.dispatch(ChangeWatchedListSelectedYearAction(selectedYear));
+    await store.dispatch(LoadWatchedListAction());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Watched - $_selectedYear"),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_alt_outlined),
-            onSelected: _onYearSelected,
-            itemBuilder: (BuildContext context) {
-              return _yearsWithWatchedMovies.map((year) {
-                return CheckedPopupMenuItem<String>(
-                  value: year,
-                  checked: _selectedYear == year,
-                  child: Text(year),
-                );
-              }).toList();
-            },
-          )
-        ],
-      ),
-      body: ListView(
-        children: [
-          (_isLoading)
-              ? const Center(child: SizedBox.shrink())
-              : (_moviesList.isEmpty)
-              ? const Center(
-              child: SizedBox(
-                height: 5,
-              ))
-              : FadeIn(
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeIn,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 180),
-                physics: const ScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _moviesList.length,
-                itemBuilder: (context, index) {
-                  return MovieCard(
-                    key: UniqueKey(),
-                    movie: _moviesList[index],
-                    loadWatchedMovies: _loadWatchedMoviesOnStart,
-                    loadNotWatchedMovies: widget.loadNotWatchedMovies,
-                    isFromWatched: true,
+        appBar: AppBar(
+          title: Text("Watched"),
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.filter_alt_outlined),
+              onSelected: _onYearSelected,
+              itemBuilder: (BuildContext context) {
+                return _yearsWithWatchedMovies.map((year) {
+                  return CheckedPopupMenuItem<String>(
+                    value: year,
+                    checked: _getSelectedYear() == year,
+                    child: Text(year),
                   );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 100,
-          )
-        ],
-      ),
-    );
+                }).toList();
+              },
+            )
+          ],
+        ),
+        body: StoreConnector<AppState, List<Movie>>(
+          converter: (store) {
+            return selectWatchedListMovies();
+          },
+          builder: (context, movies) {
+            return ListView(
+              children: [
+                (movies.isEmpty)
+                    ? const Center(
+                        child: SizedBox(
+                        height: 5,
+                      ))
+                    : FadeIn(
+                        duration: const Duration(milliseconds: 600),
+                        curve: Curves.easeIn,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 180),
+                            physics: const ScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: movies.length,
+                            itemBuilder: (context, index) {
+                              return MovieCard(
+                                key: UniqueKey(),
+                                movie: movies[index],
+                                isFromWatched: true,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                const SizedBox(
+                  height: 100,
+                )
+              ],
+            );
+          },
+        ));
   }
 }

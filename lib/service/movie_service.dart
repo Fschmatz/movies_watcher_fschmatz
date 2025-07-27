@@ -1,8 +1,10 @@
 import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
+import 'package:movies_watcher_fschmatz/service/store_service.dart';
+
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 
-class MovieService {
+class MovieService extends StoreService {
   final dbMovies = MovieDAO.instance;
 
   Future<void> insertMovie(Movie movie) async {
@@ -23,30 +25,17 @@ class MovieService {
     };
 
     await dbMovies.insert(row);
-  }
-
-  Future<void> insertMovieFromBackup(Movie movie) async {
-    Map<String, dynamic> row = {
-      MovieDAO.columnTitle: movie.getTitle(),
-      MovieDAO.columnYear: movie.getYear(),
-      MovieDAO.columnReleased: movie.getReleased(),
-      MovieDAO.columnRuntime: movie.getRuntime(),
-      MovieDAO.columnDirector: movie.getDirector(),
-      MovieDAO.columnPlot: movie.getPlot(),
-      MovieDAO.columnCountry: movie.getCountry(),
-      MovieDAO.columnPoster: movie.getPoster(),
-      MovieDAO.columnImdbRating: movie.getImdbRating(),
-      MovieDAO.columnImdbID: movie.getImdbID(),
-      MovieDAO.columnWatched: movie.getWatched()?.id,
-      MovieDAO.columnDateAdded: movie.getDateAdded(),
-      MovieDAO.columnDateWatched: movie.getDateWatched()
-    };
-
-    await dbMovies.insert(row);
+    await loadWatchListMovies();
   }
 
   Future<void> deleteMovie(Movie movie) async {
     await dbMovies.delete(movie.getId()!);
+
+    if (movie.isMovieWatched()) {
+      await loadWatchedListMovies();
+    } else {
+      await loadWatchListMovies();
+    }
   }
 
   Future<void> updateMovie(Movie movie) async {
@@ -68,6 +57,12 @@ class MovieService {
     };
 
     await dbMovies.update(row);
+
+    if (movie.isMovieWatched()) {
+      await loadWatchedListMovies();
+    } else {
+      await loadWatchListMovies();
+    }
   }
 
   Future<void> setWatched(Movie movie) async {
@@ -84,6 +79,7 @@ class MovieService {
     Map<String, dynamic> row = {MovieDAO.columnId: movie.getId(), MovieDAO.columnWatched: NoYes.no.id, MovieDAO.columnDateWatched: null};
 
     await dbMovies.update(row);
+    await loadWatchListMovies();
   }
 
   Future<void> insertMoviesFromRestoreBackup(List<dynamic> jsonData) async {
@@ -92,6 +88,7 @@ class MovieService {
     }).toList();
 
     await dbMovies.insertBatchForBackup(listToInsert);
+    await loadWatchListMovies();
   }
 
   Future<List<Map<String, dynamic>>> loadAllMovies() {
@@ -135,5 +132,4 @@ class MovieService {
 
     return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
-
 }

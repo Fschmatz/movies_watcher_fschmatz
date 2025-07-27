@@ -1,6 +1,7 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
+
 import '../../util/app_details.dart';
 import '../../util/dialog_backup.dart';
 import '../../util/dialog_select_theme.dart';
@@ -9,16 +10,15 @@ import 'app_info.dart';
 import 'changelog.dart';
 
 class Settings extends StatefulWidget {
-  @override
-  State<Settings> createState() => _SettingsState();
-
   final Function()? loadNotWatchedMovies;
 
   const Settings({super.key, this.loadNotWatchedMovies});
+
+  @override
+  State<Settings> createState() => _SettingsState();
 }
 
 class _SettingsState extends State<Settings> {
-
   @override
   Widget build(BuildContext context) {
     Color? themeColorApp = Theme.of(context).colorScheme.primary;
@@ -78,7 +78,10 @@ class _SettingsState extends State<Settings> {
               onTap: () => showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return DialogBackup( isCreateBackup: true,  reloadHomeFunction: widget.loadNotWatchedMovies,);
+                    return DialogBackup(
+                      isCreateBackup: true,
+                      reloadHomeFunction: widget.loadNotWatchedMovies,
+                    );
                   }),
               leading: const Icon(Icons.save_outlined),
               title: const Text(
@@ -89,7 +92,10 @@ class _SettingsState extends State<Settings> {
               onTap: () => showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return DialogBackup( isCreateBackup: false,  reloadHomeFunction: widget.loadNotWatchedMovies,);
+                    return DialogBackup(
+                      isCreateBackup: false,
+                      reloadHomeFunction: widget.loadNotWatchedMovies,
+                    );
                   }),
               leading: const Icon(Icons.settings_backup_restore_outlined),
               title: const Text(
