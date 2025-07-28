@@ -1,12 +1,11 @@
 class AppDetails {
-  static final String appVersion = "1.6.0";
+  static final String appVersion = "1.6.2";
   static final String appName = "Movies Watcher Fschmatz";
   static final String appNameHomePage = "Watchlist";
   static final String backupFileName = "movies_watcher_backup";
   static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
-  static String changelogCurrent =
-      ''' 
+  static String changelogCurrent = '''
 $appVersion
 - Async Redux
 - Bug fixes

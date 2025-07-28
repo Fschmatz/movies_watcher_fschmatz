@@ -29,98 +29,118 @@ class _WatchListState extends State<WatchList> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    store.dispatch(LoadWatchListAction());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(AppDetails.appNameHomePage),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.add_outlined,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => SearchMovie(),
-                      ));
-                }),
-            PopupMenuButton<SortOption>(
-              icon: const Icon(Icons.sort_outlined),
-              onSelected: _onSortListSelected,
-              itemBuilder: (BuildContext context) {
-                return SortOption.values.map((sortOption) {
-                  return CheckedPopupMenuItem<SortOption>(
-                    value: sortOption,
-                    checked: selectSelectedHomeSortOption() == sortOption,
-                    child: Text(sortOption.name),
-                  );
-                }).toList();
-              },
-            ),
-            PopupMenuButton<int>(
-                icon: const Icon(Icons.more_vert_outlined),
-                itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                      const PopupMenuItem<int>(value: 0, child: Text('Watched')),
-                      const PopupMenuItem<int>(value: 1, child: Text('Stats')),
-                      const PopupMenuItem<int>(value: 2, child: Text('Settings')),
-                    ],
-                onSelected: (int value) {
-                  switch (value) {
-                    case 0:
-                      store.dispatch(LoadWatchedListAction());
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => WatchedList(),
-                          ));
-                    case 1:
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => const Stats(),
-                          ));
-                    case 2:
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => Settings(),
-                          ));
-                  }
-                })
-          ],
-        ),
-        body: StoreConnector<AppState, List<Movie>>(converter: (store) {
+      appBar: AppBar(
+        title: Text(AppDetails.appNameHomePage),
+        actions: [
+          IconButton(
+              icon: const Icon(
+                Icons.add_outlined,
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SearchMovie(),
+                    ));
+              }),
+          PopupMenuButton<SortOption>(
+            icon: const Icon(Icons.sort_outlined),
+            onSelected: _onSortListSelected,
+            itemBuilder: (BuildContext context) {
+              return SortOption.values.map((sortOption) {
+                return CheckedPopupMenuItem<SortOption>(
+                  value: sortOption,
+                  checked: selectSelectedHomeSortOption() == sortOption,
+                  child: Text(sortOption.name),
+                );
+              }).toList();
+            },
+          ),
+          PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert_outlined),
+              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                    const PopupMenuItem<int>(value: 0, child: Text('Watched')),
+                    const PopupMenuItem<int>(value: 1, child: Text('Stats')),
+                    const PopupMenuItem<int>(value: 2, child: Text('Settings')),
+                  ],
+              onSelected: (int value) {
+                switch (value) {
+                  case 0:
+                    store.dispatch(LoadWatchedListAction());
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => WatchedList(),
+                        ));
+                  case 1:
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => const Stats(),
+                        ));
+                  case 2:
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => Settings(),
+                        ));
+                }
+              })
+        ],
+      ),
+      body: StoreConnector<AppState, List<Movie>>(
+        converter: (store) {
           return selectWatchListMovies();
-        }, builder: (context, movies) {
+        },
+        builder: (context, movies) {
+          final isLoading = context.isWaiting(LoadWatchListAction);
+
           return ListView(
             children: [
-              (movies.isEmpty)
+              isLoading
                   ? const Center(
-                      child: SizedBox(
-                      height: 5,
-                    ))
-                  : FadeIn(
-                      duration: const Duration(milliseconds: 600),
-                      curve: Curves.easeIn,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 180),
-                          physics: const ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: movies.length,
-                          itemBuilder: (context, index) {
-                            return MovieCard(key: UniqueKey(), movie: movies[index]);
-                          },
+                      child: SizedBox(height: 5),
+                    )
+                  : movies.isEmpty
+                      ? const Center(
+                          child: SizedBox(height: 5),
+                        )
+                      : FadeIn(
+                          duration: const Duration(milliseconds: 600),
+                          curve: Curves.easeIn,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisExtent: 180,
+                              ),
+                              physics: const ScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: movies.length,
+                              itemBuilder: (context, index) {
+                                return MovieCard(
+                                  key: UniqueKey(),
+                                  movie: movies[index],
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-              const SizedBox(
-                height: 100,
-              )
+              const SizedBox(height: 100),
             ],
           );
-        }));
+        },
+      ),
+    );
   }
 }
