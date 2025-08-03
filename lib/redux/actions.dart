@@ -10,9 +10,7 @@ import 'app_state.dart';
 class LoadWatchListAction extends AppAction {
   @override
   Future<AppState> reduce() async {
-    SortOption selectedHomeSortOption = selectSelectedHomeSortOption();
-
-    List<Movie> movies = await MovieService().queryAllByWatchedNoYesAndOrderByAndConvertToList(NoYes.no, selectedHomeSortOption.sqlOrderBy);
+    List<Movie> movies = await MovieService().queryAllByWatchedNoYesAndOrderByAndConvertToList(NoYes.no, state.selectedHomeSortOption.sqlOrderBy);
 
     return state.copyWith(watchList: movies);
   }

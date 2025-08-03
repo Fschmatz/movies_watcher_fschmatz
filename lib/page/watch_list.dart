@@ -1,6 +1,5 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
 import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
 import 'package:movies_watcher_fschmatz/page/stats.dart';
@@ -26,13 +25,6 @@ class _WatchListState extends State<WatchList> {
   Future<void> _onSortListSelected(SortOption optionSelected) async {
     await store.dispatch(ChangeWatchListSortAction(optionSelected));
     await store.dispatch(LoadWatchListAction());
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    store.dispatch(LoadWatchListAction());
   }
 
   @override
@@ -114,29 +106,25 @@ class _WatchListState extends State<WatchList> {
                       ? const Center(
                           child: SizedBox(height: 5),
                         )
-                      : FadeIn(
-                          duration: const Duration(milliseconds: 600),
-                          curve: Curves.easeIn,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: GridView.builder(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisExtent: 180,
-                              ),
-                              physics: const ScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: movies.length,
-                              itemBuilder: (context, index) {
-                                return MovieCard(
-                                  key: UniqueKey(),
-                                  movie: movies[index],
-                                );
-                              },
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisExtent: 215,
                             ),
+                            physics: const ScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: movies.length,
+                            itemBuilder: (context, index) {
+                              return MovieCard(
+                                key: UniqueKey(),
+                                movie: movies[index],
+                              );
+                            },
                           ),
                         ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 75),
             ],
           );
         },

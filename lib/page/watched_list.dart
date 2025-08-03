@@ -1,6 +1,5 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/redux/actions.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
 
@@ -86,28 +85,24 @@ class _WatchedListState extends State<WatchedList> {
                         child: SizedBox(
                         height: 5,
                       ))
-                    : FadeIn(
-                        duration: const Duration(milliseconds: 600),
-                        curve: Curves.easeIn,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 180),
-                            physics: const ScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: movies.length,
-                            itemBuilder: (context, index) {
-                              return MovieCard(
-                                key: UniqueKey(),
-                                movie: movies[index],
-                                isFromWatched: true,
-                              );
-                            },
-                          ),
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 215),
+                          physics: const ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: movies.length,
+                          itemBuilder: (context, index) {
+                            return MovieCard(
+                              key: UniqueKey(),
+                              movie: movies[index],
+                              isFromWatched: true,
+                            );
+                          },
                         ),
                       ),
                 const SizedBox(
-                  height: 100,
+                  height: 75,
                 )
               ],
             );

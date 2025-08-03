@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:movies_watcher_fschmatz/widget/runtime_chip.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -78,34 +79,52 @@ class _MovieCardState extends State<MovieCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card.outlined(
+    return Card(
+      color: theme.colorScheme.surfaceContainerHigh,
       child: InkWell(
         borderRadius: posterBorder,
         onTap: _openMovieInfoDialog,
-        child: Stack(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            (posterImage == null)
-                ? SizedBox(
-                    height: posterHeight,
-                    width: posterWidth,
-                    child: Icon(
-                      Icons.movie_outlined,
-                      size: 30,
-                      color: theme.hintColor,
-                    ),
-                  )
-                : SizedBox(
-                    height: posterHeight,
-                    width: posterWidth,
-                    child: ClipRRect(
-                      borderRadius: posterBorder,
-                      child: posterImage,
-                    ),
+            Stack(
+              children: [
+                (posterImage == null)
+                    ? SizedBox(
+                        height: posterHeight,
+                        width: posterWidth,
+                        child: Icon(
+                          Icons.movie_outlined,
+                          size: 30,
+                          color: theme.hintColor,
+                        ),
+                      )
+                    : SizedBox(
+                        height: posterHeight,
+                        width: posterWidth,
+                        child: ClipRRect(
+                          borderRadius: posterBorder,
+                          child: posterImage,
+                        ),
+                      ),
+                if (movie.getRuntime() != null)
+                  RuntimeChip(
+                    runtime: movie.getRuntime()!,
                   ),
-            if (movie.getRuntime() != null)
-              RuntimeChip(
-                runtime: movie.getRuntime()!,
+              ],
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
+                child: Text(
+                  movie.getTitle()!,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                ),
               ),
+            ),
           ],
         ),
       ),

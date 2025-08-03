@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class RuntimeChip extends StatelessWidget {
   final int runtime;
+
   const RuntimeChip({super.key, required this.runtime});
 
   @override
@@ -26,7 +27,7 @@ class RuntimeChip extends StatelessWidget {
             Icon(
               Icons.access_time_outlined,
               size: 12,
-              color: theme.colorScheme.secondary,
+              color: theme.colorScheme.onSecondaryContainer,
             ),
             const SizedBox(width: 4),
             Text(
@@ -34,7 +35,7 @@ class RuntimeChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: theme.colorScheme.secondary,
+                color: theme.colorScheme.onSecondaryContainer,
               ),
             ),
           ],
