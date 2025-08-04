@@ -78,34 +78,40 @@ class _WatchedListState extends State<WatchedList> {
             return selectWatchedListMovies();
           },
           builder: (context, movies) {
-            return ListView(
-              children: [
-                (movies.isEmpty)
-                    ? const Center(
-                        child: SizedBox(
-                        height: 5,
-                      ))
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 215),
-                          physics: const ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: movies.length,
-                          itemBuilder: (context, index) {
-                            return MovieCard(
-                              key: UniqueKey(),
-                              movie: movies[index],
-                              isFromWatched: true,
-                            );
-                          },
-                        ),
-                      ),
-                const SizedBox(
-                  height: 75,
-                )
-              ],
-            );
+            final isLoading = context.isWaiting(LoadWatchedListAction);
+
+            return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 450),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView(
+                        children: [
+                          (movies.isEmpty)
+                              ? const Center(
+                                  child: SizedBox(
+                                  height: 5,
+                                ))
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: GridView.builder(
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 215),
+                                    physics: const ScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: movies.length,
+                                    itemBuilder: (context, index) {
+                                      return MovieCard(
+                                        key: UniqueKey(),
+                                        movie: movies[index],
+                                        isFromWatched: true,
+                                      );
+                                    },
+                                  ),
+                                ),
+                          const SizedBox(
+                            height: 75,
+                          )
+                        ],
+                      ));
           },
         ));
   }

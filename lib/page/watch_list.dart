@@ -96,36 +96,33 @@ class _WatchListState extends State<WatchList> {
         builder: (context, movies) {
           final isLoading = context.isWaiting(LoadWatchListAction);
 
-          return ListView(
-            children: [
-              isLoading
-                  ? const Center(
-                      child: SizedBox(height: 5),
-                    )
-                  : movies.isEmpty
-                      ? const Center(
-                          child: SizedBox(height: 5),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisExtent: 215,
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 450),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView(children: [
+                    movies.isEmpty
+                        ? SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisExtent: 215,
+                              ),
+                              physics: const ScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: movies.length,
+                              itemBuilder: (context, index) {
+                                return MovieCard(
+                                  key: UniqueKey(),
+                                  movie: movies[index],
+                                );
+                              },
                             ),
-                            physics: const ScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: movies.length,
-                            itemBuilder: (context, index) {
-                              return MovieCard(
-                                key: UniqueKey(),
-                                movie: movies[index],
-                              );
-                            },
                           ),
-                        ),
-              const SizedBox(height: 75),
-            ],
+                    const SizedBox(height: 75)
+                  ]),
           );
         },
       ),

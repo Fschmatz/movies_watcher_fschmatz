@@ -13,7 +13,9 @@ final Store<AppState> store = Store<AppState>(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await store.dispatch(LoadWatchListAction());
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 1024 * 1024 * 50;
+
+  store.dispatch(LoadWatchListAction());
 
   runApp(
     StoreProvider<AppState>(
