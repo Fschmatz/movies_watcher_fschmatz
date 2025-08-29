@@ -89,19 +89,18 @@ class _WatchListState extends State<WatchList> {
               })
         ],
       ),
-      body: StoreConnector<AppState, List<Movie>>(
-        converter: (store) {
-          return selectWatchListMovies();
-        },
-        builder: (context, movies) {
-          final isLoading = context.isWaiting(LoadWatchListAction);
-
+      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies})>(
+        converter: (store) => (
+          isLoadingWatchList: store.state.isLoadingWatchList,
+          movies: store.state.watchList,
+        ),
+        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies}) viewData) {
           return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 450),
-            child: isLoading
+            duration: const Duration(milliseconds: 1500),
+            child: viewData.isLoadingWatchList
                 ? const Center(child: CircularProgressIndicator())
                 : ListView(children: [
-                    movies.isEmpty
+                    viewData.movies.isEmpty
                         ? SizedBox.shrink()
                         : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -112,11 +111,11 @@ class _WatchListState extends State<WatchList> {
                               ),
                               physics: const ScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: movies.length,
+                              itemCount: viewData.movies.length,
                               itemBuilder: (context, index) {
                                 return MovieCard(
                                   key: UniqueKey(),
-                                  movie: movies[index],
+                                  movie: viewData.movies[index],
                                 );
                               },
                             ),

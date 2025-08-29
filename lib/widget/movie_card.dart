@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_fadein/flutter_fadein.dart';
 import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:movies_watcher_fschmatz/widget/runtime_chip.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -38,7 +37,7 @@ class _MovieCardState extends State<MovieCard> {
   }
 
   void _loadPosterImage() {
-    imageBytes = movie.getPoster() != null || movie.getPoster()!.isNotEmpty ? base64Decode(movie.getPoster()!) : null;
+    imageBytes = (movie.getPoster() != null && movie.getPoster()!.isNotEmpty) ? base64Decode(movie.getPoster()!) : null;
     posterImage = imageBytes != null
         ? Image.memory(
             imageBytes!,

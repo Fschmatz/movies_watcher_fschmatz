@@ -73,20 +73,19 @@ class _WatchedListState extends State<WatchedList> {
             )
           ],
         ),
-        body: StoreConnector<AppState, List<Movie>>(
-          converter: (store) {
-            return selectWatchedListMovies();
-          },
-          builder: (context, movies) {
-            final isLoading = context.isWaiting(LoadWatchedListAction);
-
+        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies})>(
+          converter: (store) => (
+            isLoadingWatchedList: store.state.isLoadingWatchedList,
+            movies: store.state.watchedList,
+          ),
+          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies}) viewData) {
             return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 450),
-                child: isLoading
+                duration: const Duration(milliseconds: 1500),
+                child: viewData.isLoadingWatchedList
                     ? const Center(child: CircularProgressIndicator())
                     : ListView(
                         children: [
-                          (movies.isEmpty)
+                          (viewData.movies.isEmpty)
                               ? const Center(
                                   child: SizedBox(
                                   height: 5,
@@ -97,11 +96,11 @@ class _WatchedListState extends State<WatchedList> {
                                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 215),
                                     physics: const ScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemCount: movies.length,
+                                    itemCount: viewData.movies.length,
                                     itemBuilder: (context, index) {
                                       return MovieCard(
                                         key: UniqueKey(),
-                                        movie: movies[index],
+                                        movie: viewData.movies[index],
                                         isFromWatched: true,
                                       );
                                     },
