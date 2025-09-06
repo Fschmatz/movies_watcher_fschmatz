@@ -1,18 +1,21 @@
 class AppDetails {
-  static final String appVersion = "1.6.5";
+  static final String appVersion = "1.7.0";
   static final String appName = "Movies Watcher Fschmatz";
   static final String appNameHomePage = "Watchlist";
-  static final String backupFileName = "movies_watcher_backup";
   static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
   static String changelogCurrent = '''
 $appVersion
-- Async Redux
 - Bug fixes
 - UI changes
 ''';
 
   static String changelogsOld = '''
+1.6.5  
+- Async Redux
+- Bug fixes
+- UI changes  
+  
 1.5.0  
 - UI changes
 - Update Flutter 3.32

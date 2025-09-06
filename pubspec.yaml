@@ -1,7 +1,7 @@
 name: movies_watcher_fschmatz
 description: "Track movies"
 publish_to: 'none'
-version: 1.6.5
+version: 1.7.0
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -23,8 +23,6 @@ dependencies:
   image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0
   permission_handler: ^11.3.0
-  flutter_fadein: ^2.0.0
-  palette_generator: ^0.3.3+3
   dynamic_system_colors: ^1.8.0
   async_redux: ^25.4.0
 

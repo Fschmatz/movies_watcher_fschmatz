@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
-import 'app_details.dart';
 import 'backup_utils.dart';
 
 class DialogBackup extends StatefulWidget {
-
   final bool isCreateBackup;
   final Function()? reloadHomeFunction;
 
@@ -15,24 +14,22 @@ class DialogBackup extends StatefulWidget {
 }
 
 class _DialogBackupState extends State<DialogBackup> {
-
   Future<void> _createBackup() async {
-    await BackupUtils().backupData(AppDetails.backupFileName);
+    await BackupUtils().backupData(AppConstants.backupFileName);
   }
 
   Future<void> _restoreFromBackup() async {
-    await BackupUtils().restoreBackupData(AppDetails.backupFileName);
+    await BackupUtils().restoreBackupData(AppConstants.backupFileName);
     widget.reloadHomeFunction!();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return AlertDialog(
       title: const Text(
         "Confirm",
       ),
-      content:  Text(
+      content: Text(
         widget.isCreateBackup ? "Create backup ?" : "Restore backup ?",
       ),
       actions: [

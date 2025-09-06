@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/widget/movie_info_dialog.dart';
 import 'package:movies_watcher_fschmatz/widget/runtime_chip.dart';
-import 'package:palette_generator/palette_generator.dart';
 
 import '../entity/movie.dart';
 import '../service/movie_service.dart';
+import 'movie_info_bottom_sheet.dart';
 
 class MovieCard extends StatefulWidget {
   @override
@@ -47,31 +46,17 @@ class _MovieCardState extends State<MovieCard> {
         : null;
   }
 
-  void _openMovieInfoDialog() async {
-    Color dominantColorFromPoster = Colors.blue;
-    if (imageBytes != null) {
-      dominantColorFromPoster = await _generateDominantColorFromPoster();
-    }
-
-    Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return MovieInfoDialog(
-            movie: movie,
-            isFromWatched: widget.isFromWatched,
-            dominantColorFromPoster: dominantColorFromPoster,
-            posterImage: posterImage,
-          );
-        },
-        fullscreenDialog: true));
-  }
-
-  Future<Color> _generateDominantColorFromPoster() async {
-    final ImageProvider imageProvider = MemoryImage(imageBytes!);
-    final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
-      imageProvider,
+  Future<void> showMovieBottomSheet() {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return MovieInfoBottomSheet(
+          movie: movie,
+          isFromWatched: widget.isFromWatched,
+        );
+      },
     );
-
-    return paletteGenerator.dominantColor?.color ?? Colors.blue;
   }
 
   @override
@@ -82,7 +67,7 @@ class _MovieCardState extends State<MovieCard> {
       color: theme.colorScheme.surfaceContainerHigh,
       child: InkWell(
         borderRadius: posterBorder,
-        onTap: _openMovieInfoDialog,
+        onTap: showMovieBottomSheet,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

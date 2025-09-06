@@ -11,6 +11,7 @@ import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
+import '../util/app_constants.dart';
 import '../util/app_details.dart';
 import '../widget/movie_card.dart';
 
@@ -96,7 +97,7 @@ class _WatchListState extends State<WatchList> {
         ),
         builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies}) viewData) {
           return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1500),
+            duration: AppConstants.movieListAnimationDuration,
             child: viewData.isLoadingWatchList
                 ? const Center(child: CircularProgressIndicator())
                 : ListView(children: [

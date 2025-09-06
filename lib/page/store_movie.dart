@@ -460,29 +460,6 @@ class _StoreMovieState extends State<StoreMovie> {
             ),
           ),
         ),
-        /* Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-          child: FilledButton.tonalIcon(
-              onPressed: () {
-                if (validateTextFields()) {
-                  _beforeStoreMovie();
-                  //_storeMovie().then((_) => _reloadMoviesList()).then((_) => Navigator.of(context).pop());
-                } else {
-                  setState(() {
-                    _validImdbId;
-                    _validTitle;
-                    _validRuntime;
-                    _validYear;
-                  });
-                }
-              },
-              icon: const Icon(
-                Icons.save_outlined,
-              ),
-              label: const Text(
-                'Save',
-              )),
-        ),*/
         const SizedBox(
           height: 100,
         )

@@ -8,6 +8,7 @@ import '../main.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
 import '../service/movie_service.dart';
+import '../util/app_constants.dart';
 
 class WatchedList extends StatefulWidget {
   final Function()? loadNotWatchedMovies;
@@ -80,7 +81,7 @@ class _WatchedListState extends State<WatchedList> {
           ),
           builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies}) viewData) {
             return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 1500),
+                duration: AppConstants.movieListAnimationDuration,
                 child: viewData.isLoadingWatchedList
                     ? const Center(child: CircularProgressIndicator())
                     : ListView(
