@@ -23,7 +23,8 @@ class _MovieCardState extends State<MovieCard> {
   Movie movie = Movie();
   double posterHeight = 180;
   double posterWidth = 150;
-  BorderRadius posterBorder = BorderRadius.circular(12);
+  BorderRadius posterBorder = BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  BorderRadius cardBorder = BorderRadius.circular(12);
   late Uint8List? imageBytes;
   Image? posterImage;
 
@@ -66,7 +67,7 @@ class _MovieCardState extends State<MovieCard> {
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
       child: InkWell(
-        borderRadius: posterBorder,
+        borderRadius: cardBorder,
         onTap: showMovieBottomSheet,
         child: Column(
           mainAxisSize: MainAxisSize.min,

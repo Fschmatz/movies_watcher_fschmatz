@@ -48,7 +48,7 @@ class MovieInfoBottomSheet extends StatelessWidget {
         ));
   }
 
-  Future<void>  showDialogConfirmDelete(BuildContext context) async {
+  Future<void> showDialogConfirmDelete(BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -91,11 +91,10 @@ class MovieInfoBottomSheet extends StatelessWidget {
       child: SizedBox(
           width: double.infinity,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
             child: Wrap(children: <Widget>[
               ListTile(
                 title: Text(movie.getTitle()!,
-                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
