@@ -22,12 +22,18 @@ class MovieInfoBottomSheet extends StatelessWidget {
 
   Future<void> _markWatched(BuildContext context) async {
     await MovieService().setWatched(movie);
+    _awaitBeforeClosing();
     Navigator.of(context).pop();
   }
 
   Future<void> _markNotWatched(BuildContext context) async {
     await MovieService().setNotWatched(movie);
+    _awaitBeforeClosing();
     Navigator.of(context).pop();
+  }
+
+  Future<void> _awaitBeforeClosing() async {
+    await Future.delayed(Duration(milliseconds: 250));
   }
 
   Future<void> _shareImdbLink(BuildContext context) async {

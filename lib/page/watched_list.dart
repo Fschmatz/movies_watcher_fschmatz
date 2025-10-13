@@ -99,9 +99,11 @@ class _WatchedListState extends State<WatchedList> {
                                     shrinkWrap: true,
                                     itemCount: viewData.movies.length,
                                     itemBuilder: (context, index) {
+                                      Movie movie = viewData.movies[index];
+
                                       return MovieCard(
-                                        key: UniqueKey(),
-                                        movie: viewData.movies[index],
+                                        key: ValueKey(movie.getId()),
+                                        movie: movie,
                                         isFromWatched: true,
                                       );
                                     },

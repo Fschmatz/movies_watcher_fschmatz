@@ -92,3 +92,29 @@ class ChangeLoadingWatchedListAction extends AppAction {
     return state.copyWith(isLoadingWatchedList: isLoadingWatchedList);
   }
 }
+
+class RemoveMovieFromWatchListAction extends AppAction {
+  final Movie movie;
+
+  RemoveMovieFromWatchListAction(this.movie);
+
+  @override
+  Future<AppState?> reduce() async {
+    final updatedList = List<Movie>.from(state.watchList)..remove(movie);
+
+    return state.copyWith(watchList: updatedList);
+  }
+}
+
+class RemoveMovieFromWatchedListAction extends AppAction {
+  final Movie movie;
+
+  RemoveMovieFromWatchedListAction(this.movie);
+
+  @override
+  Future<AppState?> reduce() async {
+    final updatedList = List<Movie>.from(state.watchedList)..remove(movie);
+
+    return state.copyWith(watchedList: updatedList);
+  }
+}

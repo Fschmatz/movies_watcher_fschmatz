@@ -29,13 +29,13 @@ class MovieService extends StoreService {
   }
 
   Future<void> deleteMovie(Movie movie) async {
-    await dbMovies.delete(movie.getId()!);
-
     if (movie.isMovieWatched()) {
-      await loadWatchedList();
+      await removeMovieFromWatchedListAction(movie);
     } else {
-      await loadWatchList();
+      await removeMovieFromWatchListAction(movie);
     }
+
+    await dbMovies.delete(movie.getId()!);
   }
 
   Future<void> updateMovie(Movie movie) async {
@@ -73,14 +73,15 @@ class MovieService extends StoreService {
     };
 
     await dbMovies.update(row);
-    await loadWatchList();
+    await removeMovieFromWatchListAction(movie);
   }
 
   Future<void> setNotWatched(Movie movie) async {
     Map<String, dynamic> row = {MovieDAO.columnId: movie.getId(), MovieDAO.columnWatched: NoYes.no.id, MovieDAO.columnDateWatched: null};
 
     await dbMovies.update(row);
-    await loadAllLists();
+    await removeMovieFromWatchedListAction(movie);
+    await loadWatchList();
   }
 
   Future<void> insertMoviesFromRestoreBackup(List<dynamic> jsonData) async {
