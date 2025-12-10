@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../enum/no_yes.dart';
 
 class MovieDAO {
@@ -35,8 +37,7 @@ class MovieDAO {
   _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+    return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -88,15 +89,13 @@ class MovieDAO {
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
 
-    return await db.rawQuery(
-        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
+    return await db.rawQuery('SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
 
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYesAndOrderBy(NoYes noYes, String selectedOrderBy) async {
     Database db = await instance.database;
 
-    return await db.rawQuery(
-        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
+    return await db.rawQuery('SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
   }
 
   Future<int?> countMoviesByWatchedNoYes(NoYes noYes) async {
@@ -114,19 +113,22 @@ class MovieDAO {
   Future<int?> sumRuntimeWatchedCurrentMonth() async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
+    return Sqflite.firstIntValue(await db.rawQuery(
+        'SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
   }
 
   Future<int?> countMovieWatchedCurrentMonth() async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
+    return Sqflite.firstIntValue(await db.rawQuery(
+        'SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'Y\' AND strftime(\'%Y-%m\', $columnDateWatched) = strftime(\'%Y-%m\', \'now\')'));
   }
 
   Future<int?> countMovieAddedCurrentMonth() async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE strftime(\'%Y-%m\', $columnDateAdded) = strftime(\'%Y-%m\', \'now\')'));
+    return Sqflite.firstIntValue(
+        await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE strftime(\'%Y-%m\', $columnDateAdded) = strftime(\'%Y-%m\', \'now\')'));
   }
 
   Future<int> deleteAll() async {
@@ -201,4 +203,55 @@ class MovieDAO {
     );
   }
 
+  Future<Map<String, int>> findForStats() async {
+    final db = await instance.database;
+
+    final result = await db.rawQuery('''
+    SELECT
+      -- not watched count
+      (SELECT IFNULL(COUNT(*), 0)
+         FROM $table
+        WHERE $columnWatched = 'N') AS countNotWatched,
+
+      -- watched count
+      (SELECT IFNULL(COUNT(*), 0)
+         FROM $table
+        WHERE $columnWatched = 'Y') AS countWatched,
+
+      -- runtime watched
+      (SELECT IFNULL(SUM($columnRuntime), 0)
+         FROM $table
+        WHERE $columnWatched = 'Y') AS runtimeWatched,
+
+      -- runtime not watched
+      (SELECT IFNULL(SUM($columnRuntime), 0)
+         FROM $table
+        WHERE $columnWatched = 'N') AS runtimeNotWatched,
+
+      -- movies watched this month
+      (SELECT IFNULL(COUNT(*), 0)
+         FROM $table
+        WHERE $columnWatched = 'Y'
+          AND strftime('%Y-%m', $columnDateWatched) = strftime('%Y-%m', 'now')
+      ) AS watchedThisMonth,
+
+      -- runtime watched this month
+      (SELECT IFNULL(SUM($columnRuntime), 0)
+         FROM $table
+        WHERE $columnWatched = 'Y'
+          AND strftime('%Y-%m', $columnDateWatched) = strftime('%Y-%m', 'now')
+      ) AS runtimeThisMonth
+  ''');
+
+    final row = result.first;
+
+    return {
+      "countNotWatched": row["countNotWatched"] as int,
+      "countWatched": row["countWatched"] as int,
+      "runtimeWatched": row["runtimeWatched"] as int,
+      "runtimeNotWatched": row["runtimeNotWatched"] as int,
+      "watchedThisMonth": row["watchedThisMonth"] as int,
+      "runtimeThisMonth": row["runtimeThisMonth"] as int,
+    };
+  }
 }

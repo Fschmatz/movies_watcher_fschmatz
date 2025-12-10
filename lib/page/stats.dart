@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
+
 import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../enum/no_yes.dart';
@@ -17,7 +18,8 @@ class Stats extends StatefulWidget {
 class _StatsState extends State<Stats> {
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> moviesList = [];
-  Map<String, List<Movie>> moviesByMonthAndYear = {};
+
+  // Map<String, List<Movie>> moviesByMonthAndYear = {};
   bool loading = true;
   TextStyle styleTrailing = const TextStyle(
     fontSize: 16,
@@ -33,6 +35,10 @@ class _StatsState extends State<Stats> {
   int watchedMoviesCurrentYear = 0;
   int watchedRuntimeCurrentYear = 0;
 
+  bool showOldYears = false;
+  Map<String, List<Movie>> currentYearMovies = {};
+  Map<String, List<Movie>> olderYearMovies = {};
+
   @override
   void initState() {
     super.initState();
@@ -41,23 +47,14 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _loadValues() async {
-    final results = await Future.wait([
-      dbMovies.countMoviesByWatchedNoYes(NoYes.no),
-      dbMovies.countMoviesByWatchedNoYes(NoYes.yes),
-      dbMovies.sumRuntimeByWatchedNoYes(NoYes.yes),
-      dbMovies.sumRuntimeByWatchedNoYes(NoYes.no),
-      dbMovies.countMovieWatchedCurrentMonth(),
-      dbMovies.sumRuntimeWatchedCurrentMonth(),
-      //dbMovies.countMovieAddedCurrentMonth(),
-    ]);
+    final stats = await dbMovies.findForStats();
 
-    countNotWatchedMovies = results[0] as int;
-    countWatchedMovies = results[1] as int;
-    watchedRuntime = results[2] as int;
-    notWatchedRuntime = results[3] as int;
-    watchedMoviesCurrentMonth = results[4] as int;
-    watchedRuntimeCurrentMonth = results[5] as int;
-    //addedMoviesCurrentMonth = results[6] as int;
+    countNotWatchedMovies = stats["countNotWatched"]!;
+    countWatchedMovies = stats["countWatched"]!;
+    watchedRuntime = stats["runtimeWatched"]!;
+    notWatchedRuntime = stats["runtimeNotWatched"]!;
+    watchedMoviesCurrentMonth = stats["watchedThisMonth"]!;
+    watchedRuntimeCurrentMonth = stats["runtimeThisMonth"]!;
 
     await _generateMapMoviesByMonthAndYear();
     await _sortMoviesByMonthAndYear();
@@ -67,33 +64,46 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _generateMapMoviesByMonthAndYear() async {
-    List<Movie> watchedMoviesList = await MovieService().queryAllByWatchedForStatsPage(NoYes.yes);
+    final watchedMoviesList = await MovieService().queryAllByWatchedForStatsPage(NoYes.yes);
 
-    for (Movie movie in watchedMoviesList) {
-      String yearMonthKey = Jiffy.parse(movie.getDateWatched()!).format(pattern: 'MM/yyyy');
-      if (!moviesByMonthAndYear.containsKey(yearMonthKey)) {
-        moviesByMonthAndYear[yearMonthKey] = [];
-      }
-      moviesByMonthAndYear[yearMonthKey]!.add(movie);
+    final int currentYear = DateTime.now().year;
+
+    currentYearMovies.clear();
+    olderYearMovies.clear();
+
+    for (final movie in watchedMoviesList) {
+      final date = Jiffy.parse(movie.getDateWatched()!);
+      final int movieYear = date.year;
+      final String yearMonthKey = date.format(pattern: 'MM/yyyy');
+
+      final targetMap = (movieYear == currentYear) ? currentYearMovies : olderYearMovies;
+
+      targetMap.putIfAbsent(yearMonthKey, () => []);
+      targetMap[yearMonthKey]!.add(movie);
     }
   }
 
   Future<void> _sortMoviesByMonthAndYear() async {
-    List<String> keys = moviesByMonthAndYear.keys.toList();
+    currentYearMovies = _sortYearMonthMap(currentYearMovies);
+    olderYearMovies = _sortYearMonthMap(olderYearMovies);
+  }
+
+  Map<String, List<Movie>> _sortYearMonthMap(Map<String, List<Movie>> input) {
+    List<String> keys = input.keys.toList();
     keys.sort((a, b) => Jiffy.parse(b, pattern: 'MM/yyyy').isBefore(Jiffy.parse(a, pattern: 'MM/yyyy')) ? -1 : 1);
 
-    Map<String, List<Movie>> sortedMoviesByMonthAndYear = {};
+    Map<String, List<Movie>> sorted = {};
     for (String key in keys) {
-      sortedMoviesByMonthAndYear[key] = moviesByMonthAndYear[key]!;
+      sorted[key] = input[key]!;
     }
 
-    moviesByMonthAndYear = sortedMoviesByMonthAndYear;
+    return sorted;
   }
 
   Future<void> _setCurrentYearStats() async {
     String currentYear = DateTime.now().year.toString();
 
-    moviesByMonthAndYear.forEach((key, movies) {
+    currentYearMovies.forEach((key, movies) {
       if (key.endsWith(currentYear)) {
         for (Movie movie in movies) {
           watchedRuntimeCurrentYear += movie.getRuntime()!;
@@ -231,8 +241,8 @@ class _StatsState extends State<Stats> {
                     child: Row(
                       children: [
                         Expanded(
-                            child: buildStatusCard(currentCardBackgroundColor, currentCardTextColor, 'Watched current month', watchedMoviesCurrentMonth,
-                                watchedRuntimeCurrentMonth)),
+                            child: buildStatusCard(currentCardBackgroundColor, currentCardTextColor, 'Watched current month',
+                                watchedMoviesCurrentMonth, watchedRuntimeCurrentMonth)),
                         SizedBox(width: 4),
                         Expanded(
                             child: buildStatusCard(currentCardBackgroundColor, currentCardTextColor, 'Watched current year', watchedMoviesCurrentYear,
@@ -240,28 +250,11 @@ class _StatsState extends State<Stats> {
                       ],
                     ),
                   ),
-
-                  // buildCompactListTileTitle('Not Watched', titleTextStyle),
-                  // buildCompactListTile('Movies', countNotWatchedMovies.toString()),
-                  // buildCompactListTile('Runtime - Min', notWatchedRuntime.toString()),
-                  // const Divider(),
-                  // buildCompactListTileTitle('Watched Current Year', titleTextStyle),
-                  // buildCompactListTile('Movies Watched', watchedMoviesCurrentYear.toString()),
-                  // buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentYear.toString()),
-                  // const Divider(),
-                  // buildCompactListTileTitle('Watched Current Month', titleTextStyle),
-                  // buildCompactListTile('Movies Watched', watchedMoviesCurrentMonth.toString()),
-                  // buildCompactListTile('Runtime Watched - Min', watchedRuntimeCurrentMonth.toString()),
-                  // buildCompactListTile('Movies Added', addedMoviesCurrentMonth.toString()),
-                  // const Divider(),
-                  // buildCompactListTileTitle('Watched All', titleTextStyle),
-                  // buildCompactListTile('Movies', countWatchedMovies.toString()),
-                  // buildCompactListTile('Runtime - Min', watchedRuntime.toString()),
                   SizedBox(height: 12),
                   const Divider(),
                   buildCompactListTileTitle('Watched by Month/Year', titleTextStyle),
                   Column(
-                    children: moviesByMonthAndYear.entries.map((entry) {
+                    children: currentYearMovies.entries.map((entry) {
                       String monthYear = entry.key;
                       List<Movie> moviesOnThisMonthYear = entry.value;
                       return ListTile(
@@ -271,6 +264,32 @@ class _StatsState extends State<Stats> {
                       );
                     }).toList(),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: FilledButton.tonalIcon(
+                      icon: Icon(showOldYears ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                      label: Text(showOldYears ? "Hide previous years" : "Show previous years"),
+                      onPressed: () => setState(() => showOldYears = !showOldYears),
+                    ),
+                  ),
+                  if (showOldYears) ...[
+                    Column(
+                      children: olderYearMovies.entries.map((entry) {
+                        final monthYear = entry.key;
+                        final moviesOnThisMonthYear = entry.value;
+
+                        return ListTile(
+                          title: Text(monthYear),
+                          trailing: Text('${moviesOnThisMonthYear.length}', style: styleTrailing),
+                          onTap: () => _showMoviesWatchedOnMonthAndYearDialog(
+                            context,
+                            monthYear,
+                            moviesOnThisMonthYear,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                   const SizedBox(
                     height: 75,
                   ),
