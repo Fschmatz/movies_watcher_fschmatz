@@ -1,14 +1,15 @@
 class AppDetails {
-  static final String appVersion = "1.7.3";
+  static final String appVersion = "1.7.4";
   static final String appName = "Movies Watcher Fschmatz";
   static final String appNameHomePage = "Watchlist";
   static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
+  static final String apiHomePage = "https://www.omdbapi.com/";
 
   static String changelogCurrent = '''
 $appVersion
 - Bug fixes
 - UI changes
-- Update Flutter 3.35
+- Update Flutter 3.38
 ''';
 
   static String changelogsOld = '''

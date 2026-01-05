@@ -23,6 +23,16 @@ class _DialogBackupState extends State<DialogBackup> {
     widget.reloadHomeFunction!();
   }
 
+  Future<void> _executeBackup() async {
+    Navigator.of(context).pop();
+
+    if (widget.isCreateBackup) {
+      _createBackup();
+    } else {
+      _restoreFromBackup();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -38,13 +48,7 @@ class _DialogBackupState extends State<DialogBackup> {
             "Yes",
           ),
           onPressed: () {
-            if (widget.isCreateBackup) {
-              Navigator.of(context).pop();
-              _createBackup();
-            } else {
-              Navigator.of(context).pop();
-              _restoreFromBackup();
-            }
+            _executeBackup();
           },
         )
       ],

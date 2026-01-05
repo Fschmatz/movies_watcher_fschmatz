@@ -1,11 +1,11 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
+import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
 
 import '../../util/app_details.dart';
 import '../../util/dialog_backup.dart';
 import '../../util/dialog_select_theme.dart';
-import '../../util/utils.dart';
 import 'app_info.dart';
 import 'changelog.dart';
 
@@ -57,7 +57,7 @@ class _SettingsState extends State<Settings> {
                 "App theme",
               ),
               subtitle: Text(
-                Utils().getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
+                UtilsFunctions.getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
               ),
             ),
             ListTile(

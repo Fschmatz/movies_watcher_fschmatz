@@ -18,26 +18,24 @@ class MovieInfoBottomSheet extends StatelessWidget {
 
   Future<void> _delete() async {
     await MovieService().deleteMovie(movie);
+    _addDelay();
   }
 
-  Future<void> _markWatched(BuildContext context) async {
+  Future<void> _markWatched() async {
     await MovieService().setWatched(movie);
-    _awaitBeforeClosing();
-    Navigator.of(context).pop();
+    _addDelay();
   }
 
-  Future<void> _markNotWatched(BuildContext context) async {
+  Future<void> _markNotWatched() async {
     await MovieService().setNotWatched(movie);
-    _awaitBeforeClosing();
-    Navigator.of(context).pop();
+    _addDelay();
   }
 
-  Future<void> _awaitBeforeClosing() async {
+  Future<void> _addDelay() async {
     await Future.delayed(Duration(milliseconds: 250));
   }
 
-  Future<void> _shareImdbLink(BuildContext context) async {
-    Navigator.of(context).pop();
+  Future<void> _shareImdbLink() async {
     Share.share("https://www.imdb.com/title/${movie.getImdbID()}");
   }
 
@@ -54,7 +52,7 @@ class MovieInfoBottomSheet extends StatelessWidget {
         ));
   }
 
-  Future<void> showDialogConfirmDelete(BuildContext context) async {
+  void showDialogConfirmDelete(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -70,8 +68,8 @@ class MovieInfoBottomSheet extends StatelessWidget {
               child: const Text(
                 "Yes",
               ),
-              onPressed: () async {
-                await _delete();
+              onPressed: () {
+                _delete();
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
@@ -148,7 +146,8 @@ class MovieInfoBottomSheet extends StatelessWidget {
                         icon: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                         label: Text(movie.isMovieWatched() ? "Not Watched" : "Watched"),
                         onPressed: () {
-                          (movie.isMovieWatched() ? _markNotWatched(context) : _markWatched(context));
+                          (movie.isMovieWatched() ? _markNotWatched() : _markWatched());
+                          Navigator.of(context).pop();
                         },
                         style: IconButton.styleFrom(
                           backgroundColor: primaryIconButtonBackground,
@@ -160,7 +159,8 @@ class MovieInfoBottomSheet extends StatelessWidget {
                     IconButton.filledTonal(
                       icon: const Icon(Icons.share_outlined),
                       onPressed: () {
-                        _shareImdbLink(context);
+                        Navigator.of(context).pop();
+                        _shareImdbLink();
                       },
                       style: IconButton.styleFrom(
                         backgroundColor: secondaryIconButtonBackground,
