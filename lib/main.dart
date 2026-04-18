@@ -15,6 +15,7 @@ Future<void> main() async {
 
   PaintingBinding.instance.imageCache.maximumSizeBytes = 1024 * 1024 * 50;
 
+  store.dispatch(LoadAppParametersAction());
   store.dispatch(LoadWatchListAction());
 
   runApp(

@@ -1,11 +1,22 @@
 import 'package:movies_watcher_fschmatz/entity/movie.dart';
 import 'package:movies_watcher_fschmatz/redux/selectors.dart';
+import 'package:movies_watcher_fschmatz/service/app_parameter_service.dart';
 
+import '../entity/app_parameter.dart';
 import '../enum/no_yes.dart';
 import '../enum/sort_watch_list_option.dart';
 import '../service/movie_service.dart';
 import 'app_action.dart';
 import 'app_state.dart';
+
+class LoadAppParametersAction extends AppAction {
+  @override
+  Future<AppState> reduce() async {
+    List<AppParameter> parameters = await AppParameterService().getAll();
+
+    return state.copyWith(appParameters: parameters);
+  }
+}
 
 class LoadWatchListAction extends AppAction {
   @override
@@ -116,5 +127,18 @@ class RemoveMovieFromWatchedListAction extends AppAction {
     final updatedList = List<Movie>.from(state.watchedList)..remove(movie);
 
     return state.copyWith(watchedList: updatedList);
+  }
+}
+
+class SaveAppParameterAction extends AppAction {
+  final AppParameter appParameter;
+
+  SaveAppParameterAction(this.appParameter);
+
+  @override
+  Future<AppState> reduce() async {
+    await AppParameterService().saveParameter(appParameter);
+       
+    return state;
   }
 }

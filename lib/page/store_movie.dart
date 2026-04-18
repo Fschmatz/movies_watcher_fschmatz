@@ -9,8 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 
-import '../api_key.dart';
 import '../entity/movie.dart';
+import '../key_api.dart';
 import '../service/movie_service.dart';
 
 class StoreMovie extends StatefulWidget {
@@ -70,7 +70,7 @@ class _StoreMovieState extends State<StoreMovie> {
 
   void _loadMovieData() async {
     if (_ctrlImdbId.text.isNotEmpty) {
-      final String apiKey = ApiKey.key;
+      final String apiKey = KeyApi.key;
       final String movieId = _ctrlImdbId.text.trim();
       final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
 

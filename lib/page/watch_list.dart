@@ -90,12 +90,16 @@ class _WatchListState extends State<WatchList> {
               })
         ],
       ),
-      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies})>(
-        converter: (store) => (
-          isLoadingWatchList: store.state.isLoadingWatchList,
-          movies: store.state.watchList,
-        ),
-        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies}) viewData) {
+      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard})>(
+        converter: (store) {
+          String? showMovieName = selectParameterValueByKey('showMovieNameOnCard');
+          return (
+            isLoadingWatchList: store.state.isLoadingWatchList,
+            movies: store.state.watchList,
+            showMovieNameOnCard: showMovieName == null ? true : showMovieName == "true",
+          );
+        },
+        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard}) viewData) {
           return AnimatedSwitcher(
             duration: AppConstants.movieListAnimationDuration,
             child: viewData.isLoadingWatchList
@@ -106,9 +110,9 @@ class _WatchListState extends State<WatchList> {
                         : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: GridView.builder(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
-                                mainAxisExtent: 215,
+                                mainAxisExtent: viewData.showMovieNameOnCard ? 215 : 188,
                               ),
                               physics: const ScrollPhysics(),
                               shrinkWrap: true,
@@ -119,6 +123,7 @@ class _WatchListState extends State<WatchList> {
                                 return MovieCard(
                                   key: ValueKey(movie.getId()),
                                   movie: movie,
+                                  showMovieName: viewData.showMovieNameOnCard,
                                 );
                               },
                             ),

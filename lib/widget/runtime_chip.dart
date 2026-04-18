@@ -34,7 +34,7 @@ class RuntimeChip extends StatelessWidget {
               "$runtime",
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w800,
                 color: theme.colorScheme.onSecondaryContainer,
               ),
             ),

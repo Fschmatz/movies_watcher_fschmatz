@@ -14,8 +14,9 @@ class MovieCard extends StatefulWidget {
 
   final Movie movie;
   final bool? isFromWatched;
+  final bool? showMovieName;
 
-  const MovieCard({super.key, required this.movie, this.isFromWatched});
+  const MovieCard({super.key, required this.movie, this.isFromWatched, this.showMovieName});
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -23,7 +24,7 @@ class _MovieCardState extends State<MovieCard> {
   Movie movie = Movie();
   double posterHeight = 180;
   double posterWidth = 150;
-  BorderRadius posterBorder = BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  late BorderRadius posterBorder;
   BorderRadius cardBorder = BorderRadius.circular(12);
   late Uint8List? imageBytes;
   Image? posterImage;
@@ -34,6 +35,24 @@ class _MovieCardState extends State<MovieCard> {
 
     movie = widget.movie;
     _loadPosterImage();
+    _loadBorders();
+  }
+
+  @override
+  void didUpdateWidget(MovieCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.showMovieName != widget.showMovieName) {
+      setState(() {
+        _loadBorders();
+      });
+    }
+  }
+
+  void _loadBorders() {
+    bool showName = widget.showMovieName ?? true;
+
+    posterBorder = showName ? const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)) : BorderRadius.circular(12);
   }
 
   void _loadPosterImage() {
@@ -51,6 +70,7 @@ class _MovieCardState extends State<MovieCard> {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       builder: (BuildContext context) {
         return MovieInfoBottomSheet(
           movie: movie,
@@ -65,7 +85,7 @@ class _MovieCardState extends State<MovieCard> {
     final theme = Theme.of(context);
 
     return Card(
-      color: theme.colorScheme.surfaceContainerHigh,
+      color: theme.colorScheme.surfaceContainerHighest,
       child: InkWell(
         borderRadius: cardBorder,
         onTap: showMovieBottomSheet,
@@ -99,17 +119,18 @@ class _MovieCardState extends State<MovieCard> {
                   ),
               ],
             ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
-                child: Text(
-                  movie.getTitle()!,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            if (widget.showMovieName ?? true)
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
+                  child: Text(
+                    movie.getTitle()!,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

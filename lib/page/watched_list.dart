@@ -74,12 +74,16 @@ class _WatchedListState extends State<WatchedList> {
             )
           ],
         ),
-        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies})>(
-          converter: (store) => (
-            isLoadingWatchedList: store.state.isLoadingWatchedList,
-            movies: store.state.watchedList,
-          ),
-          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies}) viewData) {
+        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard})>(
+          converter: (store) {
+            String? showMovieName = selectParameterValueByKey('showMovieNameOnCard');
+            return (
+              isLoadingWatchedList: store.state.isLoadingWatchedList,
+              movies: store.state.watchedList,
+              showMovieNameOnCard: showMovieName == null ? true : showMovieName == "true",
+            );
+          },
+          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard}) viewData) {
             return AnimatedSwitcher(
                 duration: AppConstants.movieListAnimationDuration,
                 child: viewData.isLoadingWatchedList
@@ -94,7 +98,10 @@ class _WatchedListState extends State<WatchedList> {
                               : Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
                                   child: GridView.builder(
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 215),
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisExtent: viewData.showMovieNameOnCard ? 215 : 188,
+                                    ),
                                     physics: const ScrollPhysics(),
                                     shrinkWrap: true,
                                     itemCount: viewData.movies.length,
@@ -105,6 +112,7 @@ class _WatchedListState extends State<WatchedList> {
                                         key: ValueKey(movie.getId()),
                                         movie: movie,
                                         isFromWatched: true,
+                                        showMovieName: viewData.showMovieNameOnCard,
                                       );
                                     },
                                   ),

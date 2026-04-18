@@ -1,3 +1,4 @@
+import '../entity/app_parameter.dart';
 import '../entity/movie.dart';
 import '../enum/sort_watch_list_option.dart';
 
@@ -8,6 +9,7 @@ class AppState {
   List<Movie> watchedList;
   String selectedYearWatchedList;
   bool isLoadingWatchedList;
+  List<AppParameter> appParameters;
 
   AppState(
       {required this.watchList,
@@ -15,7 +17,8 @@ class AppState {
       required this.watchedList,
       required this.selectedYearWatchedList,
       required this.isLoadingWatchList,
-      required this.isLoadingWatchedList});
+      required this.isLoadingWatchedList,
+      required this.appParameters});
 
   static AppState initialState() => AppState(
       watchList: [],
@@ -23,7 +26,8 @@ class AppState {
       watchedList: [],
       selectedYearWatchedList: DateTime.now().year.toString(),
       isLoadingWatchList: false,
-      isLoadingWatchedList: false);
+      isLoadingWatchedList: false,
+      appParameters: []);
 
   AppState copyWith(
       {List<Movie>? watchList,
@@ -31,13 +35,15 @@ class AppState {
       List<Movie>? watchedList,
       String? selectedYearWatchedList,
       bool? isLoadingWatchList,
-      bool? isLoadingWatchedList}) {
+      bool? isLoadingWatchedList,
+      List<AppParameter>? appParameters}) {
     return AppState(
         watchList: watchList ?? this.watchList,
         selectedHomeSortOption: selectedHomeSortOption ?? this.selectedHomeSortOption,
         watchedList: watchedList ?? this.watchedList,
         selectedYearWatchedList: selectedYearWatchedList ?? this.selectedYearWatchedList,
         isLoadingWatchList: isLoadingWatchList ?? this.isLoadingWatchList,
-        isLoadingWatchedList: isLoadingWatchedList ?? this.isLoadingWatchedList);
+        isLoadingWatchedList: isLoadingWatchedList ?? this.isLoadingWatchedList,
+        appParameters: appParameters ?? this.appParameters);
   }
 }

@@ -22,4 +22,8 @@ abstract class StoreService {
   Future<void> removeMovieFromWatchedListAction(Movie movie) async {
     await store.dispatch(RemoveMovieFromWatchedListAction(movie));
   }
+
+  Future<void> loadAppParameters() async {
+    await store.dispatch(LoadAppParametersAction());
+  }
 }

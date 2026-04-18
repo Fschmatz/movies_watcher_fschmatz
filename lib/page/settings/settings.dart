@@ -2,6 +2,8 @@ import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
 import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
+import 'package:movies_watcher_fschmatz/widget/app_parameter_value.dart';
+import 'package:movies_watcher_fschmatz/widget/settings_switch.dart';
 
 import '../../util/app_details.dart';
 import '../../util/dialog_backup.dart';
@@ -60,6 +62,12 @@ class _SettingsState extends State<Settings> {
                 UtilsFunctions.getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
               ),
             ),
+            const SettingsSwitch(
+              title: "Movie name",
+              parameterKey: 'showMovieNameOnCard',
+              subtitle: 'Show movie name on the card',
+              defaultValue: true,
+            ),
             ListTile(
               title: Text("Backup", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeColorApp)),
             ),
@@ -86,6 +94,14 @@ class _SettingsState extends State<Settings> {
               leading: const Icon(Icons.save_outlined),
               title: const Text(
                 "Backup now",
+              ),
+              subtitle: const Row(
+                children: [
+                  Text("Last backup: "),
+                  AppParameterValue(
+                    parameterKey: 'lastBackupDate',
+                  ),
+                ],
               ),
             ),
             ListTile(
