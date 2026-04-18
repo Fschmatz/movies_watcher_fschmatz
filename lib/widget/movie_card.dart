@@ -14,9 +14,9 @@ class MovieCard extends StatefulWidget {
 
   final Movie movie;
   final bool? isFromWatched;
-  final bool? showMovieName;
+  final bool showMovieName;
 
-  const MovieCard({super.key, required this.movie, this.isFromWatched, this.showMovieName});
+  const MovieCard({super.key, required this.movie, this.isFromWatched, required this.showMovieName});
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -85,6 +85,9 @@ class _MovieCardState extends State<MovieCard> {
     final theme = Theme.of(context);
 
     return Card(
+      shape: widget.showMovieName
+          ? null
+          : RoundedRectangleBorder(side: BorderSide(color: theme.colorScheme.surfaceContainerHighest, width: 2), borderRadius: cardBorder),
       color: theme.colorScheme.surfaceContainerHighest,
       child: InkWell(
         borderRadius: cardBorder,
@@ -119,7 +122,7 @@ class _MovieCardState extends State<MovieCard> {
                   ),
               ],
             ),
-            if (widget.showMovieName ?? true)
+            if (widget.showMovieName)
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
