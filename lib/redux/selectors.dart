@@ -22,3 +22,13 @@ String? selectParameterValueByKey(String key) {
     return null;
   }
 }
+
+bool selectParameterValueByKeyAsBoolean(String key, {bool defaultValue = true}) {
+  String? value = selectParameterValueByKey(key);
+
+  if (value == null) {
+    return defaultValue;
+  }
+  
+  return value == "true";
+}

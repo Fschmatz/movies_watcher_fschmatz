@@ -1,7 +1,7 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/redux/actions.dart';
-import 'package:movies_watcher_fschmatz/widget/movie_card.dart';
+import '../redux/actions.dart';
+import '../widget/movie_grid.dart';
 
 import '../entity/movie.dart';
 import '../main.dart';
@@ -74,54 +74,23 @@ class _WatchedListState extends State<WatchedList> {
             )
           ],
         ),
-        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard})>(
+        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
           converter: (store) {
-            String? showMovieName = selectParameterValueByKey('showMovieNameOnCard');
             return (
               isLoadingWatchedList: store.state.isLoadingWatchedList,
               movies: store.state.watchedList,
-              showMovieNameOnCard: showMovieName == null ? true : showMovieName == "true",
+              showMovieNameOnCard: selectParameterValueByKeyAsBoolean('showMovieNameOnCard'),
+              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean('showRuntimeChipOnCard'),
             );
           },
-          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard}) viewData) {
-            return AnimatedSwitcher(
-                duration: AppConstants.movieListAnimationDuration,
-                child: viewData.isLoadingWatchedList
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView(
-                        children: [
-                          (viewData.movies.isEmpty)
-                              ? const Center(
-                                  child: SizedBox(
-                                  height: 5,
-                                ))
-                              : Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: GridView.builder(
-                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisExtent: viewData.showMovieNameOnCard ? 215 : 188,
-                                    ),
-                                    physics: const ScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: viewData.movies.length,
-                                    itemBuilder: (context, index) {
-                                      Movie movie = viewData.movies[index];
-
-                                      return MovieCard(
-                                        key: ValueKey(movie.getId()),
-                                        movie: movie,
-                                        isFromWatched: true,
-                                        showMovieName: viewData.showMovieNameOnCard,
-                                      );
-                                    },
-                                  ),
-                                ),
-                          const SizedBox(
-                            height: 75,
-                          )
-                        ],
-                      ));
+          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+            return MovieGrid(
+              movies: viewData.movies,
+              isLoading: viewData.isLoadingWatchedList,
+              showMovieName: viewData.showMovieNameOnCard,
+              showRuntimeChip: viewData.showRuntimeChipOnCard,
+              isFromWatched: true,
+            );
           },
         ));
   }

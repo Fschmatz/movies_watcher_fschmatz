@@ -129,7 +129,7 @@ class _StatsState extends State<Stats> {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Text("• ${movies[index].getTitle()!}"),
+                  child: Text("• ${movies[index].getTitle()!} - ${movies[index].getRuntime()!} Min"),
                 );
               },
             ),

@@ -1,5 +1,5 @@
 class AppDetails {
-  static final String appVersion = "1.8.0";
+  static final String appVersion = "1.8.1";
   static final String appName = "Movies Watcher Fschmatz";
   static final String appNameHomePage = "Watchlist";
   static final String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";

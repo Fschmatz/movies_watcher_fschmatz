@@ -24,13 +24,7 @@ class SettingsSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return StoreConnector<AppState, bool>(
       converter: (store) {
-        String? value = selectParameterValueByKey(parameterKey);
-
-        if (value == null) {
-          return defaultValue;
-        }
-
-        return value == "true";
+        return selectParameterValueByKeyAsBoolean(parameterKey);
       },
       builder: (context, value) {
         return SwitchListTile(

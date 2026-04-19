@@ -13,7 +13,7 @@ import '../redux/app_state.dart';
 import '../redux/selectors.dart';
 import '../util/app_constants.dart';
 import '../util/app_details.dart';
-import '../widget/movie_card.dart';
+import '../widget/movie_grid.dart';
 
 class WatchList extends StatefulWidget {
   const WatchList({super.key});
@@ -90,46 +90,21 @@ class _WatchListState extends State<WatchList> {
               })
         ],
       ),
-      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard})>(
+      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
         converter: (store) {
-          String? showMovieName = selectParameterValueByKey('showMovieNameOnCard');
           return (
             isLoadingWatchList: store.state.isLoadingWatchList,
             movies: store.state.watchList,
-            showMovieNameOnCard: showMovieName == null ? true : showMovieName == "true",
+            showMovieNameOnCard: selectParameterValueByKeyAsBoolean('showMovieNameOnCard'),
+            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean('showRuntimeChipOnCard'),
           );
         },
-        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard}) viewData) {
-          return AnimatedSwitcher(
-            duration: AppConstants.movieListAnimationDuration,
-            child: viewData.isLoadingWatchList
-                ? const Center(child: CircularProgressIndicator())
-                : ListView(children: [
-                    viewData.movies.isEmpty
-                        ? SizedBox.shrink()
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: GridView.builder(
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisExtent: viewData.showMovieNameOnCard ? 215 : 188,
-                              ),
-                              physics: const ScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: viewData.movies.length,
-                              itemBuilder: (context, index) {
-                                Movie movie = viewData.movies[index];
-
-                                return MovieCard(
-                                  key: ValueKey(movie.getId()),
-                                  movie: movie,
-                                  showMovieName: viewData.showMovieNameOnCard,
-                                );
-                              },
-                            ),
-                          ),
-                    const SizedBox(height: 75)
-                  ]),
+        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+          return MovieGrid(
+            movies: viewData.movies,
+            isLoading: viewData.isLoadingWatchList,
+            showMovieName: viewData.showMovieNameOnCard,
+            showRuntimeChip: viewData.showRuntimeChipOnCard,
           );
         },
       ),

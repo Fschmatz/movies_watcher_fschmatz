@@ -15,8 +15,9 @@ class MovieCard extends StatefulWidget {
   final Movie movie;
   final bool? isFromWatched;
   final bool showMovieName;
+  final bool showRuntimeChip;
 
-  const MovieCard({super.key, required this.movie, this.isFromWatched, required this.showMovieName});
+  const MovieCard({super.key, required this.movie, this.isFromWatched, required this.showMovieName, required this.showRuntimeChip});
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -116,7 +117,7 @@ class _MovieCardState extends State<MovieCard> {
                           child: posterImage,
                         ),
                       ),
-                if (movie.getRuntime() != null)
+                if (movie.getRuntime() != null && widget.showRuntimeChip)
                   RuntimeChip(
                     runtime: movie.getRuntime()!,
                   ),

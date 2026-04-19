@@ -63,10 +63,14 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             const SettingsSwitch(
-              title: "Movie name",
+              title: "Show name",
               parameterKey: 'showMovieNameOnCard',
-              subtitle: 'Show movie name on the card',
-              defaultValue: true,
+              subtitle: 'Show the movie name on the card',
+            ),
+            const SettingsSwitch(
+              title: "Show runtime",
+              parameterKey: 'showRuntimeChipOnCard',
+              subtitle: 'Show the movie runtime on the card',
             ),
             ListTile(
               title: Text("Backup", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: themeColorApp)),
