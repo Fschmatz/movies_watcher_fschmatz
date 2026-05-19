@@ -142,20 +142,27 @@ class MovieInfoBottomSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                      child: FilledButton.tonalIcon(
+                      child: FilledButton.icon(
                         icon: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                        label: Text(movie.isMovieWatched() ? "Not Watched" : "Watched"),
+                        label: Text(
+                          movie.isMovieWatched() ? "Not Watched" : "Watched",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         onPressed: () {
                           (movie.isMovieWatched() ? _markNotWatched() : _markWatched());
                           Navigator.of(context).pop();
                         },
-                        style: IconButton.styleFrom(
+                        style: FilledButton.styleFrom(
                           backgroundColor: primaryIconButtonBackground,
                           foregroundColor: primaryIconButtonColor,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     IconButton.filledTonal(
                       icon: const Icon(Icons.share_outlined),
                       onPressed: () {
@@ -165,10 +172,11 @@ class MovieInfoBottomSheet extends StatelessWidget {
                       style: IconButton.styleFrom(
                         backgroundColor: secondaryIconButtonBackground,
                         foregroundColor: secondaryIconButtonColor,
-                        shape: secondaryIconButtonBorderRadius,
+                        padding: const EdgeInsets.all(12),
+                        shape: const CircleBorder(),
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     IconButton.filledTonal(
                       icon: const Icon(Icons.edit_outlined),
                       onPressed: () {
@@ -177,10 +185,11 @@ class MovieInfoBottomSheet extends StatelessWidget {
                       style: IconButton.styleFrom(
                         backgroundColor: secondaryIconButtonBackground,
                         foregroundColor: secondaryIconButtonColor,
-                        shape: secondaryIconButtonBorderRadius,
+                        padding: const EdgeInsets.all(12),
+                        shape: const CircleBorder(),
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     IconButton.filledTonal(
                       icon: const Icon(
                         Icons.delete_outline_outlined,
@@ -191,7 +200,8 @@ class MovieInfoBottomSheet extends StatelessWidget {
                       style: IconButton.styleFrom(
                         backgroundColor: secondaryIconButtonBackground,
                         foregroundColor: secondaryIconButtonColor,
-                        shape: secondaryIconButtonBorderRadius,
+                        padding: const EdgeInsets.all(12),
+                        shape: const CircleBorder(),
                       ),
                     ),
                   ],

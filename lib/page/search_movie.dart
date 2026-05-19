@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:movies_watcher_fschmatz/key_api.dart';
 import 'package:movies_watcher_fschmatz/page/store_movie.dart';
+import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
 import '../entity/movie.dart';
 import '../entity/search_result.dart';
@@ -23,13 +24,26 @@ class _SearchMovieState extends State<SearchMovie> {
   bool _loadingSearch = true;
   String _quantityResults = "0";
   final String apiKey = KeyApi.key;
-  TextEditingController ctrlSearch = TextEditingController();
+  TextEditingController controllerMovieName = TextEditingController();
+  TextEditingController controllerMovieYear = TextEditingController();
   List<Movie> _moviesList = [];
   int _selectedPage = 1;
   List<int> searchResultsPages = [];
 
+  String _formatApiUrl() {
+    final String movieName = controllerMovieName.text.trim();
+    final String? year = controllerMovieYear.text.isNotEmpty ? controllerMovieYear.text.trim() : null;
+    String apiUrl = '${AppConstants.apiUrl}&s=$movieName&page=$_selectedPage&apikey=$apiKey';
+
+    if (year != null) {
+      apiUrl = "$apiUrl&y=$year";
+    }
+
+    return apiUrl;
+  }
+
   void _loadSearchResults() async {
-    if (ctrlSearch.text.isNotEmpty) {
+    if (controllerMovieName.text.isNotEmpty) {
       setState(() {
         _isBeforeSearch = false;
         _selectedPage = 1;
@@ -40,11 +54,8 @@ class _SearchMovieState extends State<SearchMovie> {
         }
       });
 
-      final String movieName = ctrlSearch.text.trim();
-      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&page=$_selectedPage&apikey=$apiKey';
-
       try {
-        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
+        final response = await http.get(Uri.parse(_formatApiUrl())).timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = json.decode(response.body);
@@ -84,12 +95,9 @@ class _SearchMovieState extends State<SearchMovie> {
   }
 
   void _changePageSearchResults() async {
-    if (ctrlSearch.text.isNotEmpty) {
-      final String movieName = ctrlSearch.text.trim();
-      final String apiUrl = 'http://www.omdbapi.com/?type=movie&s=$movieName&page=$_selectedPage&apikey=$apiKey';
-
+    if (controllerMovieName.text.isNotEmpty) {
       try {
-        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
+        final response = await http.get(Uri.parse(_formatApiUrl())).timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = json.decode(response.body);
@@ -179,27 +187,50 @@ class _SearchMovieState extends State<SearchMovie> {
                 textInputAction: TextInputAction.go,
                 textCapitalization: TextCapitalization.sentences,
                 maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                controller: ctrlSearch,
+                controller: controllerMovieName,
                 onChanged: (text) {
                   setState(() {});
                 },
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.all(16),
-                  fillColor: Theme.of(context).colorScheme.onInverseSurface,
-                  border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(50))),
-                  filled: true,
+                  border: const OutlineInputBorder(),
                   counterText: "",
                   hintText: "Title",
                   prefixIcon: const Icon(Icons.search_outlined),
-                  suffixIcon: ctrlSearch.text.isNotEmpty
+                  suffixIcon: controllerMovieName.text.isNotEmpty
                       ? IconButton(
-                          onPressed: ctrlSearch.clear,
+                          onPressed: controllerMovieName.clear,
                           icon: const Icon(
                             Icons.clear_outlined,
                           ))
                       : null,
                 ),
                 onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 150,
+                    child: TextField(
+                      maxLength: 4,
+                      textInputAction: TextInputAction.go,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      controller: controllerMovieYear,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.all(16),
+                          hintText: "Year",
+                          counterText: "",
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.calendar_today_outlined)),
+                      onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
+                    ),
+                  ),
+                ],
               ),
             ),
             _isBeforeSearch

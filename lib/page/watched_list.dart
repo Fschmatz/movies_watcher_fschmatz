@@ -1,14 +1,14 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import '../redux/actions.dart';
-import '../widget/movie_grid.dart';
 
 import '../entity/movie.dart';
 import '../main.dart';
+import '../redux/actions.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
+import '../widget/movie_grid.dart';
 
 class WatchedList extends StatefulWidget {
   final Function()? loadNotWatchedMovies;
@@ -79,11 +79,12 @@ class _WatchedListState extends State<WatchedList> {
             return (
               isLoadingWatchedList: store.state.isLoadingWatchedList,
               movies: store.state.watchedList,
-              showMovieNameOnCard: selectParameterValueByKeyAsBoolean('showMovieNameOnCard'),
-              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean('showRuntimeChipOnCard'),
+              showMovieNameOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showMovieNameOnCardAppParameter),
+              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showRuntimeChipOnCardAppParameter),
             );
           },
-          builder: (BuildContext context, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+          builder: (BuildContext context,
+              ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
             return MovieGrid(
               movies: viewData.movies,
               isLoading: viewData.isLoadingWatchedList,

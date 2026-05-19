@@ -3,6 +3,7 @@ import 'package:movies_watcher_fschmatz/redux/actions.dart';
 import '../dao/app_parameter_dao.dart';
 import '../entity/app_parameter.dart';
 import '../main.dart';
+import '../util/app_constants.dart';
 import 'store_service.dart';
 
 class AppParameterService extends StoreService {
@@ -20,21 +21,19 @@ class AppParameterService extends StoreService {
 
   Future<List<AppParameter>> getAll() async {
     var resp = await dbParams.queryAllRows();
-    
-    return resp.isNotEmpty
-        ? resp.map((map) => AppParameter.fromMap(map)).toList()
-        : [];
+
+    return resp.isNotEmpty ? resp.map((map) => AppParameter.fromMap(map)).toList() : [];
   }
 
   Future<void> saveLastBackupDate() async {
     await saveParameter(AppParameter(
-      key: 'lastBackupDate',
+      key: AppConstants.lastBackupDateAppParameter,
       value: Jiffy.now().format(pattern: 'dd/MM/yyyy HH:mm'),
     ));
   }
 
   Future<String?> getLastBackupDate() async {
-    var resp = await dbParams.queryByKey('lastBackupDate');
+    var resp = await dbParams.queryByKey(AppConstants.lastBackupDateAppParameter);
     return resp != null ? AppParameter.fromMap(resp).getValue() : null;
   }
 

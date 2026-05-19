@@ -257,7 +257,7 @@ class _StoreMovieState extends State<StoreMovie> {
     if (_customPosterSelected && _poster != null) {
       compressedPoster = await compressCoverImage(_poster!.readAsBytesSync());
       _movie.setPoster(base64Encode(compressedPoster));
-    } else if (!_customPosterSelected && _posterUrl != null) {
+    } else if (!_customPosterSelected && _posterUrl != null && _posterUrl!.trim() != "N/A") {
       http.Response response = await http.get(Uri.parse(_posterUrl!));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -267,6 +267,8 @@ class _StoreMovieState extends State<StoreMovie> {
       } else {
         _movie.setPoster("");
       }
+    } else {
+      _movie.setPoster("");
     }
   }
 
@@ -464,7 +466,7 @@ class _StoreMovieState extends State<StoreMovie> {
           height: 100,
         )
       ]),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (validateTextFields()) {
             _beforeStoreMovie();
@@ -477,7 +479,11 @@ class _StoreMovieState extends State<StoreMovie> {
             });
           }
         },
-        child: const Icon(Icons.save_outlined),
+        icon: const Icon(Icons.save_outlined),
+        label: const Text(
+          "Save",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

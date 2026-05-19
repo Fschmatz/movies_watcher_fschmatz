@@ -10,8 +10,8 @@ class RuntimeChip extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Positioned(
-      bottom: 4,
-      right: 4,
+      bottom: 6,
+      right: 6,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(

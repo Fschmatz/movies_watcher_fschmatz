@@ -26,7 +26,7 @@ class _MovieCardState extends State<MovieCard> {
   double posterHeight = 180;
   double posterWidth = 150;
   late BorderRadius posterBorder;
-  BorderRadius cardBorder = BorderRadius.circular(12);
+  BorderRadius cardBorder = BorderRadius.circular(20);
   late Uint8List? imageBytes;
   Image? posterImage;
 
@@ -53,7 +53,7 @@ class _MovieCardState extends State<MovieCard> {
   void _loadBorders() {
     bool showName = widget.showMovieName ?? true;
 
-    posterBorder = showName ? const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)) : BorderRadius.circular(12);
+    posterBorder = showName ? const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)) : BorderRadius.circular(20);
   }
 
   void _loadPosterImage() {
@@ -72,6 +72,9 @@ class _MovieCardState extends State<MovieCard> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (BuildContext context) {
         return MovieInfoBottomSheet(
           movie: movie,
@@ -86,9 +89,10 @@ class _MovieCardState extends State<MovieCard> {
     final theme = Theme.of(context);
 
     return Card(
-      shape: widget.showMovieName
-          ? null
-          : RoundedRectangleBorder(side: BorderSide(color: theme.colorScheme.surfaceContainerHighest, width: 2), borderRadius: cardBorder),
+      shape: RoundedRectangleBorder(
+        borderRadius: cardBorder,
+        side: widget.showMovieName ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant, width: 1.5),
+      ),
       color: theme.colorScheme.surfaceContainerHighest,
       child: InkWell(
         borderRadius: cardBorder,
@@ -126,12 +130,16 @@ class _MovieCardState extends State<MovieCard> {
             if (widget.showMovieName)
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 4, 6, 0),
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
                   child: Text(
                     movie.getTitle()!,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),

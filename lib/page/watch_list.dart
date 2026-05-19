@@ -1,9 +1,10 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
-import 'package:movies_watcher_fschmatz/page/settings/settings.dart';
+import 'package:movies_watcher_fschmatz/page/settings.dart';
 import 'package:movies_watcher_fschmatz/page/stats.dart';
 import 'package:movies_watcher_fschmatz/page/watched_list.dart';
+import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
 import '../entity/movie.dart';
 import '../enum/sort_watch_list_option.dart';
@@ -11,8 +12,6 @@ import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
-import '../util/app_constants.dart';
-import '../util/app_details.dart';
 import '../widget/movie_grid.dart';
 
 class WatchList extends StatefulWidget {
@@ -32,7 +31,7 @@ class _WatchListState extends State<WatchList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppDetails.appNameHomePage),
+        title: Text(AppConstants.appNameHomePage),
         actions: [
           IconButton(
               icon: const Icon(
@@ -95,11 +94,12 @@ class _WatchListState extends State<WatchList> {
           return (
             isLoadingWatchList: store.state.isLoadingWatchList,
             movies: store.state.watchList,
-            showMovieNameOnCard: selectParameterValueByKeyAsBoolean('showMovieNameOnCard'),
-            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean('showRuntimeChipOnCard'),
+            showMovieNameOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showMovieNameOnCardAppParameter),
+            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showRuntimeChipOnCardAppParameter),
           );
         },
-        builder: (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+        builder:
+            (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
           return MovieGrid(
             movies: viewData.movies,
             isLoading: viewData.isLoadingWatchList,
