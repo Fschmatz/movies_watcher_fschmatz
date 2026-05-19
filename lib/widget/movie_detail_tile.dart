@@ -13,21 +13,40 @@ class MovieDetailTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
-    Color onSecondary = theme.colorScheme.onSecondaryContainer;
-    TextStyle titleStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: onSecondary);
-    const TextStyle subtitleStyle = TextStyle(fontSize: 14);
-
-    return ListTile(
-      title: Text(
-        title,
-        style: titleStyle,
+    return Container(
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
       ),
-      subtitle: Text(
-        (value == null || value!.isEmpty) ? "-" : value!,
-        style: subtitleStyle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurfaceVariant,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            (value == null || value!.isEmpty) ? "-" : value!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
-      dense: true,
     );
   }
 }

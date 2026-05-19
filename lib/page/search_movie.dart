@@ -178,55 +178,51 @@ class _SearchMovieState extends State<SearchMovie> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
-              child: TextField(
-                minLines: 1,
-                maxLines: 3,
-                maxLength: 300,
-                autofocus: true,
-                textInputAction: TextInputAction.go,
-                textCapitalization: TextCapitalization.sentences,
-                maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                controller: controllerMovieName,
-                onChanged: (text) {
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(16),
-                  border: const OutlineInputBorder(),
-                  counterText: "",
-                  hintText: "Title",
-                  prefixIcon: const Icon(Icons.search_outlined),
-                  suffixIcon: controllerMovieName.text.isNotEmpty
-                      ? IconButton(
-                          onPressed: controllerMovieName.clear,
-                          icon: const Icon(
-                            Icons.clear_outlined,
-                          ))
-                      : null,
-                ),
-                onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Expanded(
+                    child: TextField(
+                      minLines: 1,
+                      maxLines: 2,
+                      maxLength: 300,
+                      autofocus: true,
+                      textInputAction: TextInputAction.go,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      controller: controllerMovieName,
+                      onChanged: (text) {
+                        setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(16),
+                        counterText: "",
+                        labelText: "Title",
+                        prefixIcon: const Icon(Icons.search_outlined),
+                        suffixIcon: controllerMovieName.text.isNotEmpty
+                            ? IconButton(
+                                onPressed: controllerMovieName.clear,
+                                icon: const Icon(
+                                  Icons.clear_outlined,
+                                ))
+                            : null,
+                      ),
+                      onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   SizedBox(
-                    width: 150,
+                    width: 120,
                     child: TextField(
                       maxLength: 4,
+                      keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.go,
                       textCapitalization: TextCapitalization.sentences,
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       controller: controllerMovieYear,
-                      decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(16),
-                          hintText: "Year",
-                          counterText: "",
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.calendar_today_outlined)),
+                      decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.all(16), labelText: "Year", counterText: "", prefixIcon: Icon(Icons.calendar_today_outlined)),
                       onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
                     ),
                   ),
@@ -234,11 +230,51 @@ class _SearchMovieState extends State<SearchMovie> {
               ),
             ),
             _isBeforeSearch
-                ? const Center(child: SizedBox.shrink())
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primaryContainer.withAlpha(102),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.search_rounded,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          "Search Movies",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          "Type a movie title above to find it in the database.",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1.4,
+                              ),
+                        ),
+                      ],
+                    ),
+                  )
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 450),
                     child: _loadingSearch
-                        ? const Center(child: CircularProgressIndicator())
+                        ? SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: const Center(child: CircularProgressIndicator()),
+                          )
                         : Column(
                             children: [
                               Padding(
@@ -261,14 +297,14 @@ class _SearchMovieState extends State<SearchMovie> {
                                       visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
                                       child: Row(
                                         children: [
-                                          OutlinedButton.icon(
+                                          FilledButton.tonalIcon(
                                               onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
                                               icon: const Icon(Icons.navigate_before_outlined),
                                               label: const Text("Previous")),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          OutlinedButton.icon(
+                                          FilledButton.tonalIcon(
                                               onPressed:
                                                   searchResultsPages.isNotEmpty && _selectedPage != searchResultsPages[searchResultsPages.length - 1]
                                                       ? () => {_selectedPage++, _changePageSearchResults()}

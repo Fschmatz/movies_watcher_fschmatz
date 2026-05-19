@@ -41,7 +41,7 @@ class MovieGrid extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(24),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primaryContainer.withOpacity(0.4),
+                                  color: theme.colorScheme.primaryContainer.withAlpha(102),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(

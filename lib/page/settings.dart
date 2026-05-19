@@ -1,6 +1,5 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/page/print_movie_list.dart';
 import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
 import 'package:movies_watcher_fschmatz/widget/app_parameter_value.dart';
 import 'package:movies_watcher_fschmatz/widget/settings_switch.dart';
@@ -125,17 +124,6 @@ class _SettingsState extends State<Settings> {
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
-                      ListTile(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => const PrintMovieList(),
-                          ),
-                        ),
-                        leading: const Icon(Icons.print_outlined),
-                        title: const Text("Print movies"),
-                      ),
-                      Divider(color: Theme.of(context).colorScheme.surfaceContainerLow, height: 1),
                       ListTile(
                         onTap: () => showDialog(
                           context: context,

@@ -49,7 +49,7 @@ class _StoreMovieState extends State<StoreMovie> {
   final TextEditingController _ctrlImdbRating = TextEditingController();
   bool _isUpdate = false;
   bool _customPosterSelected = false;
-  final BorderRadius _posterBorder = BorderRadius.circular(12);
+  final BorderRadius _posterBorder = BorderRadius.circular(20);
 
   @override
   void initState() {
@@ -83,13 +83,27 @@ class _StoreMovieState extends State<StoreMovie> {
           String? responseValue = jsonData['Response'];
           if (responseValue != null && responseValue.toLowerCase() == 'false') {
             _showNoResultsFound();
+            return;
           }
 
           setState(() {
-            _movie = Movie.fromJson(jsonData);
+            Movie fetchedMovie = Movie.fromJson(jsonData);
+            
+            if (_isUpdate) {
+              fetchedMovie.setId(_movie.getId()!);
+              if (_movie.getWatched() != null) fetchedMovie.setWatched(_movie.getWatched()!);
+              if (_movie.getDateAdded() != null) fetchedMovie.setDateAdded(_movie.getDateAdded()!);
+              if (_movie.getDateWatched() != null) fetchedMovie.setDateWatched(_movie.getDateWatched()!);
+            }
+
+            _movie = fetchedMovie;
             _posterUrl = _movie.getPoster();
             _validImdbId = true;
             loadTextFields();
+            
+            if (_isUpdate) {
+              Fluttertoast.showToast(msg: "Data refreshed from API");
+            }
           });
         } else {
           Fluttertoast.showToast(
@@ -315,9 +329,14 @@ class _StoreMovieState extends State<StoreMovie> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        surfaceTintColor: Theme.of(context).colorScheme.background,
         title: _isUpdate ? const Text('Edit') : const Text('New'),
         actions: [
+          if (_isUpdate)
+            IconButton(
+              tooltip: "Refresh from API",
+              icon: const Icon(Icons.sync_outlined),
+              onPressed: _loadMovieData,
+            ),
           IconButton(
             tooltip: "Change Poster",
             icon: const Icon(

@@ -9,7 +9,7 @@ class AppConstants {
 
   // STRINGS
   static const String backupFileName = "movies_watcher_backup";
-  static const String appVersion = "1.9.0";
+  static const String appVersion = "1.9.1";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
@@ -19,6 +19,7 @@ class AppConstants {
   static String changelogCurrent = '''
 $appVersion
 - Bug fixes
+- Add Fab
 - UI changes
 ''';
 

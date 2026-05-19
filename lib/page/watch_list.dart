@@ -60,9 +60,33 @@ class _WatchListState extends State<WatchList> {
           PopupMenuButton<int>(
               icon: const Icon(Icons.more_vert_outlined),
               itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                    const PopupMenuItem<int>(value: 0, child: Text('Watched')),
-                    const PopupMenuItem<int>(value: 1, child: Text('Stats')),
-                    const PopupMenuItem<int>(value: 2, child: Text('Settings')),
+                    PopupMenuItem<int>(
+                        value: 0,
+                        child: Row(
+                          children: const [
+                            Icon(Icons.visibility_outlined),
+                            SizedBox(width: 12),
+                            Text('Watched'),
+                          ],
+                        )),
+                    PopupMenuItem<int>(
+                        value: 1,
+                        child: Row(
+                          children: const [
+                            Icon(Icons.analytics_outlined),
+                            SizedBox(width: 12),
+                            Text('Stats'),
+                          ],
+                        )),
+                    PopupMenuItem<int>(
+                        value: 2,
+                        child: Row(
+                          children: const [
+                            Icon(Icons.settings_outlined),
+                            SizedBox(width: 12),
+                            Text('Settings'),
+                          ],
+                        )),
                   ],
               onSelected: (int value) {
                 switch (value) {
@@ -108,6 +132,20 @@ class _WatchListState extends State<WatchList> {
           );
         },
       ),
+      /* floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => SearchMovie(),
+              ));
+        },
+        icon: const Icon(Icons.search_outlined),
+        label: const Text(
+          "Add Movie",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),*/
     );
   }
 }

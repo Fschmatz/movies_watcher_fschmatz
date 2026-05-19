@@ -19,7 +19,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
   Movie movie = Movie();
   double posterHeight = 110;
   double posterWidth = 70;
-  BorderRadius posterBorder = BorderRadius.circular(12);
+  BorderRadius posterBorder = BorderRadius.circular(20);
 
   @override
   void initState() {
@@ -87,14 +87,15 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     Text(
                       movie.getTitle()!,
                       maxLines: 3,
-                      style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     Text(
                       movie.getYear()!,
-                      style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
