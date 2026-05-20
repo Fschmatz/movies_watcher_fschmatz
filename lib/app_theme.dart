@@ -23,8 +23,8 @@ class _AppThemeState extends State<AppTheme> {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        final lightScheme = lightDynamic ?? ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4));
-        final darkScheme = darkDynamic ?? ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4), brightness: Brightness.dark);
+        final lightScheme = lightDynamic ?? ColorScheme.fromSeed(seedColor: Colors.blue);
+        final darkScheme = darkDynamic ?? ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark);
 
         ThemeData buildTheme(ColorScheme colorScheme) {
           return ThemeData(

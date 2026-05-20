@@ -126,7 +126,7 @@ class _MovieCardState extends State<MovieCard> {
             if (widget.showMovieName)
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+                  padding: const EdgeInsets.fromLTRB(10, 5, 8, 0),
                   child: Text(
                     movie.getTitle()!,
                     overflow: TextOverflow.ellipsis,

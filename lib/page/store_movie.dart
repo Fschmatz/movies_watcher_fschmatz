@@ -88,7 +88,7 @@ class _StoreMovieState extends State<StoreMovie> {
 
           setState(() {
             Movie fetchedMovie = Movie.fromJson(jsonData);
-            
+
             if (_isUpdate) {
               fetchedMovie.setId(_movie.getId()!);
               if (_movie.getWatched() != null) fetchedMovie.setWatched(_movie.getWatched()!);
@@ -97,10 +97,10 @@ class _StoreMovieState extends State<StoreMovie> {
             }
 
             _movie = fetchedMovie;
-            _posterUrl = _movie.getPoster();
+            _posterUrl = fetchedMovie.getPoster();
             _validImdbId = true;
             loadTextFields();
-            
+
             if (_isUpdate) {
               Fluttertoast.showToast(msg: "Data refreshed from API");
             }
@@ -366,7 +366,7 @@ class _StoreMovieState extends State<StoreMovie> {
                       ),
                     ),
                   )
-                : _isUpdate
+                : _isUpdate && !(_movie.getPoster()?.startsWith('http') ?? false) && _movie.getPoster() != "N/A"
                     ? (_movie.getPoster() == null || _movie.getPoster()!.isEmpty)
                         ? SizedBox(
                             height: _posterHeight,
@@ -417,9 +417,8 @@ class _StoreMovieState extends State<StoreMovie> {
                       ),
           ),
         ),
-        Visibility(
-          visible: !_isUpdate,
-          child: Padding(
+        if (!_isUpdate)
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: TextField(
                 minLines: 1,
@@ -435,7 +434,6 @@ class _StoreMovieState extends State<StoreMovie> {
                     border: const OutlineInputBorder(),
                     errorText: (_validImdbId) ? null : "Link is empty")),
           ),
-        ),
         buildTextField("Title", _ctrlTitle, true, 2, 200, _validTitle),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,11 +460,27 @@ class _StoreMovieState extends State<StoreMovie> {
             ),
           ],
         ),
-        Visibility(
-          visible: !_isUpdate,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 5),
+        if (!_isUpdate) ...[
+          Padding(
+              padding: const EdgeInsets.fromLTRB(42, 0, 0, 0),
+              child: Text(
+                "Status",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
+              )),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
             child: SegmentedButton<NoYes>(
+              style: SegmentedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 50),
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                selectedBackgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                selectedForegroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                side: const BorderSide(color: Colors.transparent, width: 0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              ),
               showSelectedIcon: false,
               segments: const <ButtonSegment<NoYes>>[
                 ButtonSegment<NoYes>(value: NoYes.no, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
@@ -480,7 +494,7 @@ class _StoreMovieState extends State<StoreMovie> {
               },
             ),
           ),
-        ),
+        ],
         const SizedBox(
           height: 100,
         )

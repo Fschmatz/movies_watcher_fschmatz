@@ -200,6 +200,7 @@ class _SearchMovieState extends State<SearchMovie> {
                         counterText: "",
                         labelText: "Title",
                         prefixIcon: const Icon(Icons.search_outlined),
+                        /* CLEAR
                         suffixIcon: controllerMovieName.text.isNotEmpty
                             ? IconButton(
                                 onPressed: controllerMovieName.clear,
@@ -207,6 +208,7 @@ class _SearchMovieState extends State<SearchMovie> {
                                   Icons.clear_outlined,
                                 ))
                             : null,
+                            */
                       ),
                       onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
                     ),

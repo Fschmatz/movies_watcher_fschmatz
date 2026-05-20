@@ -79,7 +79,7 @@ class MovieGrid extends StatelessWidget {
                         child: GridView.builder(
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
-                            mainAxisExtent: showMovieName ? 220 : 188,
+                            mainAxisExtent: showMovieName ? 218 : 188,
                           ),
                           physics: const ScrollPhysics(),
                           shrinkWrap: true,

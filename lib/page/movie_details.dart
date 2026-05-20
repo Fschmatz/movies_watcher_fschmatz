@@ -155,6 +155,14 @@ class _MovieDetailsState extends State<MovieDetails> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "${movie.getRuntime() ?? '-'} Min",
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -174,7 +182,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                   onPressed: movie.isMovieWatched() ? _markNotWatched : _markWatched,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
                 Text(
                   "Plot",
@@ -191,7 +199,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
               ],
               Text(
                 "Details",
@@ -208,7 +216,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 crossAxisCount: 2,
                 childAspectRatio: 2.8,
                 children: [
-                  MovieDetailTile(title: "Runtime", value: "${movie.getRuntime() ?? '-'} Min"),
+                  // MovieDetailTile(title: "Runtime", value: "${movie.getRuntime() ?? '-'} Min"),
                   MovieDetailTile(title: "Director", value: movie.getDirector()),
                   MovieDetailTile(title: "Released", value: movie.getReleased()),
                   MovieDetailTile(title: "Country", value: movie.getCountry()),
