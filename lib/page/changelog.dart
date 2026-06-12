@@ -14,7 +14,8 @@ class Changelog extends StatelessWidget {
         children: <Widget>[
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -22,14 +23,19 @@ class Changelog extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.rocket_launch_rounded, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                      Icon(Icons.rocket_launch_rounded,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer),
                       const SizedBox(width: 12),
                       Text(
                         "Current Version",
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                ),
                       ),
                     ],
                   ),
@@ -37,7 +43,10 @@ class Changelog extends StatelessWidget {
                   Text(
                     AppConstants.changelogCurrent,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.9),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.9),
                           height: 1.5,
                         ),
                   ),
@@ -47,7 +56,8 @@ class Changelog extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -55,11 +65,15 @@ class Changelog extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.history_rounded, color: Theme.of(context).colorScheme.secondary),
+                      Icon(Icons.history_rounded,
+                          color: Theme.of(context).colorScheme.secondary),
                       const SizedBox(width: 12),
                       Text(
                         "Previous Versions",
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),

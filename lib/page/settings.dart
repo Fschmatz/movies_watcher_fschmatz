@@ -30,23 +30,29 @@ class _SettingsState extends State<Settings> {
           Card(
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             color: Theme.of(context).colorScheme.primaryContainer,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
                 children: [
                   Text(
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Version ${AppConstants.appVersion}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.8),
                         ),
                   ),
                 ],
@@ -54,7 +60,8 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -69,7 +76,8 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
@@ -83,19 +91,22 @@ class _SettingsState extends State<Settings> {
                         leading: const Icon(Icons.brightness_6_outlined),
                         title: const Text("App theme"),
                         subtitle: Text(
-                          UtilsFunctions.getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
+                          UtilsFunctions.getThemeStringFormatted(
+                              EasyDynamicTheme.of(context).themeMode),
                         ),
                       ),
-                      Divider(color: Theme.of(context).colorScheme.surfaceContainerLow, height: 1),
+                      Divider(),
                       const SettingsSwitch(
                         title: "Show name",
-                        parameterKey: AppConstants.showMovieNameOnCardAppParameter,
+                        parameterKey:
+                            AppConstants.showMovieNameOnCardAppParameter,
                         subtitle: 'Show the movie name on the card',
                       ),
-                      Divider(color: Theme.of(context).colorScheme.surfaceContainerLow, height: 1),
+                      Divider(),
                       const SettingsSwitch(
                         title: "Show runtime",
-                        parameterKey: AppConstants.showRuntimeChipOnCardAppParameter,
+                        parameterKey:
+                            AppConstants.showRuntimeChipOnCardAppParameter,
                         subtitle: 'Show the movie runtime on the card',
                       ),
                     ],
@@ -105,7 +116,8 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -120,7 +132,8 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
@@ -138,12 +151,15 @@ class _SettingsState extends State<Settings> {
                         title: const Text("Backup now"),
                         subtitle: Row(
                           children: [
-                            const Text("Last backup: ", style: TextStyle(fontSize: 12)),
-                            AppParameterValue(parameterKey: AppConstants.lastBackupDateAppParameter),
+                            const Text("Last backup: ",
+                                style: TextStyle(fontSize: 12)),
+                            AppParameterValue(
+                                parameterKey:
+                                    AppConstants.lastBackupDateAppParameter),
                           ],
                         ),
                       ),
-                      Divider(color: Theme.of(context).colorScheme.surfaceContainerLow, height: 1),
+                      Divider(),
                       ListTile(
                         onTap: () => showDialog(
                           context: context,
@@ -154,7 +170,8 @@ class _SettingsState extends State<Settings> {
                             );
                           },
                         ),
-                        leading: const Icon(Icons.settings_backup_restore_outlined),
+                        leading:
+                            const Icon(Icons.settings_backup_restore_outlined),
                         title: const Text("Restore from backup"),
                       ),
                     ],
@@ -164,7 +181,8 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -179,7 +197,8 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
@@ -190,12 +209,13 @@ class _SettingsState extends State<Settings> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (BuildContext context) => const AppInfo(),
+                              builder: (BuildContext context) =>
+                                  const AppInfo(),
                             ),
                           );
                         },
                       ),
-                      Divider(color: Theme.of(context).colorScheme.surfaceContainerLow, height: 1),
+                      Divider(),
                       ListTile(
                         leading: const Icon(Icons.article_outlined),
                         title: const Text("Changelog"),
@@ -203,7 +223,8 @@ class _SettingsState extends State<Settings> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (BuildContext context) => const Changelog(),
+                              builder: (BuildContext context) =>
+                                  const Changelog(),
                             ),
                           );
                         },

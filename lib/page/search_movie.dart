@@ -32,8 +32,11 @@ class _SearchMovieState extends State<SearchMovie> {
 
   String _formatApiUrl() {
     final String movieName = controllerMovieName.text.trim();
-    final String? year = controllerMovieYear.text.isNotEmpty ? controllerMovieYear.text.trim() : null;
-    String apiUrl = '${AppConstants.apiUrl}&s=$movieName&page=$_selectedPage&apikey=$apiKey';
+    final String? year = controllerMovieYear.text.isNotEmpty
+        ? controllerMovieYear.text.trim()
+        : null;
+    String apiUrl =
+        '${AppConstants.apiUrl}&s=$movieName&page=$_selectedPage&apikey=$apiKey';
 
     if (year != null) {
       apiUrl = "$apiUrl&y=$year";
@@ -55,20 +58,26 @@ class _SearchMovieState extends State<SearchMovie> {
       });
 
       try {
-        final response = await http.get(Uri.parse(_formatApiUrl())).timeout(const Duration(seconds: 10));
+        final response = await http
+            .get(Uri.parse(_formatApiUrl()))
+            .timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = json.decode(response.body);
           SearchResult searchResult = SearchResult.fromJson(jsonData);
           String? responseValue = jsonData['Response'];
-          bool noResults = responseValue != null && responseValue.toLowerCase() == 'false';
+          bool noResults =
+              responseValue != null && responseValue.toLowerCase() == 'false';
 
           if (noResults) {
             _showNoResultsFound();
             _clearDropdownMenu();
           } else {
-            if (searchResult.getTotalResults() != null && int.parse(searchResult.getTotalResults()!) != 0) {
-              searchResultsPages = List.generate((int.parse(searchResult.getTotalResults()!) / 10).ceil(), (index) => (index + 1));
+            if (searchResult.getTotalResults() != null &&
+                int.parse(searchResult.getTotalResults()!) != 0) {
+              searchResultsPages = List.generate(
+                  (int.parse(searchResult.getTotalResults()!) / 10).ceil(),
+                  (index) => (index + 1));
             } else {
               _clearDropdownMenu();
             }
@@ -97,7 +106,9 @@ class _SearchMovieState extends State<SearchMovie> {
   void _changePageSearchResults() async {
     if (controllerMovieName.text.isNotEmpty) {
       try {
-        final response = await http.get(Uri.parse(_formatApiUrl())).timeout(const Duration(seconds: 10));
+        final response = await http
+            .get(Uri.parse(_formatApiUrl()))
+            .timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = json.decode(response.body);
@@ -153,7 +164,8 @@ class _SearchMovieState extends State<SearchMovie> {
           PopupMenuButton<int>(
               icon: const Icon(Icons.more_vert_outlined),
               itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                    const PopupMenuItem<int>(value: 0, child: Text('Add with IMDb ID')),
+                    const PopupMenuItem<int>(
+                        value: 0, child: Text('Add with IMDb ID')),
                   ],
               onSelected: (int value) {
                 switch (value) {
@@ -224,7 +236,10 @@ class _SearchMovieState extends State<SearchMovie> {
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       controller: controllerMovieYear,
                       decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(16), labelText: "Year", counterText: "", prefixIcon: Icon(Icons.calendar_today_outlined)),
+                          contentPadding: EdgeInsets.all(16),
+                          labelText: "Year",
+                          counterText: "",
+                          prefixIcon: Icon(Icons.calendar_today_outlined)),
                       onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
                     ),
                   ),
@@ -233,14 +248,18 @@ class _SearchMovieState extends State<SearchMovie> {
             ),
             _isBeforeSearch
                 ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 80),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer.withAlpha(102),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withAlpha(102),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -253,7 +272,10 @@ class _SearchMovieState extends State<SearchMovie> {
                         Text(
                           "Search Movies",
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -262,10 +284,13 @@ class _SearchMovieState extends State<SearchMovie> {
                         Text(
                           "Type a movie title above to find it in the database.",
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                height: 1.4,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    height: 1.4,
+                                  ),
                         ),
                       ],
                     ),
@@ -275,14 +300,17 @@ class _SearchMovieState extends State<SearchMovie> {
                     child: _loadingSearch
                         ? SizedBox(
                             height: MediaQuery.of(context).size.height * 0.6,
-                            child: const Center(child: CircularProgressIndicator()),
+                            child: const Center(
+                                child: CircularProgressIndicator()),
                           )
                         : Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 5, 16, 10),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
                                       child: ListTile(
@@ -291,27 +319,45 @@ class _SearchMovieState extends State<SearchMovie> {
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
-                                              color: Theme.of(context).colorScheme.primary,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
                                             )),
                                       ),
                                     ),
                                     Visibility(
-                                      visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
+                                      visible: searchResultsPages.isNotEmpty &&
+                                          searchResultsPages.length > 1,
                                       child: Row(
                                         children: [
                                           FilledButton.tonalIcon(
-                                              onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
-                                              icon: const Icon(Icons.navigate_before_outlined),
+                                              onPressed: _selectedPage > 1
+                                                  ? () => {
+                                                        _selectedPage--,
+                                                        _changePageSearchResults()
+                                                      }
+                                                  : null,
+                                              icon: const Icon(Icons
+                                                  .navigate_before_outlined),
                                               label: const Text("Previous")),
                                           const SizedBox(
                                             width: 10,
                                           ),
                                           FilledButton.tonalIcon(
-                                              onPressed:
-                                                  searchResultsPages.isNotEmpty && _selectedPage != searchResultsPages[searchResultsPages.length - 1]
-                                                      ? () => {_selectedPage++, _changePageSearchResults()}
-                                                      : null,
-                                              icon: const Icon(Icons.navigate_next_outlined),
+                                              onPressed: searchResultsPages
+                                                          .isNotEmpty &&
+                                                      _selectedPage !=
+                                                          searchResultsPages[
+                                                              searchResultsPages
+                                                                      .length -
+                                                                  1]
+                                                  ? () => {
+                                                        _selectedPage++,
+                                                        _changePageSearchResults()
+                                                      }
+                                                  : null,
+                                              icon: const Icon(
+                                                  Icons.navigate_next_outlined),
                                               label: const Text("Next")),
                                         ],
                                       ),
@@ -320,7 +366,9 @@ class _SearchMovieState extends State<SearchMovie> {
                                 ),
                               ),
                               ListView.separated(
-                                separatorBuilder: (BuildContext context, int index) => const Divider(
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        const Divider(
                                   height: 0,
                                 ),
                                 shrinkWrap: true,

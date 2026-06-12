@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 import '../entity/movie.dart';
@@ -24,8 +25,19 @@ class MovieGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AnimatedSwitcher(
+    return PageTransitionSwitcher(
       duration: AppConstants.movieListAnimationDuration,
+      transitionBuilder: (child, animation, secondaryAnimation) => FadeThroughTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      ),
+      layoutBuilder: (List<Widget> entries) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: entries,
+        );
+      },
       child: isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -75,11 +87,11 @@ class MovieGrid extends StatelessWidget {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: GridView.builder(
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
-                            mainAxisExtent: showMovieName ? 218 : 188,
+                            mainAxisExtent: showMovieName ? 188 : 158,
                           ),
                           physics: const ScrollPhysics(),
                           shrinkWrap: true,

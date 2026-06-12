@@ -462,36 +462,30 @@ class _StoreMovieState extends State<StoreMovie> {
         ),
         if (!_isUpdate) ...[
           Padding(
-              padding: const EdgeInsets.fromLTRB(42, 0, 0, 0),
-              child: Text(
-                "Status",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                ),
-              )),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 5),
-            child: SegmentedButton<NoYes>(
-              style: SegmentedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 50),
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                selectedBackgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                selectedForegroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                side: const BorderSide(color: Colors.transparent, width: 0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-              ),
-              showSelectedIcon: false,
-              segments: const <ButtonSegment<NoYes>>[
-                ButtonSegment<NoYes>(value: NoYes.no, label: Text('Not Watched'), icon: Icon(Icons.visibility_off_outlined)),
-                ButtonSegment<NoYes>(value: NoYes.yes, label: Text('Watched'), icon: Icon(Icons.visibility_outlined)),
-              ],
-              selected: <NoYes>{_movieWatchedState},
-              onSelectionChanged: (Set<NoYes> newSelection) {
-                setState(() {
-                  _movieWatchedState = newSelection.first;
-                });
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: DropdownMenu<NoYes>(
+              initialSelection: _movieWatchedState,
+              expandedInsets: EdgeInsets.zero,
+              label: const Text('Status'),
+              onSelected: (NoYes? value) {
+                if (value != null) {
+                  setState(() {
+                    _movieWatchedState = value;
+                  });
+                }
               },
+              dropdownMenuEntries: const [
+                DropdownMenuEntry<NoYes>(
+                  value: NoYes.no,
+                  label: 'Not Watched',
+                  leadingIcon: Icon(Icons.visibility_off_outlined),
+                ),
+                DropdownMenuEntry<NoYes>(
+                  value: NoYes.yes,
+                  label: 'Watched',
+                  leadingIcon: Icon(Icons.visibility_outlined),
+                ),
+              ],
             ),
           ),
         ],

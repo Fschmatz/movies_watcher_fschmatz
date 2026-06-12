@@ -7,7 +7,10 @@ class DialogBackup extends StatefulWidget {
   final bool isCreateBackup;
   final Function()? reloadHomeFunction;
 
-  const DialogBackup({super.key, required this.isCreateBackup, required this.reloadHomeFunction});
+  const DialogBackup(
+      {super.key,
+      required this.isCreateBackup,
+      required this.reloadHomeFunction});
 
   @override
   State<DialogBackup> createState() => _DialogBackupState();

@@ -15,9 +15,11 @@ class AppInfo extends StatelessWidget {
           Card(
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             color: Theme.of(context).colorScheme.primaryContainer,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
                 children: [
                   const CircleAvatar(
@@ -33,14 +35,18 @@ class AppInfo extends StatelessWidget {
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Version ${AppConstants.appVersion}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.8),
                         ),
                   ),
                 ],
@@ -48,7 +54,8 @@ class AppInfo extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -63,7 +70,8 @@ class AppInfo extends StatelessWidget {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: ListTile(
                     onTap: () {
@@ -77,7 +85,8 @@ class AppInfo extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -92,17 +101,20 @@ class AppInfo extends StatelessWidget {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
                       ListTile(
                         onTap: () {
-                          UtilsFunctions.launchBrowser(AppConstants.apiHomePage);
+                          UtilsFunctions.launchBrowser(
+                              AppConstants.apiHomePage);
                         },
                         leading: const Icon(Icons.open_in_new_outlined),
                         title: const Text("View API Page"),
-                        subtitle: Text("This app uses the Open Movie Database API"),
+                        subtitle:
+                            Text("This app uses the Open Movie Database API"),
                       ),
                     ],
                   ),
@@ -111,7 +123,8 @@ class AppInfo extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -126,7 +139,8 @@ class AppInfo extends StatelessWidget {
                   ),
                 ),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                   clipBehavior: Clip.antiAlias,
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -142,8 +156,13 @@ class AppInfo extends StatelessWidget {
                             "We are giving you all the evidence, based only on the secret testimony of the miserable souls who survived this terrifying ordeal. "
                             "The incidents, the places. My friend, we cannot keep this a secret any longer. Let us punish the guilty; let us reward the innocent. "
                             "My friend, can your heart stand the shocking facts about grave robbers from outer space?",
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                   height: 1.5,
                                 ),
                           ),

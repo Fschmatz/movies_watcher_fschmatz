@@ -32,7 +32,7 @@ class MovieDetailTile extends StatelessWidget {
             style: textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
+              fontSize: 12,
             ),
           ),
           const SizedBox(height: 2),
@@ -41,8 +41,9 @@ class MovieDetailTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
+              fontSize: 12,
             ),
           ),
         ],

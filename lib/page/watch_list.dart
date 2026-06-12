@@ -33,97 +33,114 @@ class _WatchListState extends State<WatchList> {
       appBar: AppBar(
         title: Text(AppConstants.appNameHomePage),
         actions: [
-          IconButton(
-              icon: const Icon(
-                Icons.add_outlined,
-              ),
-              onPressed: () {
-                Navigator.push(
+          MenuAnchor(
+            builder: (BuildContext context, MenuController controller,
+                Widget? child) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.more_vert_outlined),
+              );
+            },
+            menuChildren: [
+              MenuItemButton(
+                leadingIcon: const Icon(Icons.add_outlined),
+                onPressed: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => SearchMovie(),
-                    ));
-              }),
-          PopupMenuButton<SortOption>(
-            icon: const Icon(Icons.sort_outlined),
-            onSelected: _onSortListSelected,
-            itemBuilder: (BuildContext context) {
-              return SortOption.values.map((sortOption) {
-                return CheckedPopupMenuItem<SortOption>(
-                  value: sortOption,
-                  checked: selectSelectedHomeSortOption() == sortOption,
-                  child: Text(sortOption.name),
-                );
-              }).toList();
-            },
+                        builder: (BuildContext context) => SearchMovie()),
+                  );
+                },
+                child: const Text('Add Movie'),
+              ),
+              MenuItemButton(
+                leadingIcon: const Icon(Icons.visibility_outlined),
+                onPressed: () {
+                  store.dispatch(LoadWatchedListAction());
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => WatchedList()),
+                  );
+                },
+                child: const Text('Watched'),
+              ),
+              MenuItemButton(
+                leadingIcon: const Icon(Icons.analytics_outlined),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const Stats()),
+                  );
+                },
+                child: const Text('Stats'),
+              ),
+              MenuItemButton(
+                leadingIcon: const Icon(Icons.settings_outlined),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => Settings()),
+                  );
+                },
+                child: const Text('Settings'),
+              ),
+              const PopupMenuDivider(),
+              SubmenuButton(
+                leadingIcon: const Icon(Icons.sort_outlined),
+                menuChildren: SortOption.values.map((sortOption) {
+                  final bool isSelected =
+                      selectSelectedHomeSortOption(store.state) == sortOption;
+                  return MenuItemButton(
+                    leadingIcon: Icon(
+                      Icons.check,
+                      color: isSelected ? null : Colors.transparent,
+                    ),
+                    onPressed: () {
+                      _onSortListSelected(sortOption);
+                    },
+                    child: Text(sortOption.name),
+                  );
+                }).toList(),
+                child: const Text('Sort By'),
+              ),
+            ],
           ),
-          PopupMenuButton<int>(
-              icon: const Icon(Icons.more_vert_outlined),
-              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                    PopupMenuItem<int>(
-                        value: 0,
-                        child: Row(
-                          children: const [
-                            Icon(Icons.visibility_outlined),
-                            SizedBox(width: 12),
-                            Text('Watched'),
-                          ],
-                        )),
-                    PopupMenuItem<int>(
-                        value: 1,
-                        child: Row(
-                          children: const [
-                            Icon(Icons.analytics_outlined),
-                            SizedBox(width: 12),
-                            Text('Stats'),
-                          ],
-                        )),
-                    PopupMenuItem<int>(
-                        value: 2,
-                        child: Row(
-                          children: const [
-                            Icon(Icons.settings_outlined),
-                            SizedBox(width: 12),
-                            Text('Settings'),
-                          ],
-                        )),
-                  ],
-              onSelected: (int value) {
-                switch (value) {
-                  case 0:
-                    store.dispatch(LoadWatchedListAction());
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => WatchedList(),
-                        ));
-                  case 1:
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => const Stats(),
-                        ));
-                  case 2:
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => Settings(),
-                        ));
-                }
-              })
         ],
       ),
-      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
+      body: StoreConnector<
+          AppState,
+          ({
+            bool isLoadingWatchList,
+            List<Movie> movies,
+            bool showMovieNameOnCard,
+            bool showRuntimeChipOnCard
+          })>(
         converter: (store) {
           return (
             isLoadingWatchList: store.state.isLoadingWatchList,
             movies: store.state.watchList,
-            showMovieNameOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showMovieNameOnCardAppParameter),
-            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showRuntimeChipOnCardAppParameter),
+            showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
+                store.state, AppConstants.showMovieNameOnCardAppParameter),
+            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
+                store.state, AppConstants.showRuntimeChipOnCardAppParameter),
           );
         },
-        builder:
-            (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+        builder: (BuildContext context,
+            ({
+              bool isLoadingWatchList,
+              List<Movie> movies,
+              bool showMovieNameOnCard,
+              bool showRuntimeChipOnCard
+            }) viewData) {
           return MovieGrid(
             movies: viewData.movies,
             isLoading: viewData.isLoadingWatchList,

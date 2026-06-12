@@ -39,9 +39,11 @@ class AppState {
       List<AppParameter>? appParameters}) {
     return AppState(
         watchList: watchList ?? this.watchList,
-        selectedHomeSortOption: selectedHomeSortOption ?? this.selectedHomeSortOption,
+        selectedHomeSortOption:
+            selectedHomeSortOption ?? this.selectedHomeSortOption,
         watchedList: watchedList ?? this.watchedList,
-        selectedYearWatchedList: selectedYearWatchedList ?? this.selectedYearWatchedList,
+        selectedYearWatchedList:
+            selectedYearWatchedList ?? this.selectedYearWatchedList,
         isLoadingWatchList: isLoadingWatchList ?? this.isLoadingWatchList,
         isLoadingWatchedList: isLoadingWatchedList ?? this.isLoadingWatchedList,
         appParameters: appParameters ?? this.appParameters);

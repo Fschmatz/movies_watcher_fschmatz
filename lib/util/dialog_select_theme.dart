@@ -9,7 +9,11 @@ class DialogSelectTheme extends StatefulWidget {
 }
 
 class _DialogSelectThemeState extends State<DialogSelectTheme> {
-  final List<String> _themes = ['ThemeMode.light', 'ThemeMode.dark', 'ThemeMode.system'];
+  final List<String> _themes = [
+    'ThemeMode.light',
+    'ThemeMode.dark',
+    'ThemeMode.system'
+  ];
 
   int _getSelectedThemeIndex(dynamic currentTheme) {
     if (currentTheme.toString() == _themes[0]) return 0;
@@ -29,9 +33,12 @@ class _DialogSelectThemeState extends State<DialogSelectTheme> {
         child: RadioGroup<int>(
           groupValue: _getSelectedThemeIndex(currentTheme),
           onChanged: (int? newValue) {
-            if (newValue == 0) EasyDynamicTheme.of(context).changeTheme(dark: false);
-            if (newValue == 1) EasyDynamicTheme.of(context).changeTheme(dark: true);
-            if (newValue == 2) EasyDynamicTheme.of(context).changeTheme(dynamic: true);
+            if (newValue == 0)
+              EasyDynamicTheme.of(context).changeTheme(dark: false);
+            if (newValue == 1)
+              EasyDynamicTheme.of(context).changeTheme(dark: true);
+            if (newValue == 2)
+              EasyDynamicTheme.of(context).changeTheme(dynamic: true);
 
             Navigator.of(context).pop();
           },

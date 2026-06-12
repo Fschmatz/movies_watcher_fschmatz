@@ -8,8 +8,8 @@ class AppConstants {
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
   // STRINGS
+  static const String appVersion = "1.9.3";
   static const String backupFileName = "movies_watcher_backup";
-  static const String appVersion = "1.9.2";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
@@ -21,6 +21,7 @@ $appVersion
 - Bug fixes
 - Sync movie on edit page
 - UI changes
+- Flutter 3.44
 ''';
 
   static String changelogsOld = '''

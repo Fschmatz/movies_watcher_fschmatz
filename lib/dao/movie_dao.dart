@@ -26,7 +26,6 @@ class MovieDAO {
 
   static final MovieDAO instance = MovieDAO._privateConstructor();
 
-
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
 
@@ -55,25 +54,30 @@ class MovieDAO {
   Future<List<Map<String, dynamic>>> queryAllByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
 
-    return await db.rawQuery('SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
+    return await db.rawQuery(
+        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $columnTitle');
   }
 
-  Future<List<Map<String, dynamic>>> queryAllByWatchedNoYesAndOrderBy(NoYes noYes, String selectedOrderBy) async {
+  Future<List<Map<String, dynamic>>> queryAllByWatchedNoYesAndOrderBy(
+      NoYes noYes, String selectedOrderBy) async {
     Database db = await instance.database;
 
-    return await db.rawQuery('SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
+    return await db.rawQuery(
+        'SELECT * FROM $table WHERE $columnWatched=\'${noYes.id}\' ORDER BY $selectedOrderBy');
   }
 
   Future<int?> countMoviesByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+    return Sqflite.firstIntValue(await db.rawQuery(
+        'SELECT IFNULL(COUNT(*), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
   }
 
   Future<int?> sumRuntimeByWatchedNoYes(NoYes noYes) async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
+    return Sqflite.firstIntValue(await db.rawQuery(
+        'SELECT IFNULL(SUM($columnRuntime), 0) FROM $table WHERE $columnWatched=\'${noYes.id}\''));
   }
 
   Future<int?> sumRuntimeWatchedCurrentMonth() async {
@@ -93,8 +97,8 @@ class MovieDAO {
   Future<int?> countMovieAddedCurrentMonth() async {
     Database db = await instance.database;
 
-    return Sqflite.firstIntValue(
-        await db.rawQuery('SELECT IFNULL(COUNT(*), 0) FROM $table WHERE strftime(\'%Y-%m\', $columnDateAdded) = strftime(\'%Y-%m\', \'now\')'));
+    return Sqflite.firstIntValue(await db.rawQuery(
+        'SELECT IFNULL(COUNT(*), 0) FROM $table WHERE strftime(\'%Y-%m\', $columnDateAdded) = strftime(\'%Y-%m\', \'now\')'));
   }
 
   Future<int> deleteAll() async {
@@ -143,12 +147,14 @@ class MovieDAO {
   Future<bool> existsByImdbId(String imdbID) async {
     Database db = await instance.database;
 
-    final result = await db.rawQuery('SELECT 1 FROM $table WHERE $columnImdbID = ?', [imdbID]);
+    final result = await db
+        .rawQuery('SELECT 1 FROM $table WHERE $columnImdbID = ?', [imdbID]);
 
     return result.isNotEmpty;
   }
 
-  Future<List<Map<String, dynamic>>> queryAllByWatchedForStatsPage(NoYes noYes) async {
+  Future<List<Map<String, dynamic>>> queryAllByWatchedForStatsPage(
+      NoYes noYes) async {
     Database db = await instance.database;
 
     return await db.rawQuery(

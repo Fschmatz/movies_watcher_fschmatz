@@ -1,21 +1,23 @@
 import '../entity/app_parameter.dart';
 import '../entity/movie.dart';
 import '../enum/sort_watch_list_option.dart';
-import '../main.dart';
+import 'app_state.dart';
 
-List<Movie> selectWatchListMovies() => store.state.watchList;
+List<Movie> selectWatchListMovies(AppState state) => state.watchList;
 
-SortOption selectSelectedHomeSortOption() => store.state.selectedHomeSortOption;
+SortOption selectSelectedHomeSortOption(AppState state) =>
+    state.selectedHomeSortOption;
 
-List<Movie> selectWatchedListMovies() => store.state.watchedList;
+List<Movie> selectWatchedListMovies(AppState state) => state.watchedList;
 
-String selectSelectedYearWatchedList() => store.state.selectedYearWatchedList;
+String selectSelectedYearWatchedList(AppState state) =>
+    state.selectedYearWatchedList;
 
-List<AppParameter> selectAppParameters() => store.state.appParameters;
+List<AppParameter> selectAppParameters(AppState state) => state.appParameters;
 
-String? selectParameterValueByKey(String key) {
+String? selectParameterValueByKey(AppState state, String key) {
   try {
-    return store.state.appParameters
+    return state.appParameters
         .firstWhere((element) => element.getKey() == key)
         .getValue();
   } catch (e) {
@@ -23,12 +25,13 @@ String? selectParameterValueByKey(String key) {
   }
 }
 
-bool selectParameterValueByKeyAsBoolean(String key, {bool defaultValue = true}) {
-  String? value = selectParameterValueByKey(key);
+bool selectParameterValueByKeyAsBoolean(AppState state, String key,
+    {bool defaultValue = true}) {
+  String? value = selectParameterValueByKey(state, key);
 
   if (value == null) {
     return defaultValue;
   }
-  
+
   return value == "true";
 }

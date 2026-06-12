@@ -64,7 +64,8 @@ class _StatsState extends State<Stats> {
   }
 
   Future<void> _generateMapMoviesByMonthAndYear() async {
-    final watchedMoviesList = await MovieService().queryAllByWatchedForStatsPage(NoYes.yes);
+    final watchedMoviesList =
+        await MovieService().queryAllByWatchedForStatsPage(NoYes.yes);
 
     final int currentYear = DateTime.now().year;
 
@@ -76,7 +77,8 @@ class _StatsState extends State<Stats> {
       final int movieYear = date.year;
       final String yearMonthKey = date.format(pattern: 'MM/yyyy');
 
-      final targetMap = (movieYear == currentYear) ? currentYearMovies : olderYearMovies;
+      final targetMap =
+          (movieYear == currentYear) ? currentYearMovies : olderYearMovies;
 
       targetMap.putIfAbsent(yearMonthKey, () => []);
       targetMap[yearMonthKey]!.add(movie);
@@ -90,7 +92,10 @@ class _StatsState extends State<Stats> {
 
   Map<String, List<Movie>> _sortYearMonthMap(Map<String, List<Movie>> input) {
     List<String> keys = input.keys.toList();
-    keys.sort((a, b) => Jiffy.parse(b, pattern: 'MM/yyyy').isBefore(Jiffy.parse(a, pattern: 'MM/yyyy')) ? -1 : 1);
+    keys.sort((a, b) => Jiffy.parse(b, pattern: 'MM/yyyy')
+            .isBefore(Jiffy.parse(a, pattern: 'MM/yyyy'))
+        ? -1
+        : 1);
 
     Map<String, List<Movie>> sorted = {};
     for (String key in keys) {
@@ -113,8 +118,10 @@ class _StatsState extends State<Stats> {
     });
   }
 
-  void _showMoviesWatchedOnMonthAndYearDialog(BuildContext context, String monthYear, List<Movie> movies) {
-    int sumRuntimesMonthYear = movies.fold<int>(0, (sum, movie) => sum + (movie.getRuntime() ?? 0));
+  void _showMoviesWatchedOnMonthAndYearDialog(
+      BuildContext context, String monthYear, List<Movie> movies) {
+    int sumRuntimesMonthYear =
+        movies.fold<int>(0, (sum, movie) => sum + (movie.getRuntime() ?? 0));
 
     showDialog(
       context: context,
@@ -129,7 +136,8 @@ class _StatsState extends State<Stats> {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Text("• ${movies[index].getTitle()!} - ${movies[index].getRuntime()!} Min"),
+                  child: Text(
+                      "• ${movies[index].getTitle()!} - ${movies[index].getRuntime()!} Min"),
                 );
               },
             ),
@@ -162,7 +170,8 @@ class _StatsState extends State<Stats> {
     );
   }
 
-  Widget buildStatusCard(Color backgroundColor, Color textColor, String title, int? movies, int? runtime, IconData icon) {
+  Widget buildStatusCard(Color backgroundColor, Color textColor, String title,
+      int? movies, int? runtime, IconData icon) {
     return SizedBox(
       height: 125,
       child: Card(
@@ -239,9 +248,15 @@ class _StatsState extends State<Stats> {
     Color accent = Theme.of(context).colorScheme.primary;
     Color cardBackgroundColor = Theme.of(context).colorScheme.tertiaryContainer;
     Color cardTextColor = Theme.of(context).colorScheme.onTertiaryContainer;
-    Color currentCardBackgroundColor = Theme.of(context).colorScheme.primaryContainer;
-    Color currentCardTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
-    TextStyle titleTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accent, letterSpacing: 0.5);
+    Color currentCardBackgroundColor =
+        Theme.of(context).colorScheme.primaryContainer;
+    Color currentCardTextColor =
+        Theme.of(context).colorScheme.onPrimaryContainer;
+    TextStyle titleTextStyle = TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: accent,
+        letterSpacing: 0.5);
 
     return Scaffold(
       appBar: AppBar(
@@ -311,8 +326,10 @@ class _StatsState extends State<Stats> {
                   const SizedBox(height: 16),
                   const Divider(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: buildCompactListTileTitle('Watched by Month/Year', titleTextStyle),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: buildCompactListTileTitle(
+                        'Watched by Month/Year', titleTextStyle),
                   ),
                   Column(
                     children: currentYearMovies.entries.map((entry) {
@@ -337,11 +354,14 @@ class _StatsState extends State<Stats> {
                             const SizedBox(width: 4),
                             Icon(
                               Icons.navigate_next_outlined,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ],
                         ),
-                        onTap: () => _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear),
+                        onTap: () => _showMoviesWatchedOnMonthAndYearDialog(
+                            context, monthYear, moviesOnThisMonthYear),
                       );
                     }).toList(),
                   ),
@@ -349,9 +369,14 @@ class _StatsState extends State<Stats> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: FilledButton.tonalIcon(
-                      icon: Icon(showOldYears ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                      label: Text(showOldYears ? "Hide previous years" : "Show previous years"),
-                      onPressed: () => setState(() => showOldYears = !showOldYears),
+                      icon: Icon(showOldYears
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined),
+                      label: Text(showOldYears
+                          ? "Hide previous years"
+                          : "Show previous years"),
+                      onPressed: () =>
+                          setState(() => showOldYears = !showOldYears),
                       style: FilledButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -386,7 +411,9 @@ class _StatsState extends State<Stats> {
                               const SizedBox(width: 4),
                               Icon(
                                 Icons.navigate_next_outlined,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                             ],
                           ),

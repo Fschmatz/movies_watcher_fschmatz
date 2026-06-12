@@ -83,7 +83,8 @@ class BackupUtils {
     }
   }
 
-  Future<void> _saveDataAsJson(Map<String, dynamic> data, String fileName) async {
+  Future<void> _saveDataAsJson(
+      Map<String, dynamic> data, String fileName) async {
     try {
       String directory = await _loadDirectory();
 

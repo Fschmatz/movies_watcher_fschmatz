@@ -22,7 +22,9 @@ class AppParameterService extends StoreService {
   Future<List<AppParameter>> getAll() async {
     var resp = await dbParams.queryAllRows();
 
-    return resp.isNotEmpty ? resp.map((map) => AppParameter.fromMap(map)).toList() : [];
+    return resp.isNotEmpty
+        ? resp.map((map) => AppParameter.fromMap(map)).toList()
+        : [];
   }
 
   Future<void> saveLastBackupDate() async {
@@ -33,7 +35,8 @@ class AppParameterService extends StoreService {
   }
 
   Future<String?> getLastBackupDate() async {
-    var resp = await dbParams.queryByKey(AppConstants.lastBackupDateAppParameter);
+    var resp =
+        await dbParams.queryByKey(AppConstants.lastBackupDateAppParameter);
     return resp != null ? AppParameter.fromMap(resp).getValue() : null;
   }
 

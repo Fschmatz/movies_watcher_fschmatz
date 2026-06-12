@@ -91,17 +91,50 @@ class _MovieDetailsState extends State<MovieDetails> {
       appBar: AppBar(
         title: const Text("Details"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: _shareImdbLink,
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () => _openEditPage(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: _delete,
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.more_vert_outlined),
+            itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+              PopupMenuItem<int>(
+                value: 0,
+                child: Row(
+                  children: const [
+                    Icon(Icons.share_outlined),
+                    SizedBox(width: 12),
+                    Text('Share'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
+                child: Row(
+                  children: const [
+                    Icon(Icons.edit_outlined),
+                    SizedBox(width: 12),
+                    Text('Edit'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 2,
+                child: Row(
+                  children: const [
+                    Icon(Icons.delete_outline),
+                    SizedBox(width: 12),
+                    Text('Delete'),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (int value) {
+              switch (value) {
+                case 0:
+                  _shareImdbLink();
+                case 1:
+                  _openEditPage(context);
+                case 2:
+                  _delete();
+              }
+            },
           ),
         ],
       ),
@@ -115,10 +148,10 @@ class _MovieDetailsState extends State<MovieDetails> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
-                      width: 130,
-                      height: 200,
+                      width: 115,
+                      height: 170,
                       child: posterProvider != null
                           ? Image(
                               image: posterProvider,
@@ -127,40 +160,61 @@ class _MovieDetailsState extends State<MovieDetails> {
                           : Container(
                               color: colorScheme.surfaceContainerHighest,
                               child: const Center(
-                                child: Icon(Icons.movie_outlined, size: 60),
+                                child: Icon(Icons.movie_outlined, size: 50),
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 170,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             movie.getTitle() ?? '',
-                            style: theme.textTheme.headlineSmall?.copyWith(
+                            style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
+                              height: 1.2,
                             ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 8),
+                          /* const SizedBox(height: 6),
                           Text(
                             movie.getYear() ?? '',
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "${movie.getRuntime() ?? '-'} Min",
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w500,
+                          ),*/
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: colorScheme.secondaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 16,
+                                  color: colorScheme.onSecondaryContainer,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "${movie.getRuntime() ?? '-'} Min",
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: colorScheme.onSecondaryContainer,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -168,19 +222,6 @@ class _MovieDetailsState extends State<MovieDetails> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton.icon(
-                  icon: Icon(movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                  label: Text(
-                    movie.isMovieWatched() ? "Not Watched" : "Watched",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  onPressed: movie.isMovieWatched() ? _markNotWatched : _markWatched,
-                ),
               ),
               const SizedBox(height: 24),
               if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
@@ -194,7 +235,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 const SizedBox(height: 12),
                 Text(
                   movie.getPlot()!,
-                  style: theme.textTheme.bodyLarge?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     height: 1.5,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -232,6 +273,16 @@ class _MovieDetailsState extends State<MovieDetails> {
               const SizedBox(height: 48),
             ],
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: movie.isMovieWatched() ? _markNotWatched : _markWatched,
+        icon: Icon(
+          movie.isMovieWatched() ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+        ),
+        label: Text(
+          movie.isMovieWatched() ? "Remove from Watched" : "Mark as Watched",
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );

@@ -33,19 +33,21 @@ class _WatchedListState extends State<WatchedList> {
   }
 
   void _loadYearsWithWatchedMovies() async {
-    _yearsWithWatchedMovies = await MovieService().findAllYearsWithWatchedMovies();
+    _yearsWithWatchedMovies =
+        await MovieService().findAllYearsWithWatchedMovies();
 
     if (!_yearsWithWatchedMovies.contains(_getSelectedYear())) {
       _yearsWithWatchedMovies.add(_getSelectedYear());
     }
 
     if (_yearsWithWatchedMovies.length > 1) {
-      _yearsWithWatchedMovies.sort((a, b) => int.parse(b).compareTo(int.parse(a)));
+      _yearsWithWatchedMovies
+          .sort((a, b) => int.parse(b).compareTo(int.parse(a)));
     }
   }
 
   String _getSelectedYear() {
-    return selectSelectedYearWatchedList();
+    return selectSelectedYearWatchedList(store.state);
   }
 
   Future<void> _onYearSelected(String selectedYear) async {
@@ -74,17 +76,31 @@ class _WatchedListState extends State<WatchedList> {
             )
           ],
         ),
-        body: StoreConnector<AppState, ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
+        body: StoreConnector<
+            AppState,
+            ({
+              bool isLoadingWatchedList,
+              List<Movie> movies,
+              bool showMovieNameOnCard,
+              bool showRuntimeChipOnCard
+            })>(
           converter: (store) {
             return (
               isLoadingWatchedList: store.state.isLoadingWatchedList,
               movies: store.state.watchedList,
-              showMovieNameOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showMovieNameOnCardAppParameter),
-              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(AppConstants.showRuntimeChipOnCardAppParameter),
+              showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
+                  store.state, AppConstants.showMovieNameOnCardAppParameter),
+              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
+                  store.state, AppConstants.showRuntimeChipOnCardAppParameter),
             );
           },
           builder: (BuildContext context,
-              ({bool isLoadingWatchedList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+              ({
+                bool isLoadingWatchedList,
+                List<Movie> movies,
+                bool showMovieNameOnCard,
+                bool showRuntimeChipOnCard
+              }) viewData) {
             return MovieGrid(
               movies: viewData.movies,
               isLoading: viewData.isLoadingWatchedList,

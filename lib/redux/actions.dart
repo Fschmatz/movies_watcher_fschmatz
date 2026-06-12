@@ -26,7 +26,9 @@ class LoadWatchListAction extends AppAction {
 
   @override
   Future<AppState> reduce() async {
-    List<Movie> movies = await MovieService().queryAllByWatchedNoYesAndOrderByAndConvertToList(NoYes.no, state.selectedHomeSortOption.sqlOrderBy);
+    List<Movie> movies = await MovieService()
+        .queryAllByWatchedNoYesAndOrderByAndConvertToList(
+            NoYes.no, state.selectedHomeSortOption.sqlOrderBy);
 
     return state.copyWith(watchList: movies);
   }
@@ -46,9 +48,10 @@ class LoadWatchedListAction extends AppAction {
 
   @override
   Future<AppState> reduce() async {
-    String selectedYearWatchedList = selectSelectedYearWatchedList();
+    String selectedYearWatchedList = selectSelectedYearWatchedList(state);
 
-    List<Movie> movies = await MovieService().findWatchedByYear(selectedYearWatchedList);
+    List<Movie> movies =
+        await MovieService().findWatchedByYear(selectedYearWatchedList);
 
     return state.copyWith(watchedList: movies);
   }
@@ -138,7 +141,7 @@ class SaveAppParameterAction extends AppAction {
   @override
   Future<AppState> reduce() async {
     await AppParameterService().saveParameter(appParameter);
-       
+
     return state;
   }
 }

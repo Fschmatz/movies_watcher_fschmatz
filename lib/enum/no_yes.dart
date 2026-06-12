@@ -1,5 +1,4 @@
 enum NoYes {
-
   yes('Y', 'Yes'),
   no('N', 'No');
 
@@ -7,5 +6,4 @@ enum NoYes {
 
   final String id;
   final String name;
-
 }

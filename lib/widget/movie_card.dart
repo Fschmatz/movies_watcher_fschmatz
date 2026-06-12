@@ -23,8 +23,8 @@ class MovieCard extends StatefulWidget {
 class _MovieCardState extends State<MovieCard> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
-  double posterHeight = 180;
-  double posterWidth = 150;
+  double posterHeight = 150;
+  double posterWidth = double.infinity;
   late BorderRadius posterBorder;
   BorderRadius cardBorder = BorderRadius.circular(20);
   late Uint8List? imageBytes;
@@ -61,7 +61,7 @@ class _MovieCardState extends State<MovieCard> {
     posterImage = imageBytes != null
         ? Image.memory(
             imageBytes!,
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
             gaplessPlayback: true,
           )
         : null;

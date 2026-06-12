@@ -48,7 +48,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
       movie.getPoster()!,
       fit: BoxFit.cover,
       gaplessPlayback: true,
-      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+      errorBuilder:
+          (BuildContext context, Object error, StackTrace? stackTrace) {
         return const Center(
           child: Icon(
             Icons.error_outline,
@@ -88,14 +89,19 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       movie.getTitle()!,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     Text(
                       movie.getYear()!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
