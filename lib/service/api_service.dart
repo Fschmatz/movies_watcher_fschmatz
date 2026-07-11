@@ -36,4 +36,17 @@ class ApiService {
     }
     return null;
   }
+
+  Future<SearchResult?> getTrendingMovies() async {
+    final String apiKey = ApiConfigs.apiKey;
+    final String apiUrl = '${ApiConfigs.baseUrl}/trending/movie/day?api_key=$apiKey';
+
+    final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      return SearchResult.fromJson(jsonData);
+    }
+    return null;
+  }
 }

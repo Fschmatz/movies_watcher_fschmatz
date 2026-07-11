@@ -25,6 +25,32 @@ class _SearchMovieState extends State<SearchMovie> {
   List<Movie> _moviesList = [];
   int _selectedPage = 1;
   List<int> searchResultsPages = [];
+  bool _loadingTrending = true;
+  List<Movie> _trendingMovies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTrendingMovies();
+  }
+
+  void _loadTrendingMovies() async {
+    try {
+      final SearchResult? searchResult = await ApiService().getTrendingMovies();
+      if (searchResult != null && mounted) {
+        setState(() {
+          _trendingMovies = searchResult.getSearch() ?? [];
+          _loadingTrending = false;
+        });
+      } else if (mounted) {
+        setState(() => _loadingTrending = false);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadingTrending = false);
+      }
+    }
+  }
 
   void _loadSearchResults() async {
     if (controllerMovieName.text.isNotEmpty) {
@@ -130,16 +156,16 @@ class _SearchMovieState extends State<SearchMovie> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: TextField(
                       minLines: 1,
-                      maxLines: 2,
+                      maxLines: 1,
                       maxLength: 300,
-                      autofocus: true,
+                      // autofocus: true,
                       textInputAction: TextInputAction.go,
                       textCapitalization: TextCapitalization.sentences,
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
@@ -184,44 +210,77 @@ class _SearchMovieState extends State<SearchMovie> {
               ),
             ),
             _isBeforeSearch
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer.withAlpha(102),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.search_rounded,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          "Search Movies",
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
+                ? (_loadingTrending
+                    ? SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: const Center(child: CircularProgressIndicator()),
+                      )
+                    : _trendingMovies.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer.withAlpha(102),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.search_rounded,
+                                    size: 64,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  "Search Movies",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  "Type a movie title above to find it in the database.",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        height: 1.4,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(20, 10, 16, 5),
+                                child: Text(
+                                  "Trending Today",
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                ),
                               ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "Type a movie title above to find it in the database.",
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                height: 1.4,
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _trendingMovies.length,
+                                itemBuilder: (context, index) {
+                                  final movie = _trendingMovies[index];
+                                  return SearchResultTile(
+                                    key: UniqueKey(),
+                                    movie: movie,
+                                  );
+                                },
                               ),
-                        ),
-                      ],
-                    ),
-                  )
+                            ],
+                          ))
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 450),
                     child: _loadingSearch

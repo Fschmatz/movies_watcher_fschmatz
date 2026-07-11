@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:movies_watcher_fschmatz/service/app_parameter_service.dart';
 import 'package:movies_watcher_fschmatz/service/movie_service.dart';
 import 'package:movies_watcher_fschmatz/util/toast_utils.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class BackupUtils {
   /* PER APP SPECIFIC FUNCTIONS */
@@ -35,31 +38,7 @@ class BackupUtils {
 
   /* END PER APP SPECIFIC FUNCTIONS */
 
-  Future<void> _loadStoragePermission() async {
-    var status = await Permission.manageExternalStorage.status;
-
-    if (!status.isGranted) {
-      await Permission.manageExternalStorage.request();
-    }
-  }
-
-  // Always using Android Download folder
-  Future<String> _loadDirectory() async {
-    bool dirDownloadExists = true;
-    String directory = "/storage/emulated/0/Download/";
-
-    dirDownloadExists = await Directory(directory).exists();
-    if (dirDownloadExists) {
-      directory = "/storage/emulated/0/Download/";
-    } else {
-      directory = "/storage/emulated/0/Downloads/";
-    }
-
-    return directory;
-  }
-
-  Future<void> backupData(String fileName) async {
-    await _loadStoragePermission();
+  Future<void> backupData() async {
     await AppParameterService().saveLastBackupDate();
 
     List<Map<String, dynamic>> moviesList = await _loadAllMovies();
@@ -71,7 +50,7 @@ class BackupUtils {
         'parameters': parametersList,
       };
 
-      await _saveDataAsJson(combinedData, fileName);
+      await _saveDataAsJsonAndShare(combinedData);
 
       ToastUtils.show(
         "Backup completed!",
@@ -83,13 +62,16 @@ class BackupUtils {
     }
   }
 
-  Future<void> _saveDataAsJson(Map<String, dynamic> data, String fileName) async {
+  Future<void> _saveDataAsJsonAndShare(Map<String, dynamic> data) async {
     try {
-      String directory = await _loadDirectory();
+      final directory = await getTemporaryDirectory();
+      final newFileName = UtilsFunctions.getBackupFilename();
 
-      final file = File('$directory/$fileName.json');
+      final file = File('${directory.path}/$newFileName');
 
       await file.writeAsString(json.encode(data));
+
+      await Share.shareXFiles([XFile(file.path)], text: 'Backup $newFileName');
     } catch (e) {
       ToastUtils.showErrorMessage(
         "Error!",
@@ -97,22 +79,18 @@ class BackupUtils {
     }
   }
 
-  Future<void> restoreBackupData(String fileName) async {
-    await _loadStoragePermission();
-
+  Future<void> restoreBackupData() async {
     try {
-      String directory = await _loadDirectory();
+      FilePickerResult? result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
 
-      final file = File('$directory/$fileName.json');
-      final jsonString = await file.readAsString();
-      final dynamic decodedJson = json.decode(jsonString);
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        final jsonString = await file.readAsString();
+        final dynamic decodedJson = json.decode(jsonString);
 
-      if (decodedJson is List) {
-        // Backup Antigo
-        await _deleteAllMovies();
-        await _insertMovies(decodedJson);
-      } else if (decodedJson is Map<String, dynamic>) {
-        // Backup Novo
         if (decodedJson.containsKey('movies')) {
           await _deleteAllMovies();
           await _insertMovies(decodedJson['movies']);
@@ -122,11 +100,11 @@ class BackupUtils {
           await _deleteAllParameters();
           await _insertParameters(decodedJson['parameters']);
         }
-      }
 
-      ToastUtils.show(
-        "Success!",
-      );
+        ToastUtils.show(
+          "Success!",
+        );
+      }
     } catch (e) {
       ToastUtils.showErrorMessage(
         "Error!",

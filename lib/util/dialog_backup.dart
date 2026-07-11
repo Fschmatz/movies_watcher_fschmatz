@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
 import 'backup_utils.dart';
 
@@ -7,10 +6,7 @@ class DialogBackup extends StatefulWidget {
   final bool isCreateBackup;
   final Function()? reloadHomeFunction;
 
-  const DialogBackup(
-      {super.key,
-      required this.isCreateBackup,
-      required this.reloadHomeFunction});
+  const DialogBackup({super.key, required this.isCreateBackup, required this.reloadHomeFunction});
 
   @override
   State<DialogBackup> createState() => _DialogBackupState();
@@ -18,11 +14,11 @@ class DialogBackup extends StatefulWidget {
 
 class _DialogBackupState extends State<DialogBackup> {
   Future<void> _createBackup() async {
-    await BackupUtils().backupData(AppConstants.backupFileName);
+    await BackupUtils().backupData();
   }
 
   Future<void> _restoreFromBackup() async {
-    await BackupUtils().restoreBackupData(AppConstants.backupFileName);
+    await BackupUtils().restoreBackupData();
     widget.reloadHomeFunction!();
   }
 

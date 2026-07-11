@@ -175,8 +175,14 @@ class Movie {
     return Movie(
       title: json['title'],
       year: year,
+      released: (json['release_date'] != null && json['release_date'].toString().isNotEmpty)
+          ? Jiffy.parse(json['release_date']).format(pattern: 'dd/MM/yyyy')
+          : '',
+      rating: json['vote_average'] != null
+          ? (((json['vote_average'] as num).toDouble() * 10).floorToDouble() / 10).toString()
+          : '',
       tmdbID: json['id'],
-      poster: json['poster_path'] != null ? 'https://image.tmdb.org/t/p/w500${json['poster_path']}' : 'N/A',
+      poster: json['poster_path'] != null ? 'https://image.tmdb.org/t/p/w154${json['poster_path']}' : 'N/A',
     );
   }
 

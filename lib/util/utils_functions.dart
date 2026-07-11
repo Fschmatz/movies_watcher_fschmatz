@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 import 'package:movies_watcher_fschmatz/util/utils_string.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,5 +24,12 @@ class UtilsFunctions {
     }
 
     return UtilsString.capitalizeFirstLetterString(theme);
+  }
+
+  static String getBackupFilename() {
+    String name = AppConstants.backupFileName;
+    String dateTimeStr = Jiffy.now().format(pattern: 'MMddyyyyHHmmss');
+
+    return '${name}_$dateTimeStr.json';
   }
 }

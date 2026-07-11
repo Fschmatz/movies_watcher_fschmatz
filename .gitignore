@@ -45,3 +45,4 @@ app.*.map.json
 # Agents
 .agents/
 .artifacts/
+/lib/util/api_configs.dart

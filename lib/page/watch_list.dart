@@ -33,6 +33,17 @@ class _WatchListState extends State<WatchList> {
       appBar: AppBar(
         title: Text(AppConstants.appNameHomePage),
         actions: [
+          IconButton(
+            tooltip: 'Add Movie',
+            icon: const Icon(Icons.add_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => SearchMovie()),
+              );
+            },
+          ),
           MenuAnchor(
             builder: (BuildContext context, MenuController controller,
                 Widget? child) {
@@ -48,17 +59,6 @@ class _WatchListState extends State<WatchList> {
               );
             },
             menuChildren: [
-              MenuItemButton(
-                leadingIcon: const Icon(Icons.add_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => SearchMovie()),
-                  );
-                },
-                child: const Text('Add Movie'),
-              ),
               MenuItemButton(
                 leadingIcon: const Icon(Icons.visibility_outlined),
                 onPressed: () {
