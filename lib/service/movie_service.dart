@@ -17,8 +17,8 @@ class MovieService extends StoreService {
       MovieDAO.columnPlot: movie.getPlot(),
       MovieDAO.columnCountry: movie.getCountry(),
       MovieDAO.columnPoster: movie.getPoster(),
-      MovieDAO.columnImdbRating: movie.getImdbRating(),
-      MovieDAO.columnImdbID: movie.getImdbID(),
+      MovieDAO.columnRating: movie.getRating(),
+      MovieDAO.columnTmdbID: movie.getTmdbID(),
       MovieDAO.columnWatched: movie.getWatched()?.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
       MovieDAO.columnDateWatched:
@@ -50,8 +50,8 @@ class MovieService extends StoreService {
       MovieDAO.columnPlot: movie.getPlot(),
       MovieDAO.columnCountry: movie.getCountry(),
       MovieDAO.columnPoster: movie.getPoster(),
-      MovieDAO.columnImdbRating: movie.getImdbRating(),
-      MovieDAO.columnImdbID: movie.getImdbID(),
+      MovieDAO.columnRating: movie.getRating(),
+      MovieDAO.columnTmdbID: movie.getTmdbID(),
       MovieDAO.columnWatched: movie.getWatched()!.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
       MovieDAO.columnDateWatched: movie.getDateWatched()
@@ -139,8 +139,8 @@ class MovieService extends StoreService {
     return resp.isNotEmpty ? resp : [];
   }
 
-  Future<bool> existsByImdbId(String imdbID) async {
-    return await dbMovies.existsByImdbId(imdbID);
+  Future<bool> existsByTmdbId(int tmdbID) async {
+    return await dbMovies.existsByTmdbId(tmdbID);
   }
 
   Future<List<Movie>> queryAllByWatchedForStatsPage(NoYes noYes) async {

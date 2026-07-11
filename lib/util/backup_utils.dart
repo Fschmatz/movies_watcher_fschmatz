@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:movies_watcher_fschmatz/service/app_parameter_service.dart';
 import 'package:movies_watcher_fschmatz/service/movie_service.dart';
+import 'package:movies_watcher_fschmatz/util/toast_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BackupUtils {
@@ -73,18 +73,17 @@ class BackupUtils {
 
       await _saveDataAsJson(combinedData, fileName);
 
-      Fluttertoast.showToast(
-        msg: "Backup completed!",
+      ToastUtils.show(
+        "Backup completed!",
       );
     } else {
-      Fluttertoast.showToast(
-        msg: "No data found!",
+      ToastUtils.showErrorMessage(
+        "No data found!",
       );
     }
   }
 
-  Future<void> _saveDataAsJson(
-      Map<String, dynamic> data, String fileName) async {
+  Future<void> _saveDataAsJson(Map<String, dynamic> data, String fileName) async {
     try {
       String directory = await _loadDirectory();
 
@@ -92,8 +91,8 @@ class BackupUtils {
 
       await file.writeAsString(json.encode(data));
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error!",
+      ToastUtils.showErrorMessage(
+        "Error!",
       );
     }
   }
@@ -125,12 +124,12 @@ class BackupUtils {
         }
       }
 
-      Fluttertoast.showToast(
-        msg: "Success!",
+      ToastUtils.show(
+        "Success!",
       );
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error!",
+      ToastUtils.showErrorMessage(
+        "Error!",
       );
     }
   }

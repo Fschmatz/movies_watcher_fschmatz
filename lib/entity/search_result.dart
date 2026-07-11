@@ -31,11 +31,11 @@ class SearchResult {
 
   factory SearchResult.fromJson(Map<String, dynamic> json) {
     return SearchResult(
-      search: (json['Search'] as List?)
+      search: (json['results'] as List?)
           ?.map((movie) => Movie.fromJsonSearchResult(movie))
           .toList(),
-      totalResults: json['totalResults'],
-      response: json['Response'],
+      totalResults: json['total_results']?.toString(),
+      response: json['results'] != null && (json['results'] as List).isNotEmpty ? 'True' : 'False',
     );
   }
 }

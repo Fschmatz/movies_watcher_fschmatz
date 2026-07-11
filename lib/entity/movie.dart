@@ -12,8 +12,8 @@ class Movie {
   String? _plot;
   String? _country;
   String? _poster;
-  String? _imdbRating;
-  String? _imdbID;
+  String? _rating;
+  int? _tmdbID;
   NoYes? _watched;
   String? _dateAdded;
   String? _dateWatched;
@@ -28,8 +28,8 @@ class Movie {
       String? plot,
       String? country,
       String? poster,
-      String? imdbRating,
-      String? imdbID,
+      String? rating,
+      int? tmdbID,
       NoYes? watched,
       String? dateAdded,
       String? dateWatched})
@@ -42,8 +42,8 @@ class Movie {
         _plot = plot,
         _country = country,
         _poster = poster,
-        _imdbRating = imdbRating,
-        _imdbID = imdbID,
+        _rating = rating,
+        _tmdbID = tmdbID,
         _watched = watched,
         _dateAdded = dateAdded,
         _dateWatched = dateWatched;
@@ -66,9 +66,9 @@ class Movie {
 
   String? getPoster() => _poster;
 
-  String? getImdbRating() => _imdbRating;
+  String? getRating() => _rating;
 
-  String? getImdbID() => _imdbID;
+  int? getTmdbID() => _tmdbID;
 
   NoYes? getWatched() => _watched;
 
@@ -112,12 +112,12 @@ class Movie {
     _poster = value;
   }
 
-  void setImdbRating(String value) {
-    _imdbRating = value;
+  void setRating(String value) {
+    _rating = value;
   }
 
-  void setImdbID(String value) {
-    _imdbID = value;
+  void setTmdbID(int value) {
+    _tmdbID = value;
   }
 
   void setWatched(NoYes value) {
@@ -133,33 +133,37 @@ class Movie {
   }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
-    String? runtimeString = json['Runtime'];
-    int runtimeInt = 0;
-
-    if (runtimeString != null) {
-      List<String> parts = runtimeString.split(' ');
-      if (parts.isNotEmpty) {
-        String firstPart = parts.first;
-        try {
-          runtimeInt = int.parse(firstPart);
-        } catch (e) {
-          runtimeInt = 0;
-        }
+    String? year = json['release_date']?.toString().split('-').first;
+    String director = '';
+    if (json['credits'] != null && json['credits']['crew'] != null) {
+      final crew = json['credits']['crew'] as List;
+      final directorMap = crew.firstWhere((c) => c['job'] == 'Director', orElse: () => null);
+      if (directorMap != null) {
+        director = directorMap['name'];
       }
+    }
+
+    String country = '';
+    if (json['production_countries'] != null && (json['production_countries'] as List).isNotEmpty) {
+      country = json['production_countries'][0]['name'];
     }
 
     return Movie(
       id: null,
-      title: json['Title'],
-      year: json['Year'],
-      released: json['Released'],
-      runtime: runtimeInt,
-      director: json['Director'],
-      plot: json['Plot'],
-      country: json['Country'],
-      poster: json['Poster'],
-      imdbRating: json['imdbRating'],
-      imdbID: json['imdbID'],
+      title: json['title'] ?? '',
+      year: year ?? '',
+      released: (json['release_date'] != null && json['release_date'].toString().isNotEmpty)
+          ? Jiffy.parse(json['release_date']).format(pattern: 'dd/MM/yyyy')
+          : '',
+      runtime: json['runtime'] ?? 0,
+      director: director,
+      plot: json['overview'] ?? '',
+      country: country,
+      poster: json['poster_path'] != null ? 'https://image.tmdb.org/t/p/w500${json['poster_path']}' : 'N/A',
+      rating: json['vote_average'] != null
+          ? (((json['vote_average'] as num).toDouble() * 10).floorToDouble() / 10).toString()
+          : '',
+      tmdbID: json['id'],
       watched: NoYes.no,
       dateAdded: null,
       dateWatched: null,
@@ -167,11 +171,12 @@ class Movie {
   }
 
   factory Movie.fromJsonSearchResult(Map<String, dynamic> json) {
+    String? year = json['release_date']?.toString().split('-').first;
     return Movie(
-      title: json['Title'],
-      year: json['Year'],
-      imdbID: json['imdbID'],
-      poster: json['Poster'],
+      title: json['title'],
+      year: year,
+      tmdbID: json['id'],
+      poster: json['poster_path'] != null ? 'https://image.tmdb.org/t/p/w500${json['poster_path']}' : 'N/A',
     );
   }
 
@@ -186,8 +191,8 @@ class Movie {
       plot: map['plot'],
       country: map['country'],
       poster: map['poster'],
-      imdbRating: map['imdbRating'],
-      imdbID: map['imdbID'],
+      rating: map['rating'],
+      tmdbID: map['tmdbID'],
       watched: map['watched'] == 'Y' ? NoYes.yes : NoYes.no,
       dateAdded: map['dateAdded'],
       dateWatched: map['dateWatched'],
@@ -205,8 +210,8 @@ class Movie {
       'plot': _plot,
       'country': _country,
       'poster': _poster,
-      'imdbRating': _imdbRating,
-      'imdbID': _imdbID,
+      'rating': _rating,
+      'tmdbID': _tmdbID,
       'watched': _watched == NoYes.yes ? 'Y' : 'N',
       'dateAdded': _dateAdded,
       'dateWatched': _dateWatched,
@@ -215,7 +220,7 @@ class Movie {
 
   @override
   String toString() {
-    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _imdbRating: $_imdbRating, _imdbID: $_imdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched}';
+    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _rating: $_rating, _tmdbID: $_tmdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched}';
   }
 
   String get formattedDateAdded => _dateAdded != null

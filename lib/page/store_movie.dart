@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 
 import '../entity/movie.dart';
-import '../key_api.dart';
+import '../service/api_service.dart';
 import '../service/movie_service.dart';
+import '../util/toast_utils.dart';
 
 class StoreMovie extends StatefulWidget {
   final Movie movie;
@@ -33,11 +33,9 @@ class _StoreMovieState extends State<StoreMovie> {
   final double _posterHeight = 220;
   final double _posterWidth = 150;
   final bool _validFieldWithoutRequired = true;
-  bool _validImdbId = true;
   bool _validTitle = true;
   bool _validRuntime = true;
   bool _validYear = true;
-  final TextEditingController _ctrlImdbId = TextEditingController();
   final TextEditingController _ctrlTitle = TextEditingController();
   final TextEditingController _ctrlYear = TextEditingController();
   final TextEditingController _ctrlReleased = TextEditingController();
@@ -46,8 +44,10 @@ class _StoreMovieState extends State<StoreMovie> {
   final TextEditingController _ctrlPlot = TextEditingController();
   final TextEditingController _ctrlCountry = TextEditingController();
   final TextEditingController _ctrlPoster = TextEditingController();
-  final TextEditingController _ctrlImdbRating = TextEditingController();
+  final TextEditingController _ctrlRating = TextEditingController();
   bool _isUpdate = false;
+  bool _isLoading = false;
+  bool _isSaving = false;
   bool _customPosterSelected = false;
   final BorderRadius _posterBorder = BorderRadius.circular(20);
 
@@ -56,39 +56,31 @@ class _StoreMovieState extends State<StoreMovie> {
     super.initState();
 
     if (widget.isFromSearch) {
-      _ctrlImdbId.text = widget.movie.getImdbID()!;
+      _movie = widget.movie;
+      _isLoading = true;
       _loadMovieData();
     }
 
     if (widget.isUpdate) {
       _isUpdate = true;
       _movie = widget.movie;
-      _validImdbId = true;
-      loadTextFields();
+      _isLoading = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          loadTextFields();
+          _isLoading = false;
+        });
+      });
     }
   }
 
   void _loadMovieData() async {
-    if (_ctrlImdbId.text.isNotEmpty) {
-      final String apiKey = KeyApi.key;
-      final String movieId = _ctrlImdbId.text.trim();
-      final String apiUrl = 'http://www.omdbapi.com/?i=$movieId&apikey=$apiKey';
-
+    if (_movie.getTmdbID() != null) {
       try {
-        final response = await http.get(Uri.parse(apiUrl)).timeout(const Duration(seconds: 10));
+        Movie? fetchedMovie = await ApiService().getMovieDetails(_movie.getTmdbID()!);
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-
-          String? responseValue = jsonData['Response'];
-          if (responseValue != null && responseValue.toLowerCase() == 'false') {
-            _showNoResultsFound();
-            return;
-          }
-
+        if (fetchedMovie != null) {
           setState(() {
-            Movie fetchedMovie = Movie.fromJson(jsonData);
-
             if (_isUpdate) {
               fetchedMovie.setId(_movie.getId()!);
               if (_movie.getWatched() != null) fetchedMovie.setWatched(_movie.getWatched()!);
@@ -98,22 +90,20 @@ class _StoreMovieState extends State<StoreMovie> {
 
             _movie = fetchedMovie;
             _posterUrl = fetchedMovie.getPoster();
-            _validImdbId = true;
             loadTextFields();
+            _isLoading = false;
 
             if (_isUpdate) {
-              Fluttertoast.showToast(msg: "Data refreshed from API");
+              ToastUtils.show("Data refreshed from API");
             }
           });
         } else {
-          Fluttertoast.showToast(
-            msg: "API Error",
-          );
+          setState(() => _isLoading = false);
+          ToastUtils.showErrorMessage("API Error");
         }
       } catch (e) {
-        Fluttertoast.showToast(
-          msg: "Connection timeout ",
-        );
+        setState(() => _isLoading = false);
+        ToastUtils.showErrorMessage("Connection timeout");
       }
     } else {
       _showNoResultsFound();
@@ -121,12 +111,9 @@ class _StoreMovieState extends State<StoreMovie> {
   }
 
   void _showNoResultsFound() {
-    Fluttertoast.showToast(
-      msg: "No Results Found!",
+    ToastUtils.show(
+      "No Results Found!",
     );
-    setState(() {
-      _validImdbId = false;
-    });
   }
 
   void loadTextFields() {
@@ -138,16 +125,19 @@ class _StoreMovieState extends State<StoreMovie> {
     _ctrlPlot.text = _movie.getPlot() ?? '';
     _ctrlCountry.text = _movie.getCountry() ?? '';
     _ctrlPoster.text = _movie.getPoster() ?? '';
-    _ctrlImdbRating.text = _movie.getImdbRating() ?? '';
-    _ctrlImdbId.text = _movie.getImdbID() ?? '';
+    _ctrlRating.text = _movie.getRating() ?? '';
     _movieWatchedState = _movie.getWatched()!;
   }
 
   void _beforeStoreMovie() async {
+    setState(() => _isSaving = true);
+    
     if (!_isUpdate) {
-      bool exists = await MovieService().existsByImdbId(_ctrlImdbId.text);
+      final int? tmdbID = _movie.getTmdbID();
+      bool exists = tmdbID != null && await MovieService().existsByTmdbId(tmdbID);
 
       if (exists) {
+        setState(() => _isSaving = false);
         bool? confirm = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -169,10 +159,13 @@ class _StoreMovieState extends State<StoreMovie> {
         if (confirm != true) {
           return;
         }
+        setState(() => _isSaving = true);
       }
     }
 
-    _storeMovie().then((_) => Navigator.of(context).pop());
+    _storeMovie().then((_) {
+      if (mounted) Navigator.of(context).pop();
+    });
   }
 
   Future<void> _storeMovie() async {
@@ -194,8 +187,7 @@ class _StoreMovieState extends State<StoreMovie> {
     _movie.setDirector(_ctrlDirector.text);
     _movie.setPlot(_ctrlPlot.text);
     _movie.setCountry(_ctrlCountry.text);
-    _movie.setImdbRating(_ctrlImdbRating.text);
-    _movie.setImdbID(_ctrlImdbId.text);
+    _movie.setRating(_ctrlRating.text);
     _movie.setWatched(_movieWatchedState);
 
     await MovieService().insertMovie(_movie);
@@ -212,7 +204,7 @@ class _StoreMovieState extends State<StoreMovie> {
     _movie.setDirector(_ctrlDirector.text);
     _movie.setPlot(_ctrlPlot.text);
     _movie.setCountry(_ctrlCountry.text);
-    _movie.setImdbRating(_ctrlImdbRating.text);
+    _movie.setRating(_ctrlRating.text);
     _movie.setWatched(_movieWatchedState);
 
     await MovieService().updateMovie(_movie);
@@ -245,10 +237,6 @@ class _StoreMovieState extends State<StoreMovie> {
 
   bool validateTextFields() {
     bool ok = true;
-    if (_ctrlImdbId.text.isEmpty) {
-      ok = false;
-      _validImdbId = false;
-    }
     if (_ctrlTitle.text.isEmpty) {
       ok = false;
       _validTitle = false;
@@ -279,10 +267,10 @@ class _StoreMovieState extends State<StoreMovie> {
         compressedPoster = await compressCoverImage(base64ImageBytes);
         _movie.setPoster(base64Encode(compressedPoster));
       } else {
-        _movie.setPoster("");
+        if (!_isUpdate) _movie.setPoster("");
       }
     } else {
-      _movie.setPoster("");
+      if (!_isUpdate) _movie.setPoster("");
     }
   }
 
@@ -346,7 +334,14 @@ class _StoreMovieState extends State<StoreMovie> {
           ),
         ],
       ),
-      body: ListView(children: [
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        child: _isLoading
+            ? const Center(
+                key: ValueKey('loading'),
+                child: CircularProgressIndicator(),
+              )
+            : ListView(key: const ValueKey('content'), children: [
         Center(
           child: Container(
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -417,23 +412,7 @@ class _StoreMovieState extends State<StoreMovie> {
                       ),
           ),
         ),
-        if (!_isUpdate)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: TextField(
-                minLines: 1,
-                maxLines: 1,
-                maxLength: 200,
-                onSubmitted: (e) => _loadMovieData(),
-                maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                keyboardType: TextInputType.text,
-                controller: _ctrlImdbId,
-                decoration: InputDecoration(
-                    helperText: "* Required",
-                    labelText: "IMDB ID",
-                    border: const OutlineInputBorder(),
-                    errorText: (_validImdbId) ? null : "Link is empty")),
-          ),
+        //buildTextField("TMDB ID", _ctrlImdbId, false, 1, 200, _validFieldWithoutRequired),
         buildTextField("Title", _ctrlTitle, true, 2, 200, _validTitle),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,7 +435,7 @@ class _StoreMovieState extends State<StoreMovie> {
               child: buildTextField("Released", _ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
             ),
             Expanded(
-              child: buildTextField("IMDB Rating", _ctrlImdbRating, false, 1, 4, _validFieldWithoutRequired),
+              child: buildTextField("Rating", _ctrlRating, false, 1, 4, _validFieldWithoutRequired),
             ),
           ],
         ),
@@ -493,25 +472,42 @@ class _StoreMovieState extends State<StoreMovie> {
           height: 100,
         )
       ]),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          if (validateTextFields()) {
-            _beforeStoreMovie();
-          } else {
-            setState(() {
-              _validImdbId;
-              _validTitle;
-              _validRuntime;
-              _validYear;
-            });
-          }
-        },
-        icon: const Icon(Icons.save_outlined),
-        label: const Text(
-          "Save",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
       ),
+      floatingActionButton: _isLoading
+          ? null
+          : _isSaving
+              ? FloatingActionButton.extended(
+                  onPressed: null,
+                  icon: const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                    ),
+                  ),
+                  label: const Text(
+                    "Saving...",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                )
+              : FloatingActionButton.extended(
+                  onPressed: () {
+                    if (validateTextFields()) {
+                      _beforeStoreMovie();
+                    } else {
+                      setState(() {
+                        _validTitle;
+                        _validRuntime;
+                        _validYear;
+                      });
+                    }
+                  },
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text(
+                    "Save",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
     );
   }
 }

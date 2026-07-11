@@ -8,7 +8,7 @@ class AppConstants {
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
   // STRINGS
-  static const String appVersion = "1.9.3";
+  static const String appVersion = "2.0.0";
   static const String backupFileName = "movies_watcher_backup";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
@@ -18,13 +18,18 @@ class AppConstants {
 
   static String changelogCurrent = '''
 $appVersion
+- TMDB Api
+- Bug fixes
+- Logic changes
+''';
+
+  static String changelogsOld = '''
+1.9.3
 - Bug fixes
 - Sync movie on edit page
 - UI changes
 - Flutter 3.44
-''';
 
-  static String changelogsOld = '''
 1.8.1
 - Add app parameters
 - Show/hide movie name 

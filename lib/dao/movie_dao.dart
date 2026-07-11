@@ -14,8 +14,8 @@ class MovieDAO {
   static const columnPlot = DatabaseHelper.columnMoviePlot;
   static const columnCountry = DatabaseHelper.columnMovieCountry;
   static const columnPoster = DatabaseHelper.columnMoviePoster;
-  static const columnImdbRating = DatabaseHelper.columnMovieImdbRating;
-  static const columnImdbID = DatabaseHelper.columnMovieImdbID;
+  static const columnRating = DatabaseHelper.columnMovieRating;
+  static const columnTmdbID = DatabaseHelper.columnMovieTmdbID;
   static const columnWatched = DatabaseHelper.columnMovieWatched;
   static const columnDateAdded = DatabaseHelper.columnMovieDateAdded;
   static const columnDateWatched = DatabaseHelper.columnMovieDateWatched;
@@ -144,11 +144,11 @@ class MovieDAO {
     return result.map((row) => row['year'] as String).toList();
   }
 
-  Future<bool> existsByImdbId(String imdbID) async {
+  Future<bool> existsByTmdbId(int tmdbID) async {
     Database db = await instance.database;
 
     final result = await db
-        .rawQuery('SELECT 1 FROM $table WHERE $columnImdbID = ?', [imdbID]);
+        .rawQuery('SELECT 1 FROM $table WHERE $columnTmdbID = ?', [tmdbID]);
 
     return result.isNotEmpty;
   }
@@ -163,7 +163,6 @@ class MovieDAO {
       $columnId, 
       $columnTitle,
       $columnRuntime, 
-      $columnImdbID, 
       $columnWatched, 
       $columnDateAdded, 
       $columnDateWatched 

@@ -1,15 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:movies_watcher_fschmatz/key_api.dart';
-import 'package:movies_watcher_fschmatz/page/store_movie.dart';
-import 'package:movies_watcher_fschmatz/util/app_constants.dart';
+import 'package:movies_watcher_fschmatz/util/api_configs.dart';
 
 import '../entity/movie.dart';
 import '../entity/search_result.dart';
+import '../service/api_service.dart';
+import '../util/toast_utils.dart';
 import '../widget/search_result_tile.dart';
 
 class SearchMovie extends StatefulWidget {
@@ -23,27 +19,12 @@ class _SearchMovieState extends State<SearchMovie> {
   bool _isBeforeSearch = true;
   bool _loadingSearch = true;
   String _quantityResults = "0";
-  final String apiKey = KeyApi.key;
+  final String apiKey = ApiConfigs.apiKey;
   TextEditingController controllerMovieName = TextEditingController();
   TextEditingController controllerMovieYear = TextEditingController();
   List<Movie> _moviesList = [];
   int _selectedPage = 1;
   List<int> searchResultsPages = [];
-
-  String _formatApiUrl() {
-    final String movieName = controllerMovieName.text.trim();
-    final String? year = controllerMovieYear.text.isNotEmpty
-        ? controllerMovieYear.text.trim()
-        : null;
-    String apiUrl =
-        '${AppConstants.apiUrl}&s=$movieName&page=$_selectedPage&apikey=$apiKey';
-
-    if (year != null) {
-      apiUrl = "$apiUrl&y=$year";
-    }
-
-    return apiUrl;
-  }
 
   void _loadSearchResults() async {
     if (controllerMovieName.text.isNotEmpty) {
@@ -58,45 +39,35 @@ class _SearchMovieState extends State<SearchMovie> {
       });
 
       try {
-        final response = await http
-            .get(Uri.parse(_formatApiUrl()))
-            .timeout(const Duration(seconds: 10));
+        final String movieName = controllerMovieName.text.trim();
+        final String? year = controllerMovieYear.text.isNotEmpty ? controllerMovieYear.text.trim() : null;
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          SearchResult searchResult = SearchResult.fromJson(jsonData);
-          String? responseValue = jsonData['Response'];
-          bool noResults =
-              responseValue != null && responseValue.toLowerCase() == 'false';
+        final SearchResult? searchResult = await ApiService().searchMovies(movieName, _selectedPage, year: year);
+
+        if (searchResult != null) {
+          bool noResults = searchResult.getResponse() != null && searchResult.getResponse()!.toLowerCase() == 'false';
 
           if (noResults) {
             _showNoResultsFound();
             _clearDropdownMenu();
           } else {
-            if (searchResult.getTotalResults() != null &&
-                int.parse(searchResult.getTotalResults()!) != 0) {
-              searchResultsPages = List.generate(
-                  (int.parse(searchResult.getTotalResults()!) / 10).ceil(),
-                  (index) => (index + 1));
+            if (searchResult.getTotalResults() != null && int.parse(searchResult.getTotalResults()!) != 0) {
+              searchResultsPages = List.generate((int.parse(searchResult.getTotalResults()!) / 20).ceil(), (index) => (index + 1));
             } else {
               _clearDropdownMenu();
             }
 
             setState(() {
-              _moviesList = searchResult.getSearch()!;
-              _quantityResults = searchResult.getTotalResults()!;
+              _moviesList = searchResult.getSearch() ?? [];
+              _quantityResults = searchResult.getTotalResults() ?? "0";
               _loadingSearch = false;
             });
           }
         } else {
-          Fluttertoast.showToast(
-            msg: "API Error",
-          );
+          ToastUtils.showErrorMessage("API Error");
         }
       } catch (e) {
-        Fluttertoast.showToast(
-          msg: "Connection timeout ",
-        );
+        ToastUtils.showErrorMessage("Connection timeout");
       }
     } else {
       _showNoResultsFound();
@@ -106,28 +77,22 @@ class _SearchMovieState extends State<SearchMovie> {
   void _changePageSearchResults() async {
     if (controllerMovieName.text.isNotEmpty) {
       try {
-        final response = await http
-            .get(Uri.parse(_formatApiUrl()))
-            .timeout(const Duration(seconds: 10));
+        final String movieName = controllerMovieName.text.trim();
+        final String? year = controllerMovieYear.text.isNotEmpty ? controllerMovieYear.text.trim() : null;
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          SearchResult searchResult = SearchResult.fromJson(jsonData);
+        final SearchResult? searchResult = await ApiService().searchMovies(movieName, _selectedPage, year: year);
 
+        if (searchResult != null) {
           setState(() {
-            _moviesList = searchResult.getSearch()!;
-            _quantityResults = searchResult.getTotalResults()!;
+            _moviesList = searchResult.getSearch() ?? [];
+            _quantityResults = searchResult.getTotalResults() ?? "0";
             _loadingSearch = false;
           });
         } else {
-          Fluttertoast.showToast(
-            msg: "API Error",
-          );
+          ToastUtils.showErrorMessage("API Error");
         }
       } catch (e) {
-        Fluttertoast.showToast(
-          msg: "Connection timeout ",
-        );
+        ToastUtils.showErrorMessage("Connection timeout");
       }
     }
   }
@@ -137,8 +102,8 @@ class _SearchMovieState extends State<SearchMovie> {
       _loadingSearch = false;
     });
 
-    Fluttertoast.showToast(
-      msg: "No Results Found!",
+    ToastUtils.show(
+      "No Results Found!",
     );
   }
 
@@ -160,31 +125,6 @@ class _SearchMovieState extends State<SearchMovie> {
       appBar: AppBar(
         title: const Text("Search"),
         surfaceTintColor: Theme.of(context).colorScheme.background,
-        actions: [
-          PopupMenuButton<int>(
-              icon: const Icon(Icons.more_vert_outlined),
-              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                    const PopupMenuItem<int>(
-                        value: 0, child: Text('Add with IMDb ID')),
-                  ],
-              onSelected: (int value) {
-                switch (value) {
-                  case 0:
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => StoreMovie(
-                            key: UniqueKey(),
-                            isUpdate: false,
-                            movie: Movie(),
-                            isFromSearch: false,
-                          ),
-                        ));
-                    break;
-                }
-              })
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -236,10 +176,7 @@ class _SearchMovieState extends State<SearchMovie> {
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       controller: controllerMovieYear,
                       decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(16),
-                          labelText: "Year",
-                          counterText: "",
-                          prefixIcon: Icon(Icons.calendar_today_outlined)),
+                          contentPadding: EdgeInsets.all(16), labelText: "Year", counterText: "", prefixIcon: Icon(Icons.calendar_today_outlined)),
                       onSubmitted: (_) => {_loseFocus(), _loadSearchResults()},
                     ),
                   ),
@@ -248,18 +185,14 @@ class _SearchMovieState extends State<SearchMovie> {
             ),
             _isBeforeSearch
                 ? Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 80),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withAlpha(102),
+                            color: Theme.of(context).colorScheme.primaryContainer.withAlpha(102),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -272,10 +205,7 @@ class _SearchMovieState extends State<SearchMovie> {
                         Text(
                           "Search Movies",
                           textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -284,13 +214,10 @@ class _SearchMovieState extends State<SearchMovie> {
                         Text(
                           "Type a movie title above to find it in the database.",
                           textAlign: TextAlign.center,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                    height: 1.4,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1.4,
+                              ),
                         ),
                       ],
                     ),
@@ -300,17 +227,14 @@ class _SearchMovieState extends State<SearchMovie> {
                     child: _loadingSearch
                         ? SizedBox(
                             height: MediaQuery.of(context).size.height * 0.6,
-                            child: const Center(
-                                child: CircularProgressIndicator()),
+                            child: const Center(child: CircularProgressIndicator()),
                           )
                         : Column(
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                                padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
                                       child: ListTile(
@@ -319,45 +243,27 @@ class _SearchMovieState extends State<SearchMovie> {
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
+                                              color: Theme.of(context).colorScheme.primary,
                                             )),
                                       ),
                                     ),
                                     Visibility(
-                                      visible: searchResultsPages.isNotEmpty &&
-                                          searchResultsPages.length > 1,
+                                      visible: searchResultsPages.isNotEmpty && searchResultsPages.length > 1,
                                       child: Row(
                                         children: [
                                           FilledButton.tonalIcon(
-                                              onPressed: _selectedPage > 1
-                                                  ? () => {
-                                                        _selectedPage--,
-                                                        _changePageSearchResults()
-                                                      }
-                                                  : null,
-                                              icon: const Icon(Icons
-                                                  .navigate_before_outlined),
+                                              onPressed: _selectedPage > 1 ? () => {_selectedPage--, _changePageSearchResults()} : null,
+                                              icon: const Icon(Icons.navigate_before_outlined),
                                               label: const Text("Previous")),
                                           const SizedBox(
                                             width: 10,
                                           ),
                                           FilledButton.tonalIcon(
-                                              onPressed: searchResultsPages
-                                                          .isNotEmpty &&
-                                                      _selectedPage !=
-                                                          searchResultsPages[
-                                                              searchResultsPages
-                                                                      .length -
-                                                                  1]
-                                                  ? () => {
-                                                        _selectedPage++,
-                                                        _changePageSearchResults()
-                                                      }
-                                                  : null,
-                                              icon: const Icon(
-                                                  Icons.navigate_next_outlined),
+                                              onPressed:
+                                                  searchResultsPages.isNotEmpty && _selectedPage != searchResultsPages[searchResultsPages.length - 1]
+                                                      ? () => {_selectedPage++, _changePageSearchResults()}
+                                                      : null,
+                                              icon: const Icon(Icons.navigate_next_outlined),
                                               label: const Text("Next")),
                                         ],
                                       ),
@@ -366,9 +272,7 @@ class _SearchMovieState extends State<SearchMovie> {
                                 ),
                               ),
                               ListView.separated(
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        const Divider(
+                                separatorBuilder: (BuildContext context, int index) => const Divider(
                                   height: 0,
                                 ),
                                 shrinkWrap: true,

@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../entity/movie.dart';
+import '../service/api_service.dart';
 import '../service/movie_service.dart';
+import '../util/toast_utils.dart';
 import '../widget/movie_detail_tile.dart';
 import 'store_movie.dart';
 
@@ -47,10 +48,6 @@ class _MovieDetailsState extends State<MovieDetails> {
     if (mounted) Navigator.pop(context);
   }
 
-  Future<void> _shareImdbLink() async {
-    Share.share("https://www.imdb.com/title/${movie.getImdbID()}");
-  }
-
   Future<void> _openEditPage(BuildContext context) async {
     Navigator.push(
         context,
@@ -63,6 +60,35 @@ class _MovieDetailsState extends State<MovieDetails> {
         )).then((_) {
       if (mounted) Navigator.pop(context);
     });
+  }
+
+  Future<void> _refreshFromApi() async {
+    if (movie.getTmdbID() == null) return;
+
+    try {
+      Movie? fetchedMovie = await ApiService().getMovieDetails(movie.getTmdbID()!);
+
+      if (fetchedMovie != null) {
+        fetchedMovie.setId(movie.getId()!);
+        if (movie.getWatched() != null) fetchedMovie.setWatched(movie.getWatched()!);
+        if (movie.getDateAdded() != null) fetchedMovie.setDateAdded(movie.getDateAdded()!);
+        if (movie.getDateWatched() != null) fetchedMovie.setDateWatched(movie.getDateWatched()!);
+        fetchedMovie.setPoster(movie.getPoster() ?? '');
+
+        await MovieService().updateMovie(fetchedMovie);
+
+        if (mounted) {
+          setState(() {
+            movie = fetchedMovie;
+          });
+          ToastUtils.show("Data refreshed from API");
+        }
+      } else {
+        ToastUtils.showErrorMessage("API Error");
+      }
+    } catch (e) {
+      ToastUtils.showErrorMessage("Connection timeout");
+    }
   }
 
   ImageProvider? _getPosterProvider() {
@@ -98,16 +124,6 @@ class _MovieDetailsState extends State<MovieDetails> {
                 value: 0,
                 child: Row(
                   children: const [
-                    Icon(Icons.share_outlined),
-                    SizedBox(width: 12),
-                    Text('Share'),
-                  ],
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 1,
-                child: Row(
-                  children: const [
                     Icon(Icons.edit_outlined),
                     SizedBox(width: 12),
                     Text('Edit'),
@@ -115,7 +131,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 ),
               ),
               PopupMenuItem<int>(
-                value: 2,
+                value: 1,
                 child: Row(
                   children: const [
                     Icon(Icons.delete_outline),
@@ -124,15 +140,26 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ],
                 ),
               ),
+              if (movie.getTmdbID() != null)
+                PopupMenuItem<int>(
+                  value: 2,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.sync_outlined),
+                      SizedBox(width: 12),
+                      Text('Refresh'),
+                    ],
+                  ),
+                ),
             ],
             onSelected: (int value) {
               switch (value) {
                 case 0:
-                  _shareImdbLink();
-                case 1:
                   _openEditPage(context);
-                case 2:
+                case 1:
                   _delete();
+                case 2:
+                  _refreshFromApi();
               }
             },
           ),
@@ -261,7 +288,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                   MovieDetailTile(title: "Director", value: movie.getDirector()),
                   MovieDetailTile(title: "Released", value: movie.getReleased()),
                   MovieDetailTile(title: "Country", value: movie.getCountry()),
-                  MovieDetailTile(title: "IMDb Rating", value: movie.getImdbRating()),
+                  MovieDetailTile(title: "Rating", value: movie.getRating()),
                   MovieDetailTile(title: "Added", value: movie.formattedDateAdded),
                   if (movie.isMovieWatched())
                     MovieDetailTile(
