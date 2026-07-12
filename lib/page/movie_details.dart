@@ -65,29 +65,25 @@ class _MovieDetailsState extends State<MovieDetails> {
   Future<void> _refreshFromApi() async {
     if (movie.getTmdbID() == null) return;
 
-    try {
-      Movie? fetchedMovie = await ApiService().getMovieDetails(movie.getTmdbID()!);
+    Movie? fetchedMovie = await ApiService().getMovieDetails(movie.getTmdbID()!);
 
-      if (fetchedMovie != null) {
-        fetchedMovie.setId(movie.getId()!);
-        if (movie.getWatched() != null) fetchedMovie.setWatched(movie.getWatched()!);
-        if (movie.getDateAdded() != null) fetchedMovie.setDateAdded(movie.getDateAdded()!);
-        if (movie.getDateWatched() != null) fetchedMovie.setDateWatched(movie.getDateWatched()!);
-        fetchedMovie.setPoster(movie.getPoster() ?? '');
+    if (fetchedMovie != null) {
+      fetchedMovie.setId(movie.getId()!);
 
-        await MovieService().updateMovie(fetchedMovie);
+      if (movie.getWatched() != null) fetchedMovie.setWatched(movie.getWatched()!);
+      if (movie.getDateAdded() != null) fetchedMovie.setDateAdded(movie.getDateAdded()!);
+      if (movie.getDateWatched() != null) fetchedMovie.setDateWatched(movie.getDateWatched()!);
+      fetchedMovie.setPoster(movie.getPoster() ?? '');
 
-        if (mounted) {
-          setState(() {
-            movie = fetchedMovie;
-          });
-          ToastUtils.show("Data refreshed from API");
-        }
-      } else {
-        ToastUtils.showErrorMessage("API Error");
+      await MovieService().updateMovie(fetchedMovie);
+
+      if (mounted) {
+        setState(() {
+          movie = fetchedMovie;
+        });
+
+        ToastUtils.show("Data refreshed from API");
       }
-    } catch (e) {
-      ToastUtils.showErrorMessage("Connection timeout");
     }
   }
 
@@ -115,13 +111,24 @@ class _MovieDetailsState extends State<MovieDetails> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Details"),
+        //title: const Text("Details"),
         actions: [
           PopupMenuButton<int>(
             icon: const Icon(Icons.more_vert_outlined),
             itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+              if (movie.getTmdbID() != null)
+                PopupMenuItem<int>(
+                  value: 0,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.sync_outlined),
+                      SizedBox(width: 12),
+                      Text('Refresh'),
+                    ],
+                  ),
+                ),
               PopupMenuItem<int>(
-                value: 0,
+                value: 1,
                 child: Row(
                   children: const [
                     Icon(Icons.edit_outlined),
@@ -131,7 +138,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 ),
               ),
               PopupMenuItem<int>(
-                value: 1,
+                value: 2,
                 child: Row(
                   children: const [
                     Icon(Icons.delete_outline),
@@ -140,26 +147,15 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ],
                 ),
               ),
-              if (movie.getTmdbID() != null)
-                PopupMenuItem<int>(
-                  value: 2,
-                  child: Row(
-                    children: const [
-                      Icon(Icons.sync_outlined),
-                      SizedBox(width: 12),
-                      Text('Refresh'),
-                    ],
-                  ),
-                ),
             ],
             onSelected: (int value) {
               switch (value) {
                 case 0:
-                  _openEditPage(context);
-                case 1:
-                  _delete();
-                case 2:
                   _refreshFromApi();
+                case 1:
+                  _openEditPage(context);
+                case 2:
+                  _delete();
               }
             },
           ),

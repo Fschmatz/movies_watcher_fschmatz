@@ -28,8 +28,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
     movie = widget.movie;
   }
 
-  void _openStoreMoviePage() {
-    Navigator.of(context).pop();
+  void _openStoreMoviePage() {    
     Navigator.push(
         context,
         MaterialPageRoute(

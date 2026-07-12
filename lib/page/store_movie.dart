@@ -76,34 +76,28 @@ class _StoreMovieState extends State<StoreMovie> {
 
   void _loadMovieData() async {
     if (_movie.getTmdbID() != null) {
-      try {
-        Movie? fetchedMovie = await ApiService().getMovieDetails(_movie.getTmdbID()!);
+      Movie? fetchedMovie = await ApiService().getMovieDetails(_movie.getTmdbID()!);
 
-        if (fetchedMovie != null) {
-          setState(() {
-            if (_isUpdate) {
-              fetchedMovie.setId(_movie.getId()!);
-              if (_movie.getWatched() != null) fetchedMovie.setWatched(_movie.getWatched()!);
-              if (_movie.getDateAdded() != null) fetchedMovie.setDateAdded(_movie.getDateAdded()!);
-              if (_movie.getDateWatched() != null) fetchedMovie.setDateWatched(_movie.getDateWatched()!);
-            }
+      if (fetchedMovie != null) {
+        setState(() {
+          if (_isUpdate) {
+            fetchedMovie.setId(_movie.getId()!);
+            if (_movie.getWatched() != null) fetchedMovie.setWatched(_movie.getWatched()!);
+            if (_movie.getDateAdded() != null) fetchedMovie.setDateAdded(_movie.getDateAdded()!);
+            if (_movie.getDateWatched() != null) fetchedMovie.setDateWatched(_movie.getDateWatched()!);
+          }
 
-            _movie = fetchedMovie;
-            _posterUrl = fetchedMovie.getPoster();
-            loadTextFields();
-            _isLoading = false;
+          _movie = fetchedMovie;
+          _posterUrl = fetchedMovie.getPoster();
+          loadTextFields();
+          _isLoading = false;
 
-            if (_isUpdate) {
-              ToastUtils.show("Data refreshed from API");
-            }
-          });
-        } else {
-          setState(() => _isLoading = false);
-          ToastUtils.showErrorMessage("API Error");
-        }
-      } catch (e) {
+          if (_isUpdate) {
+            ToastUtils.show("Data refreshed from API");
+          }
+        });
+      } else {
         setState(() => _isLoading = false);
-        ToastUtils.showErrorMessage("Connection timeout");
       }
     } else {
       _showNoResultsFound();
@@ -164,7 +158,18 @@ class _StoreMovieState extends State<StoreMovie> {
     }
 
     _storeMovie().then((_) {
-      if (mounted) Navigator.of(context).pop();
+      ToastUtils.show(_isUpdate ? "Movie updated!" : "Movie saved!");
+      Future.delayed(const Duration(milliseconds: 350), () {
+        if (mounted) {
+          if (widget.isFromSearch) {
+            Navigator.of(context)
+              ..pop()
+              ..pop();
+          } else {
+            Navigator.of(context).pop();
+          }
+        }
+      });
     });
   }
 
