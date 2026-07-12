@@ -28,7 +28,7 @@ class UtilsFunctions {
 
   static String getBackupFilename() {
     String name = AppConstants.backupFileName;
-    String dateTimeStr = Jiffy.now().format(pattern: 'MMddyyyyHHmmss');
+    String dateTimeStr = Jiffy.now().format(pattern: 'dd_MM_yyyy_HHmmss');
 
     return '${name}_$dateTimeStr.json';
   }
