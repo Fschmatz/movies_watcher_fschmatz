@@ -1,5 +1,6 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
+import 'package:movies_watcher_fschmatz/page/discover_page.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
 import 'package:movies_watcher_fschmatz/page/settings.dart';
 import 'package:movies_watcher_fschmatz/page/stats.dart';
@@ -25,6 +26,7 @@ class _WatchListState extends State<WatchList> {
   Future<void> _onSortListSelected(SortOption optionSelected) async {
     await store.dispatch(ChangeWatchListSortAction(optionSelected));
     await store.dispatch(LoadWatchListAction());
+    if (mounted) setState(() {});
   }
 
   @override
@@ -33,20 +35,28 @@ class _WatchListState extends State<WatchList> {
       appBar: AppBar(
         title: Text(AppConstants.appNameHomePage),
         actions: [
+          // IconButton(
+          //   tooltip: 'Search Movie',
+          //   icon: const Icon(Icons.search_outlined),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (BuildContext context) => const SearchMovie()),
+          //     );
+          //   },
+          // ),
           IconButton(
-            tooltip: 'Add Movie',
-            icon: const Icon(Icons.add_outlined),
+            tooltip: 'Discover',
+            icon: const Icon(Icons.trending_up_outlined),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => SearchMovie()),
+                MaterialPageRoute(builder: (BuildContext context) => const DiscoverPage()),
               );
             },
           ),
           MenuAnchor(
-            builder: (BuildContext context, MenuController controller,
-                Widget? child) {
+            builder: (BuildContext context, MenuController controller, Widget? child) {
               return IconButton(
                 onPressed: () {
                   if (controller.isOpen) {
@@ -60,13 +70,22 @@ class _WatchListState extends State<WatchList> {
             },
             menuChildren: [
               MenuItemButton(
+                leadingIcon: const Icon(Icons.search_outlined),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (BuildContext context) => const SearchMovie()),
+                  );
+                },
+                child: const Text('Search'),
+              ),
+              MenuItemButton(
                 leadingIcon: const Icon(Icons.visibility_outlined),
                 onPressed: () {
                   store.dispatch(LoadWatchedListAction());
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => WatchedList()),
+                    MaterialPageRoute(builder: (BuildContext context) => WatchedList()),
                   );
                 },
                 child: const Text('Watched'),
@@ -76,8 +95,7 @@ class _WatchListState extends State<WatchList> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => const Stats()),
+                    MaterialPageRoute(builder: (BuildContext context) => const Stats()),
                   );
                 },
                 child: const Text('Stats'),
@@ -87,8 +105,7 @@ class _WatchListState extends State<WatchList> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Settings()),
+                    MaterialPageRoute(builder: (BuildContext context) => Settings()),
                   );
                 },
                 child: const Text('Settings'),
@@ -97,8 +114,7 @@ class _WatchListState extends State<WatchList> {
               SubmenuButton(
                 leadingIcon: const Icon(Icons.sort_outlined),
                 menuChildren: SortOption.values.map((sortOption) {
-                  final bool isSelected =
-                      selectSelectedHomeSortOption(store.state) == sortOption;
+                  final bool isSelected = selectSelectedHomeSortOption(store.state) == sortOption;
                   return MenuItemButton(
                     leadingIcon: Icon(
                       Icons.check,
@@ -116,31 +132,17 @@ class _WatchListState extends State<WatchList> {
           ),
         ],
       ),
-      body: StoreConnector<
-          AppState,
-          ({
-            bool isLoadingWatchList,
-            List<Movie> movies,
-            bool showMovieNameOnCard,
-            bool showRuntimeChipOnCard
-          })>(
+      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
         converter: (store) {
           return (
             isLoadingWatchList: store.state.isLoadingWatchList,
             movies: store.state.watchList,
-            showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
-                store.state, AppConstants.showMovieNameOnCardAppParameter),
-            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
-                store.state, AppConstants.showRuntimeChipOnCardAppParameter),
+            showMovieNameOnCard: selectParameterValueByKeyAsBoolean(store.state, AppConstants.showMovieNameOnCardAppParameter),
+            showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(store.state, AppConstants.showRuntimeChipOnCardAppParameter),
           );
         },
-        builder: (BuildContext context,
-            ({
-              bool isLoadingWatchList,
-              List<Movie> movies,
-              bool showMovieNameOnCard,
-              bool showRuntimeChipOnCard
-            }) viewData) {
+        builder:
+            (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
           return MovieGrid(
             movies: viewData.movies,
             isLoading: viewData.isLoadingWatchList,

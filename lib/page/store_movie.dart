@@ -125,7 +125,7 @@ class _StoreMovieState extends State<StoreMovie> {
 
   void _beforeStoreMovie() async {
     setState(() => _isSaving = true);
-    
+
     if (!_isUpdate) {
       final int? tmdbID = _movie.getTmdbID();
       bool exists = tmdbID != null && await MovieService().existsByTmdbId(tmdbID);
@@ -322,7 +322,7 @@ class _StoreMovieState extends State<StoreMovie> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _isUpdate ? const Text('Edit') : const Text('New'),
+        title: _isUpdate ? const Text('Edit') : const Text(''),
         actions: [
           if (_isUpdate)
             IconButton(
@@ -347,136 +347,136 @@ class _StoreMovieState extends State<StoreMovie> {
                 child: CircularProgressIndicator(),
               )
             : ListView(key: const ValueKey('content'), children: [
-        Center(
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            child: _customPosterSelected
-                ? Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: _posterBorder,
-                    ),
-                    elevation: 0,
-                    child: ClipRRect(
-                      borderRadius: _posterBorder,
-                      child: Image.file(
-                        _poster!,
-                        width: _posterWidth,
-                        height: _posterHeight,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  )
-                : _isUpdate && !(_movie.getPoster()?.startsWith('http') ?? false) && _movie.getPoster() != "N/A"
-                    ? (_movie.getPoster() == null || _movie.getPoster()!.isEmpty)
-                        ? SizedBox(
-                            height: _posterHeight,
-                            width: _posterWidth,
-                            child: Icon(
-                              Icons.movie_outlined,
-                              size: 30,
-                              color: Theme.of(context).hintColor,
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: _customPosterSelected
+                        ? Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: _posterBorder,
                             ),
-                          )
-                        : SizedBox(
-                            height: _posterHeight,
-                            width: _posterWidth,
+                            elevation: 0,
                             child: ClipRRect(
                               borderRadius: _posterBorder,
-                              child: Image.memory(
-                                base64Decode(_movie.getPoster()!),
+                              child: Image.file(
+                                _poster!,
+                                width: _posterWidth,
+                                height: _posterHeight,
                                 fit: BoxFit.fill,
-                                gaplessPlayback: true,
                               ),
                             ),
                           )
-                    : Image.network(
-                        _posterUrl ?? '',
-                        width: _posterWidth,
-                        height: _posterHeight,
-                        fit: BoxFit.fill,
-                        filterQuality: FilterQuality.medium,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return Card(child: ClipRRect(borderRadius: _posterBorder, child: child));
-                          }
-                          return Card(
-                            child: SizedBox(
-                              width: _posterWidth,
-                              height: _posterHeight,
-                              child: const Icon(Icons.error),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) => Card(
-                          child: SizedBox(
-                            width: _posterWidth,
-                            height: _posterHeight,
-                            child: const Icon(Icons.image_outlined),
-                          ),
+                        : _isUpdate && !(_movie.getPoster()?.startsWith('http') ?? false) && _movie.getPoster() != "N/A"
+                            ? (_movie.getPoster() == null || _movie.getPoster()!.isEmpty)
+                                ? SizedBox(
+                                    height: _posterHeight,
+                                    width: _posterWidth,
+                                    child: Icon(
+                                      Icons.movie_outlined,
+                                      size: 30,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  )
+                                : SizedBox(
+                                    height: _posterHeight,
+                                    width: _posterWidth,
+                                    child: ClipRRect(
+                                      borderRadius: _posterBorder,
+                                      child: Image.memory(
+                                        base64Decode(_movie.getPoster()!),
+                                        fit: BoxFit.fill,
+                                        gaplessPlayback: true,
+                                      ),
+                                    ),
+                                  )
+                            : Image.network(
+                                _posterUrl ?? '',
+                                width: _posterWidth,
+                                height: _posterHeight,
+                                fit: BoxFit.fill,
+                                filterQuality: FilterQuality.medium,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return Card(child: ClipRRect(borderRadius: _posterBorder, child: child));
+                                  }
+                                  return Card(
+                                    child: SizedBox(
+                                      width: _posterWidth,
+                                      height: _posterHeight,
+                                      child: const Icon(Icons.error),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) => Card(
+                                  child: SizedBox(
+                                    width: _posterWidth,
+                                    height: _posterHeight,
+                                    child: const Icon(Icons.image_outlined),
+                                  ),
+                                ),
+                              ),
+                  ),
+                ),
+                //buildTextField("TMDB ID", _ctrlImdbId, false, 1, 200, _validFieldWithoutRequired),
+                buildTextField("Title", _ctrlTitle, true, 2, 200, _validTitle),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildTextField("Runtime - Min", _ctrlRuntime, true, 1, 5, _validRuntime),
+                    ),
+                    Expanded(
+                      child: buildTextField("Year", _ctrlYear, true, 1, 4, _validYear),
+                    ),
+                  ],
+                ),
+                buildTextField("Director", _ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
+                buildTextField("Plot", _ctrlPlot, false, 5, 800, _validFieldWithoutRequired),
+                buildTextField("Country", _ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildTextField("Released", _ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
+                    ),
+                    Expanded(
+                      child: buildTextField("Rating", _ctrlRating, false, 1, 4, _validFieldWithoutRequired),
+                    ),
+                  ],
+                ),
+                if (!_isUpdate) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: DropdownMenu<NoYes>(
+                      initialSelection: _movieWatchedState,
+                      expandedInsets: EdgeInsets.zero,
+                      label: const Text('Status'),
+                      onSelected: (NoYes? value) {
+                        if (value != null) {
+                          setState(() {
+                            _movieWatchedState = value;
+                          });
+                        }
+                      },
+                      dropdownMenuEntries: const [
+                        DropdownMenuEntry<NoYes>(
+                          value: NoYes.no,
+                          label: 'Not Watched',
+                          leadingIcon: Icon(Icons.visibility_off_outlined),
                         ),
-                      ),
-          ),
-        ),
-        //buildTextField("TMDB ID", _ctrlImdbId, false, 1, 200, _validFieldWithoutRequired),
-        buildTextField("Title", _ctrlTitle, true, 2, 200, _validTitle),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: buildTextField("Runtime - Min", _ctrlRuntime, true, 1, 5, _validRuntime),
-            ),
-            Expanded(
-              child: buildTextField("Year", _ctrlYear, true, 1, 4, _validYear),
-            ),
-          ],
-        ),
-        buildTextField("Director", _ctrlDirector, false, 2, 200, _validFieldWithoutRequired),
-        buildTextField("Plot", _ctrlPlot, false, 5, 500, _validFieldWithoutRequired),
-        buildTextField("Country", _ctrlCountry, false, 2, 200, _validFieldWithoutRequired),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: buildTextField("Released", _ctrlReleased, false, 1, 30, _validFieldWithoutRequired),
-            ),
-            Expanded(
-              child: buildTextField("Rating", _ctrlRating, false, 1, 4, _validFieldWithoutRequired),
-            ),
-          ],
-        ),
-        if (!_isUpdate) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: DropdownMenu<NoYes>(
-              initialSelection: _movieWatchedState,
-              expandedInsets: EdgeInsets.zero,
-              label: const Text('Status'),
-              onSelected: (NoYes? value) {
-                if (value != null) {
-                  setState(() {
-                    _movieWatchedState = value;
-                  });
-                }
-              },
-              dropdownMenuEntries: const [
-                DropdownMenuEntry<NoYes>(
-                  value: NoYes.no,
-                  label: 'Not Watched',
-                  leadingIcon: Icon(Icons.visibility_off_outlined),
-                ),
-                DropdownMenuEntry<NoYes>(
-                  value: NoYes.yes,
-                  label: 'Watched',
-                  leadingIcon: Icon(Icons.visibility_outlined),
-                ),
-              ],
-            ),
-          ),
-        ],
-        const SizedBox(
-          height: 100,
-        )
-      ]),
+                        DropdownMenuEntry<NoYes>(
+                          value: NoYes.yes,
+                          label: 'Watched',
+                          leadingIcon: Icon(Icons.visibility_outlined),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(
+                  height: 100,
+                )
+              ]),
       ),
       floatingActionButton: _isLoading
           ? null

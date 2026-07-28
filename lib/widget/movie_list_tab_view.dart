@@ -15,17 +15,13 @@ class MovieListTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.5,
-        child: const Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
     if (movies.isEmpty) {
       return const SizedBox.shrink();
     }
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      primary: false,
       itemCount: movies.length,
       itemBuilder: (context, index) {
         return SearchResultTile(
