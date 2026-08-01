@@ -84,26 +84,36 @@ class _MovieDetailsState extends State<MovieDetails> {
     final posterProvider = _getPosterProvider();
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 350.0,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
+      body: CustomScrollView(slivers: [
+        SliverAppBar(
+          expandedHeight: 350.0,
+          pinned: true,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: theme.scaffoldBackgroundColor,
+          flexibleSpace: FlexibleSpaceBar(
+            background: ClipRect(
+              child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Blurred Background
+                  // Base Background
                   if (posterProvider != null)
-                    ImageFiltered(
-                      imageFilter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-                      child: Image(
-                        image: posterProvider,
-                        fit: BoxFit.cover,
-                      ),
+                    Image(
+                      image: posterProvider,
+                      fit: BoxFit.cover,
                     )
                   else
                     Container(color: colorScheme.surfaceContainerHighest),
+
+                  // Blur effect applying only inside this ClipRect
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
 
                   // Gradient overlay to blend into scaffold
                   DecoratedBox(
@@ -115,171 +125,201 @@ class _MovieDetailsState extends State<MovieDetails> {
                           theme.scaffoldBackgroundColor.withOpacity(0.2),
                           theme.scaffoldBackgroundColor,
                         ],
-                        stops: const [0.4, 1.0],
+                        stops: const [0.4, 0.95],
                       ),
                     ),
                   ),
 
-                  // Centered Crisp Poster
-                  if (posterProvider != null)
-                    Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 30.0),
-                        child: Hero(
-                          tag: 'poster_${movie.getId()}',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image(
-                              image: posterProvider,
-                              height: 220,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
+                  // Solid color at bottom to ensure no gaps
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 10,
+                    child: Container(color: theme.scaffoldBackgroundColor),
+                  ),
+
+                    // Centered Crisp Poster
+                    if (posterProvider != null)
+                      Align(
+                        alignment: Alignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 30.0),
+                          child: Hero(
+                            tag: 'poster_${movie.getId()}',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image(
+                                image: posterProvider,
+                                height: 220,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.center,
+                              ),
                             ),
                           ),
                         ),
+                      )
+                    else
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.movie_outlined, size: 80),
                       ),
-                    )
-                  else
-                    const Align(
-                      alignment: Alignment.center,
-                      child: Icon(Icons.movie_outlined, size: 80),
-                    ),
-                ],
+                  ],
+                ),
+              ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(0.0),
+            child: Transform.translate(
+              offset: const Offset(0, 1),
+              child: Container(
+                height: 2.0,
+                color: theme.scaffoldBackgroundColor,
               ),
             ),
-            actions: [
-              PopupMenuButton<int>(
-                icon: const Icon(Icons.more_vert_outlined),
-                itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                  PopupMenuItem<int>(
-                    value: 0,
-                    child: Row(
-                      children: const [
-                        Icon(Icons.edit_outlined),
-                        SizedBox(width: 12),
-                        Text('Edit'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<int>(
-                    value: 1,
-                    child: Row(
-                      children: const [
-                        Icon(Icons.delete_outline),
-                        SizedBox(width: 12),
-                        Text('Delete'),
-                      ],
-                    ),
-                  ),
-                ],
-                onSelected: (int value) {
-                  switch (value) {
-                    case 0:
-                      _openEditPage(context);
-                    case 1:
-                      _delete();
-                  }
-                },
-              ),
-            ],
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    movie.getTitle() ?? '',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                      height: 1.2,
-                    ),
+          actions: [
+            PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert_outlined),
+              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                PopupMenuItem<int>(
+                  value: 0,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.edit_outlined),
+                      SizedBox(width: 12),
+                      Text('Edit'),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.access_time_rounded,
-                          size: 18,
+                ),
+                PopupMenuItem<int>(
+                  value: 1,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.delete_outline),
+                      SizedBox(width: 12),
+                      Text('Delete'),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (int value) {
+                switch (value) {
+                  case 0:
+                    _openEditPage(context);
+                  case 1:
+                    _delete();
+                }
+              },
+            ),
+          ],
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.scaffoldBackgroundColor,
+                  blurRadius: 0.0,
+                  spreadRadius: 0.0,
+                  offset: const Offset(0, -2), 
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  movie.getTitle() ?? '',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 18,
+                        color: colorScheme.onTertiaryContainer,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${movie.getRuntime() ?? '-'} Min",
+                        style: theme.textTheme.labelLarge?.copyWith(
                           color: colorScheme.onTertiaryContainer,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "${movie.getRuntime() ?? '-'} Min",
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onTertiaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                  if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
-                    Text(
-                      "Plot",
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      movie.getPlot()!,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        height: 1.6,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                ),
+                const SizedBox(height: 32),
+                if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
                   Text(
-                    "Details",
+                    "Plot",
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.primary,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MovieDetailTile(title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
-                      const SizedBox(height: 12),
-                      MovieDetailTile(title: "Released", value: movie.getReleased(), icon: Icons.calendar_month_outlined),
-                      const SizedBox(height: 12),
-                      MovieDetailTile(title: "Country", value: movie.getCountry(), icon: Icons.public_outlined),
-                      const SizedBox(height: 12),
-                      MovieDetailTile(title: "Rating", value: movie.getRating(), icon: Icons.star_border_outlined),
-                      const SizedBox(height: 12),
-                      MovieDetailTile(title: "Added", value: movie.formattedDateAdded, icon: Icons.library_add_outlined),
-                      if (movie.isMovieWatched()) ...[
-                        const SizedBox(height: 12),
-                        MovieDetailTile(
-                          title: "Watched",
-                          value: movie.formattedDateWatched,
-                          icon: Icons.visibility_outlined,
-                        ),
-                      ],
-                    ],
+                  const SizedBox(height: 12),
+                  Text(
+                    movie.getPlot()!,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      height: 1.6,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 32),
                 ],
-              ),
+                Text(
+                  "Details",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MovieDetailTile(title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
+                    const SizedBox(height: 12),
+                    MovieDetailTile(title: "Released", value: movie.getReleased(), icon: Icons.calendar_month_outlined),
+                    const SizedBox(height: 12),
+                    MovieDetailTile(title: "Country", value: movie.getCountry(), icon: Icons.public_outlined),
+                    const SizedBox(height: 12),
+                    MovieDetailTile(title: "Rating", value: movie.getRating(), icon: Icons.star_border_outlined),
+                    const SizedBox(height: 12),
+                    MovieDetailTile(title: "Added", value: movie.formattedDateAdded, icon: Icons.library_add_outlined),
+                    if (movie.isMovieWatched()) ...[
+                      const SizedBox(height: 12),
+                      MovieDetailTile(
+                        title: "Watched",
+                        value: movie.formattedDateWatched,
+                        icon: Icons.visibility_outlined,
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 100),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: movie.isMovieWatched() ? _markNotWatched : _markWatched,
         icon: Icon(
