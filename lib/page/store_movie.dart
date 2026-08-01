@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:movies_watcher_fschmatz/enum/no_yes.dart';
 
 import '../entity/movie.dart';
@@ -29,7 +27,6 @@ class _StoreMovieState extends State<StoreMovie> {
   Movie _movie = Movie();
   NoYes _movieWatchedState = NoYes.no;
   String? _posterUrl;
-  File? _poster;
   final double _posterHeight = 220;
   final double _posterWidth = 150;
   final bool _validFieldWithoutRequired = true;
@@ -48,8 +45,8 @@ class _StoreMovieState extends State<StoreMovie> {
   bool _isUpdate = false;
   bool _isLoading = false;
   bool _isSaving = false;
-  bool _customPosterSelected = false;
   final BorderRadius _posterBorder = BorderRadius.circular(20);
+  bool _isFromTmdb = false;
 
   @override
   void initState() {
@@ -65,6 +62,7 @@ class _StoreMovieState extends State<StoreMovie> {
       _isUpdate = true;
       _movie = widget.movie;
       _isLoading = true;
+      _isFromTmdb = _movie.getTmdbID() != null;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           loadTextFields();
@@ -258,37 +256,17 @@ class _StoreMovieState extends State<StoreMovie> {
   }
 
   Future<void> _loadAndParsePoster() async {
-    Uint8List? base64ImageBytes;
-    Uint8List? compressedPoster;
-
-    if (_customPosterSelected && _poster != null) {
-      compressedPoster = await compressCoverImage(_poster!.readAsBytesSync());
-      _movie.setPoster(base64Encode(compressedPoster));
-    } else if (!_customPosterSelected && _posterUrl != null && _posterUrl!.trim() != "N/A") {
+    if (_posterUrl != null && _posterUrl!.trim() != "N/A") {
       http.Response response = await http.get(Uri.parse(_posterUrl!));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        base64ImageBytes = response.bodyBytes;
-        compressedPoster = await compressCoverImage(base64ImageBytes);
+        Uint8List compressedPoster = await compressCoverImage(response.bodyBytes);
         _movie.setPoster(base64Encode(compressedPoster));
       } else {
         if (!_isUpdate) _movie.setPoster("");
       }
     } else {
       if (!_isUpdate) _movie.setPoster("");
-    }
-  }
-
-  Future<void> pickImageFromGallery() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      File? file = File(pickedFile.path);
-
-      setState(() {
-        _poster = file;
-        _customPosterSelected = true;
-      });
     }
   }
 
@@ -324,19 +302,12 @@ class _StoreMovieState extends State<StoreMovie> {
       appBar: AppBar(
         title: _isUpdate ? const Text('Edit') : const Text(''),
         actions: [
-          if (_isUpdate)
+          if (_isUpdate && _isFromTmdb)
             IconButton(
               tooltip: "Refresh from API",
               icon: const Icon(Icons.sync_outlined),
               onPressed: _loadMovieData,
             ),
-          IconButton(
-            tooltip: "Change Poster",
-            icon: const Icon(
-              Icons.photo_library_outlined,
-            ),
-            onPressed: pickImageFromGallery,
-          ),
         ],
       ),
       body: AnimatedSwitcher(
@@ -350,71 +321,55 @@ class _StoreMovieState extends State<StoreMovie> {
                 Center(
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    child: _customPosterSelected
-                        ? Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: _posterBorder,
-                            ),
-                            elevation: 0,
-                            child: ClipRRect(
-                              borderRadius: _posterBorder,
-                              child: Image.file(
-                                _poster!,
-                                width: _posterWidth,
+                    child: _isUpdate && !(_movie.getPoster()?.startsWith('http') ?? false) && _movie.getPoster() != "N/A"
+                        ? (_movie.getPoster() == null || _movie.getPoster()!.isEmpty)
+                            ? SizedBox(
                                 height: _posterHeight,
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          )
-                        : _isUpdate && !(_movie.getPoster()?.startsWith('http') ?? false) && _movie.getPoster() != "N/A"
-                            ? (_movie.getPoster() == null || _movie.getPoster()!.isEmpty)
-                                ? SizedBox(
-                                    height: _posterHeight,
-                                    width: _posterWidth,
-                                    child: Icon(
-                                      Icons.movie_outlined,
-                                      size: 30,
-                                      color: Theme.of(context).hintColor,
-                                    ),
-                                  )
-                                : SizedBox(
-                                    height: _posterHeight,
-                                    width: _posterWidth,
-                                    child: ClipRRect(
-                                      borderRadius: _posterBorder,
-                                      child: Image.memory(
-                                        base64Decode(_movie.getPoster()!),
-                                        fit: BoxFit.fill,
-                                        gaplessPlayback: true,
-                                      ),
-                                    ),
-                                  )
-                            : Image.network(
-                                _posterUrl ?? '',
                                 width: _posterWidth,
+                                child: Icon(
+                                  Icons.movie_outlined,
+                                  size: 30,
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              )
+                            : SizedBox(
                                 height: _posterHeight,
-                                fit: BoxFit.fill,
-                                filterQuality: FilterQuality.medium,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return Card(child: ClipRRect(borderRadius: _posterBorder, child: child));
-                                  }
-                                  return Card(
-                                    child: SizedBox(
-                                      width: _posterWidth,
-                                      height: _posterHeight,
-                                      child: const Icon(Icons.error),
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) => Card(
-                                  child: SizedBox(
-                                    width: _posterWidth,
-                                    height: _posterHeight,
-                                    child: const Icon(Icons.image_outlined),
+                                width: _posterWidth,
+                                child: ClipRRect(
+                                  borderRadius: _posterBorder,
+                                  child: Image.memory(
+                                    base64Decode(_movie.getPoster()!),
+                                    fit: BoxFit.fill,
+                                    gaplessPlayback: true,
                                   ),
                                 ),
+                              )
+                        : Image.network(
+                            _posterUrl ?? '',
+                            width: _posterWidth,
+                            height: _posterHeight,
+                            fit: BoxFit.fill,
+                            filterQuality: FilterQuality.medium,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return Card(child: ClipRRect(borderRadius: _posterBorder, child: child));
+                              }
+                              return Card(
+                                child: SizedBox(
+                                  width: _posterWidth,
+                                  height: _posterHeight,
+                                  child: const Icon(Icons.error),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Card(
+                              child: SizedBox(
+                                width: _posterWidth,
+                                height: _posterHeight,
+                                child: const Icon(Icons.image_outlined),
                               ),
+                            ),
+                          ),
                   ),
                 ),
                 //buildTextField("TMDB ID", _ctrlImdbId, false, 1, 200, _validFieldWithoutRequired),

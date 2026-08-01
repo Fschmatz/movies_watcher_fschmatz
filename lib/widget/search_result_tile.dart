@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../entity/movie.dart';
 import '../page/store_movie.dart';
+import '../redux/app_state.dart';
+import '../redux/selectors.dart';
+import 'package:async_redux/async_redux.dart';
 
 class SearchResultTile extends StatefulWidget {
   final Movie movie;
@@ -128,7 +131,24 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       ],
                     ),
                   ),
-                )
+                ),
+                StoreConnector<AppState, bool>(
+                  converter: (store) => selectIsMovieSaved(store.state, movie.getTmdbID()),
+                  builder: (context, isSaved) {
+                    if (isSaved) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: Center(
+                          child: Icon(
+                            Icons.bookmark_added_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),

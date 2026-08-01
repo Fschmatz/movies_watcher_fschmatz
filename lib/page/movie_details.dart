@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import '../entity/movie.dart';
-import '../service/api_service.dart';
 import '../service/movie_service.dart';
-import '../util/toast_utils.dart';
 import '../widget/movie_detail_tile.dart';
 import 'store_movie.dart';
 
@@ -62,31 +61,6 @@ class _MovieDetailsState extends State<MovieDetails> {
     });
   }
 
-  Future<void> _refreshFromApi() async {
-    if (movie.getTmdbID() == null) return;
-
-    Movie? fetchedMovie = await ApiService().getMovieDetails(movie.getTmdbID()!);
-
-    if (fetchedMovie != null) {
-      fetchedMovie.setId(movie.getId()!);
-
-      if (movie.getWatched() != null) fetchedMovie.setWatched(movie.getWatched()!);
-      if (movie.getDateAdded() != null) fetchedMovie.setDateAdded(movie.getDateAdded()!);
-      if (movie.getDateWatched() != null) fetchedMovie.setDateWatched(movie.getDateWatched()!);
-      fetchedMovie.setPoster(movie.getPoster() ?? '');
-
-      await MovieService().updateMovie(fetchedMovie);
-
-      if (mounted) {
-        setState(() {
-          movie = fetchedMovie;
-        });
-
-        ToastUtils.show("Data refreshed from API");
-      }
-    }
-  }
-
   ImageProvider? _getPosterProvider() {
     final posterUrl = movie.getPoster();
     if (posterUrl != null && posterUrl.isNotEmpty) {
@@ -110,193 +84,201 @@ class _MovieDetailsState extends State<MovieDetails> {
     final posterProvider = _getPosterProvider();
 
     return Scaffold(
-      appBar: AppBar(
-        //title: const Text("Details"),
-        actions: [
-          PopupMenuButton<int>(
-            icon: const Icon(Icons.more_vert_outlined),
-            itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-              if (movie.getTmdbID() != null)
-                PopupMenuItem<int>(
-                  value: 0,
-                  child: Row(
-                    children: const [
-                      Icon(Icons.sync_outlined),
-                      SizedBox(width: 12),
-                      Text('Refresh'),
-                    ],
-                  ),
-                ),
-              PopupMenuItem<int>(
-                value: 1,
-                child: Row(
-                  children: const [
-                    Icon(Icons.edit_outlined),
-                    SizedBox(width: 12),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 2,
-                child: Row(
-                  children: const [
-                    Icon(Icons.delete_outline),
-                    SizedBox(width: 12),
-                    Text('Delete'),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (int value) {
-              switch (value) {
-                case 0:
-                  _refreshFromApi();
-                case 1:
-                  _openEditPage(context);
-                case 2:
-                  _delete();
-              }
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 350.0,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: SizedBox(
-                      width: 115,
-                      height: 170,
-                      child: posterProvider != null
-                          ? Image(
-                              image: posterProvider,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              color: colorScheme.surfaceContainerHighest,
-                              child: const Center(
-                                child: Icon(Icons.movie_outlined, size: 50),
-                              ),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: SizedBox(
-                      height: 170,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            movie.getTitle() ?? '',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onSurface,
-                              height: 1.2,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          /* const SizedBox(height: 6),
-                          Text(
-                            movie.getYear() ?? '',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),*/
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.access_time_rounded,
-                                  size: 16,
-                                  color: colorScheme.onSecondaryContainer,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "${movie.getRuntime() ?? '-'} Min",
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color: colorScheme.onSecondaryContainer,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  // Blurred Background
+                  if (posterProvider != null)
+                    ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                      child: Image(
+                        image: posterProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
+                    Container(color: colorScheme.surfaceContainerHighest),
+
+                  // Gradient overlay to blend into scaffold
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          theme.scaffoldBackgroundColor.withOpacity(0.2),
+                          theme.scaffoldBackgroundColor,
                         ],
+                        stops: const [0.4, 1.0],
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
-                Text(
-                  "Plot",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  movie.getPlot()!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.5,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              Text(
-                "Details",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              GridView.count(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                childAspectRatio: 2.8,
-                children: [
-                  // MovieDetailTile(title: "Runtime", value: "${movie.getRuntime() ?? '-'} Min"),
-                  MovieDetailTile(title: "Director", value: movie.getDirector()),
-                  MovieDetailTile(title: "Released", value: movie.getReleased()),
-                  MovieDetailTile(title: "Country", value: movie.getCountry()),
-                  MovieDetailTile(title: "Rating", value: movie.getRating()),
-                  MovieDetailTile(title: "Added", value: movie.formattedDateAdded),
-                  if (movie.isMovieWatched())
-                    MovieDetailTile(
-                      title: "Watched",
-                      value: movie.formattedDateWatched,
+
+                  // Centered Crisp Poster
+                  if (posterProvider != null)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 30.0),
+                        child: Hero(
+                          tag: 'poster_${movie.getId()}',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image(
+                              image: posterProvider,
+                              height: 220,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Icon(Icons.movie_outlined, size: 80),
                     ),
                 ],
               ),
-              const SizedBox(height: 48),
+            ),
+            actions: [
+              PopupMenuButton<int>(
+                icon: const Icon(Icons.more_vert_outlined),
+                itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                  PopupMenuItem<int>(
+                    value: 0,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.edit_outlined),
+                        SizedBox(width: 12),
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<int>(
+                    value: 1,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.delete_outline),
+                        SizedBox(width: 12),
+                        Text('Delete'),
+                      ],
+                    ),
+                  ),
+                ],
+                onSelected: (int value) {
+                  switch (value) {
+                    case 0:
+                      _openEditPage(context);
+                    case 1:
+                      _delete();
+                  }
+                },
+              ),
             ],
           ),
-        ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.getTitle() ?? '',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.tertiaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: colorScheme.onTertiaryContainer,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "${movie.getRuntime() ?? '-'} Min",
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: colorScheme.onTertiaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
+                    Text(
+                      "Plot",
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      movie.getPlot()!,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        height: 1.6,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                  Text(
+                    "Details",
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MovieDetailTile(title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
+                      const SizedBox(height: 12),
+                      MovieDetailTile(title: "Released", value: movie.getReleased(), icon: Icons.calendar_month_outlined),
+                      const SizedBox(height: 12),
+                      MovieDetailTile(title: "Country", value: movie.getCountry(), icon: Icons.public_outlined),
+                      const SizedBox(height: 12),
+                      MovieDetailTile(title: "Rating", value: movie.getRating(), icon: Icons.star_border_outlined),
+                      const SizedBox(height: 12),
+                      MovieDetailTile(title: "Added", value: movie.formattedDateAdded, icon: Icons.library_add_outlined),
+                      if (movie.isMovieWatched()) ...[
+                        const SizedBox(height: 12),
+                        MovieDetailTile(
+                          title: "Watched",
+                          value: movie.formattedDateWatched,
+                          icon: Icons.visibility_outlined,
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: movie.isMovieWatched() ? _markNotWatched : _markWatched,

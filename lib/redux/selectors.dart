@@ -35,3 +35,8 @@ bool selectParameterValueByKeyAsBoolean(AppState state, String key,
 
   return value == "true";
 }
+
+bool selectIsMovieSaved(AppState state, int? tmdbId) {
+  if (tmdbId == null) return false;
+  return state.watchList.any((movie) => movie.getTmdbID() == tmdbId);
+}

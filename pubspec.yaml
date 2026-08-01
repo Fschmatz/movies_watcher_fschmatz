@@ -1,7 +1,7 @@
 name: movies_watcher_fschmatz
 description: "Track movies"
 publish_to: 'none'
-version: 2.0.4
+version: 2.0.5
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -17,7 +17,6 @@ dependencies:
   sqflite: ^2.4.2
   path_provider: ^2.1.5
   jiffy: ^6.4.3
-  image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0
   dynamic_system_colors: ^1.9.0
   async_redux: ^25.4.0
