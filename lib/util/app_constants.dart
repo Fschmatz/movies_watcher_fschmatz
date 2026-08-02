@@ -5,10 +5,11 @@ class AppConstants {
   // APP PARAMETERS
   static const String showRuntimeChipOnCardAppParameter = "showRuntimeChipOnCard";
   static const String showMovieNameOnCardAppParameter = "showMovieNameOnCard";
+  static const String formatRuntimeAppParameter = "formatRuntime";
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
   // STRINGS
-  static const String appVersion = "2.0.5";
+  static const String appVersion = "2.0.6";
   static const String backupFileName = "movies_watcher_backup";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
@@ -22,6 +23,7 @@ $appVersion
 - Show trending, now playing and upcoming
 - Bug fixes
 - New backup logic
+- Format runtime option
 - Database changes
 ''';
 

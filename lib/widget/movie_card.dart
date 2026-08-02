@@ -16,8 +16,9 @@ class MovieCard extends StatefulWidget {
   final bool? isFromWatched;
   final bool showMovieName;
   final bool showRuntimeChip;
+  final bool formatRuntime;
 
-  const MovieCard({super.key, required this.movie, this.isFromWatched, required this.showMovieName, required this.showRuntimeChip});
+  const MovieCard({super.key, required this.movie, this.isFromWatched, required this.showMovieName, required this.showRuntimeChip, this.formatRuntime = false});
 }
 
 class _MovieCardState extends State<MovieCard> {
@@ -83,7 +84,7 @@ class _MovieCardState extends State<MovieCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
+    return Card.filled(
       shape: RoundedRectangleBorder(
         borderRadius: cardBorder,
         side: widget.showMovieName ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(150), width: 1),
@@ -120,6 +121,7 @@ class _MovieCardState extends State<MovieCard> {
                   RuntimeChip(
                     runtime: movie.getRuntime()!,
                     showMovieName: widget.showMovieName,
+                    formatRuntime: widget.formatRuntime,
                   ),
               ],
             ),
@@ -131,9 +133,8 @@ class _MovieCardState extends State<MovieCard> {
                     movie.getTitle()!,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: TextStyle(
+                    style: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),

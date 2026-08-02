@@ -32,4 +32,19 @@ class UtilsFunctions {
 
     return '${name}_$dateTimeStr.json';
   }
+
+  static String formatRuntime(int runtime, bool format) {
+    if (!format) {
+      return "${runtime}m";
+    }
+
+    final int hours = runtime ~/ 60;
+    final int minutes = runtime % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes.toString().padLeft(2, '0')}m';
+    }
+
+    return '${minutes}m';
+  }
 }

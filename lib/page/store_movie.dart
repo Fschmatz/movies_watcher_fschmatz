@@ -157,15 +157,10 @@ class _StoreMovieState extends State<StoreMovie> {
 
     _storeMovie().then((_) {
       ToastUtils.show(_isUpdate ? "Movie updated!" : "Movie saved!");
+
       Future.delayed(const Duration(milliseconds: 350), () {
         if (mounted) {
-          if (widget.isFromSearch) {
-            Navigator.of(context)
-              ..pop()
-              ..pop();
-          } else {
-            Navigator.of(context).pop();
-          }
+          Navigator.of(context).pop();
         }
       });
     });

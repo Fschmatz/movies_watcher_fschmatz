@@ -82,7 +82,8 @@ class _WatchedListState extends State<WatchedList> {
               bool isLoadingWatchedList,
               List<Movie> movies,
               bool showMovieNameOnCard,
-              bool showRuntimeChipOnCard
+              bool showRuntimeChipOnCard,
+              bool formatRuntimeOnCard
             })>(
           converter: (store) {
             return (
@@ -92,6 +93,8 @@ class _WatchedListState extends State<WatchedList> {
                   store.state, AppConstants.showMovieNameOnCardAppParameter),
               showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
                   store.state, AppConstants.showRuntimeChipOnCardAppParameter),
+              formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(
+                  store.state, AppConstants.formatRuntimeAppParameter),
             );
           },
           builder: (BuildContext context,
@@ -99,13 +102,15 @@ class _WatchedListState extends State<WatchedList> {
                 bool isLoadingWatchedList,
                 List<Movie> movies,
                 bool showMovieNameOnCard,
-                bool showRuntimeChipOnCard
+                bool showRuntimeChipOnCard,
+                bool formatRuntimeOnCard
               }) viewData) {
             return MovieGrid(
               movies: viewData.movies,
               isLoading: viewData.isLoadingWatchedList,
               showMovieName: viewData.showMovieNameOnCard,
               showRuntimeChip: viewData.showRuntimeChipOnCard,
+              formatRuntime: viewData.formatRuntimeOnCard,
               isFromWatched: true,
             );
           },

@@ -132,22 +132,24 @@ class _WatchListState extends State<WatchList> {
           ),
         ],
       ),
-      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard})>(
+      body: StoreConnector<AppState, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard, bool formatRuntimeOnCard})>(
         converter: (store) {
           return (
             isLoadingWatchList: store.state.isLoadingWatchList,
             movies: store.state.watchList,
             showMovieNameOnCard: selectParameterValueByKeyAsBoolean(store.state, AppConstants.showMovieNameOnCardAppParameter),
             showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(store.state, AppConstants.showRuntimeChipOnCardAppParameter),
+            formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(store.state, AppConstants.formatRuntimeAppParameter),
           );
         },
         builder:
-            (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard}) viewData) {
+            (BuildContext context, ({bool isLoadingWatchList, List<Movie> movies, bool showMovieNameOnCard, bool showRuntimeChipOnCard, bool formatRuntimeOnCard}) viewData) {
           return MovieGrid(
             movies: viewData.movies,
             isLoading: viewData.isLoadingWatchList,
             showMovieName: viewData.showMovieNameOnCard,
             showRuntimeChip: viewData.showRuntimeChipOnCard,
+            formatRuntime: viewData.formatRuntimeOnCard,
           );
         },
       ),

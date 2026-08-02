@@ -2,9 +2,14 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:async_redux/async_redux.dart';
 
 import '../entity/movie.dart';
+import '../redux/app_state.dart';
+import '../redux/selectors.dart';
 import '../service/movie_service.dart';
+import '../util/app_constants.dart';
+import '../util/utils_functions.dart';
 import '../widget/movie_detail_tile.dart';
 import 'store_movie.dart';
 
@@ -24,12 +29,30 @@ class MovieDetails extends StatefulWidget {
 
 class _MovieDetailsState extends State<MovieDetails> {
   late Movie movie;
+  ImageProvider? _posterProvider;
 
   @override
   void initState() {
     super.initState();
-
     movie = widget.movie;
+    _initPosterProvider();
+  }
+
+  void _initPosterProvider() {
+    final posterUrl = movie.getPoster();
+    if (posterUrl != null && posterUrl.isNotEmpty) {
+      if (posterUrl.startsWith('http')) {
+        _posterProvider = NetworkImage(posterUrl);
+      } else {
+        try {
+          _posterProvider = MemoryImage(base64Decode(posterUrl));
+        } catch (e) {
+          _posterProvider = null;
+        }
+      }
+    } else {
+      _posterProvider = null;
+    }
   }
 
   Future<void> _delete() async {
@@ -61,27 +84,11 @@ class _MovieDetailsState extends State<MovieDetails> {
     });
   }
 
-  ImageProvider? _getPosterProvider() {
-    final posterUrl = movie.getPoster();
-    if (posterUrl != null && posterUrl.isNotEmpty) {
-      if (posterUrl.startsWith('http')) {
-        return NetworkImage(posterUrl);
-      } else {
-        try {
-          return MemoryImage(base64Decode(posterUrl));
-        } catch (e) {
-          return null;
-        }
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final posterProvider = _getPosterProvider();
+    final posterProvider = _posterProvider;
 
     return Scaffold(
       body: CustomScrollView(slivers: [
@@ -98,22 +105,20 @@ class _MovieDetailsState extends State<MovieDetails> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Base Background
+                  // Blurred Background
                   if (posterProvider != null)
-                    Image(
-                      image: posterProvider,
-                      fit: BoxFit.cover,
+                    Transform.scale(
+                      scale: 1.1,
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                        child: Image(
+                          image: posterProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     )
                   else
                     Container(color: colorScheme.surfaceContainerHighest),
-
-                  // Blur effect applying only inside this ClipRect
-                  Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
 
                   // Gradient overlay to blend into scaffold
                   DecoratedBox(
@@ -255,12 +260,20 @@ class _MovieDetailsState extends State<MovieDetails> {
                         color: colorScheme.onTertiaryContainer,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        "${movie.getRuntime() ?? '-'} Min",
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: colorScheme.onTertiaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      StoreConnector<AppState, bool>(
+                        converter: (store) => selectParameterValueByKeyAsBoolean(
+                            store.state, AppConstants.formatRuntimeAppParameter),
+                        builder: (context, formatRuntime) {
+                          return Text(
+                            movie.getRuntime() != null
+                                ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime)
+                                : '-',
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onTertiaryContainer,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

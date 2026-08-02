@@ -10,6 +10,7 @@ class MovieGrid extends StatelessWidget {
   final bool isLoading;
   final bool showMovieName;
   final bool showRuntimeChip;
+  final bool formatRuntime;
   final bool isFromWatched;
 
   const MovieGrid({
@@ -18,6 +19,7 @@ class MovieGrid extends StatelessWidget {
     required this.isLoading,
     required this.showMovieName,
     required this.showRuntimeChip,
+    this.formatRuntime = false,
     this.isFromWatched = false,
   });
 
@@ -91,6 +93,8 @@ class MovieGrid extends StatelessWidget {
                         child: GridView.builder(
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
+                            mainAxisSpacing: 4,
+                            crossAxisSpacing: 4,
                             mainAxisExtent: showMovieName ? 188 : 158,
                           ),
                           physics: const ScrollPhysics(),
@@ -105,6 +109,7 @@ class MovieGrid extends StatelessWidget {
                               isFromWatched: isFromWatched,
                               showMovieName: showMovieName,
                               showRuntimeChip: showRuntimeChip,
+                              formatRuntime: formatRuntime,
                             );
                           },
                         ),
