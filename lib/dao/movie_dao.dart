@@ -45,6 +45,21 @@ class MovieDAO {
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 
+  Future<Map<String, dynamic>?> queryById(int id) async {
+    Database db = await instance.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      table,
+      where: '$columnId = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
 

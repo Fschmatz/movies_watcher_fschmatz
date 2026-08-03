@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:async_redux/async_redux.dart';
+import 'package:flutter/material.dart';
 
 import '../entity/movie.dart';
 import '../redux/app_state.dart';
@@ -71,7 +71,7 @@ class _MovieDetailsState extends State<MovieDetails> {
   }
 
   Future<void> _openEditPage(BuildContext context) async {
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => StoreMovie(
@@ -79,9 +79,17 @@ class _MovieDetailsState extends State<MovieDetails> {
             isUpdate: true,
             isFromSearch: false,
           ),
-        )).then((_) {
-      if (mounted) Navigator.pop(context);
-    });
+        ));
+
+    if (mounted) {
+      Movie? updatedMovie = await MovieService().getMovieById(movie.getId()!);
+      if (updatedMovie != null) {
+        setState(() {
+          movie = updatedMovie;
+          _initPosterProvider();
+        });
+      }
+    }
   }
 
   @override
@@ -127,7 +135,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          theme.scaffoldBackgroundColor.withOpacity(0.2),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.4),
                           theme.scaffoldBackgroundColor,
                         ],
                         stops: const [0.4, 0.95],
@@ -144,34 +152,34 @@ class _MovieDetailsState extends State<MovieDetails> {
                     child: Container(color: theme.scaffoldBackgroundColor),
                   ),
 
-                    // Centered Crisp Poster
-                    if (posterProvider != null)
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 30.0),
-                          child: Hero(
-                            tag: 'poster_${movie.getId()}',
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image(
-                                image: posterProvider,
-                                height: 220,
-                                fit: BoxFit.cover,
-                                alignment: Alignment.center,
-                              ),
+                  // Centered Crisp Poster
+                  if (posterProvider != null)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 30.0),
+                        child: Hero(
+                          tag: 'poster_${movie.getId()}',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image(
+                              image: posterProvider,
+                              height: 220,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
                             ),
                           ),
                         ),
-                      )
-                    else
-                      const Align(
-                        alignment: Alignment.center,
-                        child: Icon(Icons.movie_outlined, size: 80),
                       ),
-                  ],
-                ),
+                    )
+                  else
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Icon(Icons.movie_outlined, size: 80),
+                    ),
+                ],
               ),
+            ),
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.0),
@@ -228,7 +236,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                   color: theme.scaffoldBackgroundColor,
                   blurRadius: 0.0,
                   spreadRadius: 0.0,
-                  offset: const Offset(0, -2), 
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
@@ -261,13 +269,10 @@ class _MovieDetailsState extends State<MovieDetails> {
                       ),
                       const SizedBox(width: 6),
                       StoreConnector<AppState, bool>(
-                        converter: (store) => selectParameterValueByKeyAsBoolean(
-                            store.state, AppConstants.formatRuntimeAppParameter),
+                        converter: (store) => selectParameterValueByKeyAsBoolean(store.state, AppConstants.formatRuntimeAppParameter),
                         builder: (context, formatRuntime) {
                           return Text(
-                            movie.getRuntime() != null
-                                ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime)
-                                : '-',
+                            movie.getRuntime() != null ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime) : '-',
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: colorScheme.onTertiaryContainer,
                               fontWeight: FontWeight.bold,

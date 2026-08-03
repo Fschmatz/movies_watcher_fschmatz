@@ -9,7 +9,7 @@ class AppConstants {
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
   // STRINGS
-  static const String appVersion = "2.0.6";
+  static const String appVersion = "2.1.0";
   static const String backupFileName = "movies_watcher_backup";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
@@ -19,15 +19,19 @@ class AppConstants {
 
   static String changelogCurrent = '''
 $appVersion
+- Bug fixes
+- Format runtime option
+- UI changes
+''';
+
+  static String changelogsOld = '''
+2.0.7
 - Use TMDB Api
 - Show trending, now playing and upcoming
 - Bug fixes
 - New backup logic
-- Format runtime option
 - Database changes
-''';
 
-  static String changelogsOld = '''
 1.9.3
 - Bug fixes
 - Sync movie on edit page

@@ -287,7 +287,7 @@ class _StoreMovieState extends State<StoreMovie> {
               helperText: required ? "* Required" : "",
               labelText: label,
               border: const OutlineInputBorder(),
-              errorText: (fieldValidator) ? null : "ID is empty or invalid")),
+              errorText: (fieldValidator) ? null : "$label is empty or invalid")),
     );
   }
 

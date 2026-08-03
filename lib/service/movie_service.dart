@@ -98,6 +98,11 @@ class MovieService extends StoreService {
     await loadWatchList();
   }
 
+  Future<Movie?> getMovieById(int id) async {
+    var row = await dbMovies.queryById(id);
+    return row != null ? Movie.fromMap(row) : null;
+  }
+
   Future<List<Map<String, dynamic>>> loadAllMovies() {
     return dbMovies.queryAllRows();
   }
