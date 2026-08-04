@@ -9,7 +9,7 @@ class AppConstants {
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
   // STRINGS
-  static const String appVersion = "2.1.0";
+  static const String appVersion = "2.1.1";
   static const String backupFileName = "movies_watcher_backup";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
