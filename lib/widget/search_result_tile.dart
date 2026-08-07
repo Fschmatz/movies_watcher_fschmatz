@@ -5,6 +5,7 @@ import '../page/store_movie.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
 import 'package:async_redux/async_redux.dart';
+import '../redux/build_context_extension.dart';
 
 class SearchResultTile extends StatefulWidget {
   final Movie movie;
@@ -46,6 +47,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isSaved = context.select((AppState state) => selectIsMovieSaved(state, movie.getTmdbID()));
+
     Image? posterImage = Image.network(
       movie.getPoster()!,
       fit: BoxFit.cover,
@@ -132,23 +135,18 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     ),
                   ),
                 ),
-                StoreConnector<AppState, bool>(
-                  converter: (store) => selectIsMovieSaved(store.state, movie.getTmdbID()),
-                  builder: (context, isSaved) {
-                    if (isSaved) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: Center(
-                          child: Icon(
-                            Icons.bookmark_added_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                if (isSaved)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Center(
+                      child: Icon(
+                        Icons.bookmark_added_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
               ],
             ),
           ),

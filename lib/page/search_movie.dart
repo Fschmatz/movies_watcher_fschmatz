@@ -224,7 +224,7 @@ class _SearchMovieState extends State<SearchMovie> {
                   children: [
                     Flexible(
                       child: ListTile(
-                        title: Text(_quantityResults + (int.parse(_quantityResults) == 1 ? " Result" : " Result(s)"),
+                        title: Text(_quantityResults + (int.parse(_quantityResults) == 1 ? " Result" : " Results"),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,

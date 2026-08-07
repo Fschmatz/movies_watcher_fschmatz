@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../entity/app_parameter.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
+import '../redux/build_context_extension.dart';
 import '../redux/selectors.dart';
 
 class SettingsSwitch extends StatelessWidget {
@@ -22,26 +23,21 @@ class SettingsSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, bool>(
-      converter: (store) {
-        return selectParameterValueByKeyAsBoolean(store.state, parameterKey);
-      },
-      builder: (context, value) {
-        return SwitchListTile(
-          title: Text(title),
-          subtitle: subtitle != null ? Text(subtitle!) : null,
-          value: value,
-          onChanged: (newValue) {
-            StoreProvider.dispatch(
-              context,
-              SaveAppParameterAction(
-                AppParameter(
-                  key: parameterKey,
-                  value: newValue.toString(),
-                ),
-              ),
-            );
-          },
+    final value = context.select((AppState state) => selectParameterValueByKeyAsBoolean(state, parameterKey));
+    
+    return SwitchListTile(
+      title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle!) : null,
+      value: value,
+      onChanged: (newValue) {
+        StoreProvider.dispatch(
+          context,
+          SaveAppParameterAction(
+            AppParameter(
+              key: parameterKey,
+              value: newValue.toString(),
+            ),
+          ),
         );
       },
     );

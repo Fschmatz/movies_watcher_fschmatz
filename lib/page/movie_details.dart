@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 
 import '../entity/movie.dart';
 import '../redux/app_state.dart';
+import '../redux/build_context_extension.dart';
 import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
 import '../util/utils_functions.dart';
+import '../widget/movie_detail_chip.dart';
 import '../widget/movie_detail_tile.dart';
 import 'store_movie.dart';
 
@@ -97,6 +98,7 @@ class _MovieDetailsState extends State<MovieDetails> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final posterProvider = _posterProvider;
+    final formatRuntime = context.select((AppState state) => selectParameterValueByKeyAsBoolean(state, AppConstants.formatRuntimeAppParameter));
 
     return Scaffold(
       body: CustomScrollView(slivers: [
@@ -253,35 +255,20 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.access_time_rounded,
-                        size: 18,
-                        color: colorScheme.onTertiaryContainer,
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    MovieDetailChip(
+                      icon: Icons.access_time_outlined,
+                      text: movie.getRuntime() != null ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime) : '-',
+                    ),
+                    if (movie.getYear() != null && movie.getYear()!.isNotEmpty)
+                      MovieDetailChip(
+                        icon: Icons.calendar_today_outlined,
+                        text: movie.getYear()!,
                       ),
-                      const SizedBox(width: 6),
-                      StoreConnector<AppState, bool>(
-                        converter: (store) => selectParameterValueByKeyAsBoolean(store.state, AppConstants.formatRuntimeAppParameter),
-                        builder: (context, formatRuntime) {
-                          return Text(
-                            movie.getRuntime() != null ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime) : '-',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: colorScheme.onTertiaryContainer,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 32),
                 if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[

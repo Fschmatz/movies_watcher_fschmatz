@@ -6,6 +6,7 @@ import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
 import '../redux/selectors.dart';
+import '../redux/build_context_extension.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
 import '../widget/movie_grid.dart';
@@ -57,6 +58,17 @@ class _WatchedListState extends State<WatchedList> {
 
   @override
   Widget build(BuildContext context) {
+    final viewData = context.select((AppState state) => (
+      isLoadingWatchedList: state.isLoadingWatchedList,
+      movies: state.watchedList,
+      showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
+          state, AppConstants.showMovieNameOnCardAppParameter),
+      showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
+          state, AppConstants.showRuntimeChipOnCardAppParameter),
+      formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(
+          state, AppConstants.formatRuntimeAppParameter),
+    ));
+
     return Scaffold(
         appBar: AppBar(
           title: Text("Watched"),
@@ -76,44 +88,13 @@ class _WatchedListState extends State<WatchedList> {
             )
           ],
         ),
-        body: StoreConnector<
-            AppState,
-            ({
-              bool isLoadingWatchedList,
-              List<Movie> movies,
-              bool showMovieNameOnCard,
-              bool showRuntimeChipOnCard,
-              bool formatRuntimeOnCard
-            })>(
-          converter: (store) {
-            return (
-              isLoadingWatchedList: store.state.isLoadingWatchedList,
-              movies: store.state.watchedList,
-              showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
-                  store.state, AppConstants.showMovieNameOnCardAppParameter),
-              showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
-                  store.state, AppConstants.showRuntimeChipOnCardAppParameter),
-              formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(
-                  store.state, AppConstants.formatRuntimeAppParameter),
-            );
-          },
-          builder: (BuildContext context,
-              ({
-                bool isLoadingWatchedList,
-                List<Movie> movies,
-                bool showMovieNameOnCard,
-                bool showRuntimeChipOnCard,
-                bool formatRuntimeOnCard
-              }) viewData) {
-            return MovieGrid(
-              movies: viewData.movies,
-              isLoading: viewData.isLoadingWatchedList,
-              showMovieName: viewData.showMovieNameOnCard,
-              showRuntimeChip: viewData.showRuntimeChipOnCard,
-              formatRuntime: viewData.formatRuntimeOnCard,
-              isFromWatched: true,
-            );
-          },
+        body: MovieGrid(
+          movies: viewData.movies,
+          isLoading: viewData.isLoadingWatchedList,
+          showMovieName: viewData.showMovieNameOnCard,
+          showRuntimeChip: viewData.showRuntimeChipOnCard,
+          formatRuntime: viewData.formatRuntimeOnCard,
+          isFromWatched: true,
         ));
   }
 }
