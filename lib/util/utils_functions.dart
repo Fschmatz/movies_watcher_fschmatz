@@ -47,4 +47,19 @@ class UtilsFunctions {
 
     return '${minutes}m';
   }
+
+  static bool isLastBackupDateMoreThan30Days(String lastBackup) {
+    if (lastBackup.isEmpty) {
+      return false;
+    }
+
+    Jiffy lastBackupFormatted = Jiffy.parse(
+      lastBackup,
+      pattern: AppConstants.backupDataFormat,
+    );
+
+    int diff = Jiffy.now().diff(lastBackupFormatted, unit: Unit.day).toInt();
+
+    return diff > 30;
+  }
 }

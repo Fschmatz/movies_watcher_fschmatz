@@ -7,6 +7,9 @@ import '../dao/movie_dao.dart';
 import '../entity/movie.dart';
 import '../enum/no_yes.dart';
 import '../service/movie_service.dart';
+import '../widget/stats_month_tile.dart';
+import '../widget/stats_old_year_card.dart';
+import '../widget/stats_status_card.dart';
 
 class Stats extends StatefulWidget {
   const Stats({super.key});
@@ -19,10 +22,6 @@ class _StatsState extends State<Stats> {
   final dbMovies = MovieDAO.instance;
   List<Map<String, dynamic>> moviesList = [];
   bool loading = true;
-  TextStyle styleTrailing = const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-  );
   int? countWatchedMovies = 0;
   int? countNotWatchedMovies = 0;
   int? watchedRuntime = 0;
@@ -32,14 +31,13 @@ class _StatsState extends State<Stats> {
   int? addedMoviesCurrentMonth = 0;
   int watchedMoviesCurrentYear = 0;
   int watchedRuntimeCurrentYear = 0;
-  bool showOldYears = false;
   Map<String, List<Movie>> currentYearMovies = {};
   Map<String, List<Movie>> olderYearMovies = {};
+  Map<String, List<Movie>> olderMoviesByYear = {};
 
   @override
   void initState() {
     super.initState();
-
     _loadValues();
   }
 
@@ -56,6 +54,7 @@ class _StatsState extends State<Stats> {
     await _generateMapMoviesByMonthAndYear();
     await _sortMoviesByMonthAndYear();
     await _setCurrentYearStats();
+    _groupOlderMoviesByYear();
 
     setState(() => loading = false);
   }
@@ -110,6 +109,26 @@ class _StatsState extends State<Stats> {
     });
   }
 
+  void _groupOlderMoviesByYear() {
+    olderMoviesByYear.clear();
+
+    for (final entry in olderYearMovies.entries) {
+      // key is "MM/yyyy", extract year part
+      final year = entry.key.split('/').last;
+      olderMoviesByYear.putIfAbsent(year, () => []);
+      olderMoviesByYear[year]!.addAll(entry.value);
+    }
+
+    // Sort years descending
+    final sortedKeys = olderMoviesByYear.keys.toList()..sort((a, b) => int.parse(b).compareTo(int.parse(a)));
+
+    final sorted = <String, List<Movie>>{};
+    for (final key in sortedKeys) {
+      sorted[key] = olderMoviesByYear[key]!;
+    }
+    olderMoviesByYear = sorted;
+  }
+
   void _showMoviesWatchedOnMonthAndYearDialog(BuildContext context, String monthYear, List<Movie> movies) {
     int sumRuntimesMonthYear = movies.fold<int>(0, (sum, movie) => sum + (movie.getRuntime() ?? 0));
 
@@ -144,101 +163,14 @@ class _StatsState extends State<Stats> {
     );
   }
 
-  Widget buildCompactListTile(String title, String trailingText) {
-    return ListTile(
-      visualDensity: VisualDensity.compact,
-      title: Text(title),
-      trailing: Text(trailingText, style: styleTrailing),
-    );
-  }
-
-  Widget buildCompactListTileTitle(String title, TextStyle style) {
-    return ListTile(
-      visualDensity: VisualDensity.compact,
-      title: Text(title, style: style),
-    );
-  }
-
-  Widget buildStatusCard(Color backgroundColor, Color textColor, String title, int? movies, int? runtime, IconData icon) {
-    return SizedBox(
-      height: 125,
-      child: Card(
-        color: backgroundColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: textColor..withValues(alpha: 0.8),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: textColor.withValues(alpha: 0.8),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "$movies",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time_outlined,
-                    size: 13,
-                    color: textColor.withValues(alpha: 0.8),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    "$runtime Min",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: textColor.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    Color accent = Theme.of(context).colorScheme.primary;
-    Color cardBackgroundColor = Theme.of(context).colorScheme.tertiaryContainer;
-    Color cardTextColor = Theme.of(context).colorScheme.onTertiaryContainer;
-    Color currentCardBackgroundColor = Theme.of(context).colorScheme.primaryContainer;
-    Color currentCardTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
-    TextStyle titleTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accent, letterSpacing: 0.5);
+    final Color accent = Theme.of(context).colorScheme.primary;
+    final Color cardBackgroundColor = Theme.of(context).colorScheme.tertiaryContainer;
+    final Color cardTextColor = Theme.of(context).colorScheme.onTertiaryContainer;
+    final Color currentCardBackgroundColor = Theme.of(context).colorScheme.primaryContainer;
+    final Color currentCardTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
+    final TextStyle titleTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accent, letterSpacing: 0.5);
 
     return Scaffold(
       appBar: AppBar(
@@ -256,23 +188,23 @@ class _StatsState extends State<Stats> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: buildStatusCard(
-                            cardBackgroundColor,
-                            cardTextColor,
-                            'Total Watched',
-                            countWatchedMovies,
-                            watchedRuntime,
-                            Icons.check_circle_outline_rounded,
+                          child: StatsStatusCard(
+                            backgroundColor: cardBackgroundColor,
+                            textColor: cardTextColor,
+                            title: 'Total Watched',
+                            movies: countWatchedMovies,
+                            runtime: watchedRuntime,
+                            icon: Icons.check_circle_outline_rounded,
                           ),
                         ),
                         Expanded(
-                          child: buildStatusCard(
-                            cardBackgroundColor,
-                            cardTextColor,
-                            'Total Watchlist',
-                            countNotWatchedMovies,
-                            notWatchedRuntime,
-                            Icons.hourglass_empty_rounded,
+                          child: StatsStatusCard(
+                            backgroundColor: cardBackgroundColor,
+                            textColor: cardTextColor,
+                            title: 'Total Watchlist',
+                            movies: countNotWatchedMovies,
+                            runtime: notWatchedRuntime,
+                            icon: Icons.hourglass_empty_rounded,
                           ),
                         ),
                       ],
@@ -283,122 +215,53 @@ class _StatsState extends State<Stats> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: buildStatusCard(
-                            currentCardBackgroundColor,
-                            currentCardTextColor,
-                            'This Month',
-                            watchedMoviesCurrentMonth,
-                            watchedRuntimeCurrentMonth,
-                            Icons.calendar_month_outlined,
+                          child: StatsStatusCard(
+                            backgroundColor: currentCardBackgroundColor,
+                            textColor: currentCardTextColor,
+                            title: 'This Month',
+                            movies: watchedMoviesCurrentMonth,
+                            runtime: watchedRuntimeCurrentMonth,
+                            icon: Icons.calendar_month_outlined,
                           ),
                         ),
                         Expanded(
-                          child: buildStatusCard(
-                            currentCardBackgroundColor,
-                            currentCardTextColor,
-                            'This Year',
-                            watchedMoviesCurrentYear,
-                            watchedRuntimeCurrentYear,
-                            Icons.calendar_today_rounded,
+                          child: StatsStatusCard(
+                            backgroundColor: currentCardBackgroundColor,
+                            textColor: currentCardTextColor,
+                            title: 'This Year',
+                            movies: watchedMoviesCurrentYear,
+                            runtime: watchedRuntimeCurrentYear,
+                            icon: Icons.calendar_today_rounded,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Divider(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: buildCompactListTileTitle('Watched by Month/Year', titleTextStyle),
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    title: Text('Watched - Current Year by Month', style: titleTextStyle),
                   ),
-                  Column(
-                    children: currentYearMovies.entries.map((entry) {
-                      String monthYear = entry.key;
-                      List<Movie> moviesOnThisMonthYear = entry.value;
-                      return ListTile(
-                        leading: const Icon(Icons.analytics_outlined),
-                        title: Text(
-                          monthYear,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${moviesOnThisMonthYear.length}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.navigate_next_outlined,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ],
-                        ),
-                        onTap: () => _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear),
-                      );
-                    }).toList(),
+                  ...currentYearMovies.entries.map((entry) {
+                    final monthYear = entry.key;
+                    final moviesOnThisMonthYear = entry.value;
+                    return StatsMonthTile(
+                      monthYear: monthYear,
+                      movies: moviesOnThisMonthYear,
+                      onTap: () => _showMoviesWatchedOnMonthAndYearDialog(context, monthYear, moviesOnThisMonthYear),
+                    );
+                  }),
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    title: Text('Watched - Previous Years', style: titleTextStyle),
                   ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: FilledButton.tonalIcon(
-                      icon: Icon(showOldYears ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                      label: Text(showOldYears ? "Hide previous years" : "Show previous years"),
-                      onPressed: () => setState(() => showOldYears = !showOldYears),
-                      style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  if (showOldYears) ...[
-                    const SizedBox(height: 8),
-                    Column(
-                      children: olderYearMovies.entries.map((entry) {
-                        final monthYear = entry.key;
-                        final moviesOnThisMonthYear = entry.value;
-
-                        return ListTile(
-                          leading: const Icon(Icons.analytics_outlined),
-                          title: Text(
-                            monthYear,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${moviesOnThisMonthYear.length}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.navigate_next_outlined,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            ],
-                          ),
-                          onTap: () => _showMoviesWatchedOnMonthAndYearDialog(
-                            context,
-                            monthYear,
-                            moviesOnThisMonthYear,
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                  if (olderMoviesByYear.isNotEmpty) ...[
+                    ...olderMoviesByYear.entries.map((entry) => StatsOldYearCard(
+                          year: entry.key,
+                          movies: entry.value,
+                        )),
                   ],
-                  const SizedBox(
-                    height: 75,
-                  ),
+                  const SizedBox(height: 75),
                 ],
               ),
       ),

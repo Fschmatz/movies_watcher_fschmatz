@@ -1,12 +1,15 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
-import 'package:movies_watcher_fschmatz/widget/app_parameter_value.dart';
 import 'package:movies_watcher_fschmatz/widget/settings_switch.dart';
 
+import '../redux/app_state.dart';
+import '../redux/build_context_extension.dart';
+import '../redux/selectors.dart';
 import '../util/app_constants.dart';
 import '../util/dialog_backup.dart';
 import '../util/dialog_select_theme.dart';
+import '../util/theme_extension.dart';
 import 'app_info.dart';
 import 'changelog.dart';
 
@@ -22,6 +25,8 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
+    String lastBackupDate = context.select((AppState state) => selectParameterValueByKey(state, AppConstants.lastBackupDateAppParameter)) ?? '';
+
     return Scaffold(
       appBar: AppBar(title: const Text("Settings")),
       body: ListView(
@@ -29,7 +34,7 @@ class _SettingsState extends State<Settings> {
         children: <Widget>[
           Card(
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: context.colors.primaryContainer,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
@@ -39,14 +44,14 @@ class _SettingsState extends State<Settings> {
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: context.colors.onPrimaryContainer,
                         ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Version ${AppConstants.appVersion}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                          color: context.colors.onPrimaryContainer.withValues(alpha: 0.8),
                         ),
                   ),
                 ],
@@ -64,7 +69,7 @@ class _SettingsState extends State<Settings> {
                     "General",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: context.colors.primary,
                         ),
                   ),
                 ),
@@ -122,7 +127,7 @@ class _SettingsState extends State<Settings> {
                     "Backup",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: context.colors.primary,
                         ),
                   ),
                 ),
@@ -143,12 +148,13 @@ class _SettingsState extends State<Settings> {
                         ),
                         leading: const Icon(Icons.save_outlined),
                         title: const Text("Backup now"),
-                        subtitle: Row(
-                          children: [
-                            const Text("Last backup: ", style: TextStyle(fontSize: 12)),
-                            AppParameterValue(parameterKey: AppConstants.lastBackupDateAppParameter),
-                          ],
-                        ),
+                        subtitle: Text("Last backup: $lastBackupDate"),
+                        trailing: UtilsFunctions.isLastBackupDateMoreThan30Days(lastBackupDate)
+                            ? Icon(
+                                Icons.error_outline_outlined,
+                                color: context.colors.error,
+                              )
+                            : null,
                       ),
                       Divider(),
                       ListTile(
@@ -181,7 +187,7 @@ class _SettingsState extends State<Settings> {
                     "About",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: context.colors.primary,
                         ),
                   ),
                 ),

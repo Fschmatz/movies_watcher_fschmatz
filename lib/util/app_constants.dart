@@ -8,14 +8,15 @@ class AppConstants {
   static const String formatRuntimeAppParameter = "formatRuntime";
   static const String lastBackupDateAppParameter = "lastBackupDate";
 
-  // STRINGS
-  static const String appVersion = "2.1.2";
+  // BACKUP
   static const String backupFileName = "movies_watcher_backup";
+  static const String backupDataFormat = "dd/MM/yyyy HH:mm";
+
+  // STRINGS
+  static const String appVersion = "2.1.3";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
-  static const String apiHomePage = "https://www.omdbapi.com/";
-  static const String apiUrl = "http://www.omdbapi.com/?type=movie";
 
   static String changelogCurrent = '''
 $appVersion

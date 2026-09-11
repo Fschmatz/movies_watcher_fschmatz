@@ -274,7 +274,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 if (movie.getPlot() != null && movie.getPlot()!.isNotEmpty) ...[
                   Text(
                     "Plot",
-                    style: theme.textTheme.titleLarge?.copyWith(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.primary,
                     ),
@@ -291,7 +291,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 ],
                 Text(
                   "Details",
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.primary,
                   ),
