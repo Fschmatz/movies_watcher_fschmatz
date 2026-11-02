@@ -43,8 +43,8 @@ class StatsStatusCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                         color: textColor.withValues(alpha: 0.8),
                         letterSpacing: 0.5,
                       ),
@@ -52,7 +52,7 @@ class StatsStatusCard extends StatelessWidget {
                   ),
                   Icon(
                     icon,
-                    size: 18,
+                    size: 16,
                     color: textColor.withValues(alpha: 0.8),
                   ),
                 ],
@@ -61,8 +61,8 @@ class StatsStatusCard extends StatelessWidget {
               Text(
                 '$movies',
                 style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
               ),
@@ -70,15 +70,15 @@ class StatsStatusCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.access_time_outlined,
-                    size: 13,
+                    size: 16,
                     color: textColor.withValues(alpha: 0.8),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '$runtime Min',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: textColor.withValues(alpha: 0.8),
                     ),
                   ),

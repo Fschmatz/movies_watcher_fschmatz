@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static const _databaseName = "MovieTracker.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   // Movies
   static const tableMovies = 'movies';
@@ -23,6 +23,7 @@ class DatabaseHelper {
   static const columnMovieWatched = 'watched';
   static const columnMovieDateAdded = 'dateAdded';
   static const columnMovieDateWatched = 'dateWatched';
+  static const columnMovieFavorite = 'favorite';
 
   // App Parameters
   static const tableAppParameters = 'app_parameters';
@@ -47,6 +48,7 @@ class DatabaseHelper {
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -67,7 +69,8 @@ class DatabaseHelper {
             $columnMovieTmdbID INTEGER,
             $columnMovieWatched TEXT NOT NULL,
             $columnMovieDateAdded TEXT NOT NULL,
-            $columnMovieDateWatched TEXT                  
+            $columnMovieDateWatched TEXT,
+            $columnMovieFavorite INTEGER NOT NULL DEFAULT 0                  
           )
           ''');
 
@@ -80,4 +83,9 @@ class DatabaseHelper {
           ''');
   }
 
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE $tableMovies ADD COLUMN $columnMovieFavorite INTEGER NOT NULL DEFAULT 0');
+    }
+  }
 }

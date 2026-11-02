@@ -21,8 +21,8 @@ class MovieService extends StoreService {
       MovieDAO.columnTmdbID: movie.getTmdbID(),
       MovieDAO.columnWatched: movie.getWatched()?.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
-      MovieDAO.columnDateWatched:
-          movie.isMovieWatched() ? DateTime.now().toString() : null
+      MovieDAO.columnDateWatched: movie.isMovieWatched() ? DateTime.now().toString() : null,
+      MovieDAO.columnFavorite: movie.isFavorite() ? 1 : 0,
     };
 
     await dbMovies.insert(row);
@@ -54,7 +54,8 @@ class MovieService extends StoreService {
       MovieDAO.columnTmdbID: movie.getTmdbID(),
       MovieDAO.columnWatched: movie.getWatched()!.id,
       MovieDAO.columnDateAdded: DateTime.now().toString(),
-      MovieDAO.columnDateWatched: movie.getDateWatched()
+      MovieDAO.columnDateWatched: movie.getDateWatched(),
+      MovieDAO.columnFavorite: movie.isFavorite() ? 1 : 0,
     };
 
     await dbMovies.update(row);
@@ -70,7 +71,8 @@ class MovieService extends StoreService {
     Map<String, dynamic> row = {
       MovieDAO.columnId: movie.getId(),
       MovieDAO.columnWatched: NoYes.yes.id,
-      MovieDAO.columnDateWatched: DateTime.now().toString()
+      MovieDAO.columnDateWatched: DateTime.now().toString(),
+      MovieDAO.columnFavorite: 0,
     };
 
     await dbMovies.update(row);
@@ -78,15 +80,29 @@ class MovieService extends StoreService {
   }
 
   Future<void> setNotWatched(Movie movie) async {
-    Map<String, dynamic> row = {
-      MovieDAO.columnId: movie.getId(),
-      MovieDAO.columnWatched: NoYes.no.id,
-      MovieDAO.columnDateWatched: null
-    };
+    Map<String, dynamic> row = {MovieDAO.columnId: movie.getId(), MovieDAO.columnWatched: NoYes.no.id, MovieDAO.columnDateWatched: null};
 
     await dbMovies.update(row);
     await removeMovieFromWatchedListAction(movie);
     await loadWatchList();
+  }
+
+  Future<void> toggleFavorite(Movie movie) async {
+    final newFavorite = !movie.isFavorite();
+    movie.setFavorite(newFavorite);
+
+    Map<String, dynamic> row = {
+      MovieDAO.columnId: movie.getId(),
+      MovieDAO.columnFavorite: newFavorite ? 1 : 0,
+    };
+
+    await dbMovies.update(row);
+
+    if (movie.isMovieWatched()) {
+      await loadWatchedList();
+    } else {
+      await loadWatchList();
+    }
   }
 
   Future<void> insertMoviesFromRestoreBackup(List<dynamic> jsonData) async {
@@ -111,31 +127,22 @@ class MovieService extends StoreService {
     await dbMovies.deleteAll();
   }
 
-  Future<List<Movie>> queryAllByWatchedNoYesAndConvertToList(
-      NoYes noYes) async {
+  Future<List<Movie>> queryAllByWatchedNoYesAndConvertToList(NoYes noYes) async {
     var resp = await dbMovies.queryAllByWatchedNoYes(noYes);
 
-    return resp.isNotEmpty
-        ? resp.map((map) => Movie.fromMap(map)).toList()
-        : [];
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
 
-  Future<List<Movie>> queryAllByWatchedNoYesAndOrderByAndConvertToList(
-      NoYes noYes, String optionSelected) async {
-    var resp =
-        await dbMovies.queryAllByWatchedNoYesAndOrderBy(noYes, optionSelected);
+  Future<List<Movie>> queryAllByWatchedNoYesAndOrderByAndConvertToList(NoYes noYes, String optionSelected) async {
+    var resp = await dbMovies.queryAllByWatchedNoYesAndOrderBy(noYes, optionSelected);
 
-    return resp.isNotEmpty
-        ? resp.map((map) => Movie.fromMap(map)).toList()
-        : [];
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
 
   Future<List<Movie>> findWatchedByYear(String year) async {
     var resp = await dbMovies.findWatchedByYear(year);
 
-    return resp.isNotEmpty
-        ? resp.map((map) => Movie.fromMap(map)).toList()
-        : [];
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
 
   Future<List<String>> findAllYearsWithWatchedMovies() async {
@@ -151,8 +158,6 @@ class MovieService extends StoreService {
   Future<List<Movie>> queryAllByWatchedForStatsPage(NoYes noYes) async {
     var resp = await dbMovies.queryAllByWatchedForStatsPage(noYes);
 
-    return resp.isNotEmpty
-        ? resp.map((map) => Movie.fromMap(map)).toList()
-        : [];
+    return resp.isNotEmpty ? resp.map((map) => Movie.fromMap(map)).toList() : [];
   }
 }

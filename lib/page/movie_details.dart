@@ -71,6 +71,11 @@ class _MovieDetailsState extends State<MovieDetails> {
     if (mounted) Navigator.pop(context);
   }
 
+  Future<void> _toggleFavorite() async {
+    await MovieService().toggleFavorite(movie);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _openEditPage(BuildContext context) async {
     await Navigator.push(
         context,
@@ -194,6 +199,16 @@ class _MovieDetailsState extends State<MovieDetails> {
             ),
           ),
           actions: [
+            if (movie.isMovieWatched()) ...[
+              IconButton(
+                tooltip: movie.isFavorite() ? 'Remove from Favorites' : 'Add to Favorites',
+                icon: Icon(
+                  movie.isFavorite() ? Icons.star_rounded : Icons.star_border_rounded,
+                  color: movie.isFavorite() ? Theme.of(context).colorScheme.primary : null,
+                ),
+                onPressed: _toggleFavorite,
+              ),
+            ],
             PopupMenuButton<int>(
               icon: const Icon(Icons.more_vert_outlined),
               itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[

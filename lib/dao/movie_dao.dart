@@ -19,6 +19,7 @@ class MovieDAO {
   static const columnWatched = DatabaseHelper.columnMovieWatched;
   static const columnDateAdded = DatabaseHelper.columnMovieDateAdded;
   static const columnDateWatched = DatabaseHelper.columnMovieDateWatched;
+  static const columnFavorite = DatabaseHelper.columnMovieFavorite;
 
   Future<Database> get database async => await DatabaseHelper.instance.database;
 

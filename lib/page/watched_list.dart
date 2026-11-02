@@ -1,12 +1,10 @@
-import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 
-import '../entity/movie.dart';
 import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
-import '../redux/selectors.dart';
 import '../redux/build_context_extension.dart';
+import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
 import '../widget/movie_grid.dart';
@@ -34,16 +32,14 @@ class _WatchedListState extends State<WatchedList> {
   }
 
   void _loadYearsWithWatchedMovies() async {
-    _yearsWithWatchedMovies =
-        await MovieService().findAllYearsWithWatchedMovies();
+    _yearsWithWatchedMovies = await MovieService().findAllYearsWithWatchedMovies();
 
     if (!_yearsWithWatchedMovies.contains(_getSelectedYear())) {
       _yearsWithWatchedMovies.add(_getSelectedYear());
     }
 
     if (_yearsWithWatchedMovies.length > 1) {
-      _yearsWithWatchedMovies
-          .sort((a, b) => int.parse(b).compareTo(int.parse(a)));
+      _yearsWithWatchedMovies.sort((a, b) => int.parse(b).compareTo(int.parse(a)));
     }
   }
 
@@ -59,15 +55,13 @@ class _WatchedListState extends State<WatchedList> {
   @override
   Widget build(BuildContext context) {
     final viewData = context.select((AppState state) => (
-      isLoadingWatchedList: state.isLoadingWatchedList,
-      movies: state.watchedList,
-      showMovieNameOnCard: selectParameterValueByKeyAsBoolean(
-          state, AppConstants.showMovieNameOnCardAppParameter),
-      showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(
-          state, AppConstants.showRuntimeChipOnCardAppParameter),
-      formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(
-          state, AppConstants.formatRuntimeAppParameter),
-    ));
+          isLoadingWatchedList: state.isLoadingWatchedList,
+          movies: state.watchedList,
+          showMovieNameOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showMovieNameOnCardAppParameter),
+          showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showRuntimeChipOnCardAppParameter),
+          formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.formatRuntimeAppParameter),
+          gridSize: selectParameterValueByKeyAsInt(state, AppConstants.gridSizeAppParameter, defaultValue: 3),
+        ));
 
     return Scaffold(
         appBar: AppBar(
@@ -94,6 +88,7 @@ class _WatchedListState extends State<WatchedList> {
           showMovieName: viewData.showMovieNameOnCard,
           showRuntimeChip: viewData.showRuntimeChipOnCard,
           formatRuntime: viewData.formatRuntimeOnCard,
+          gridSize: viewData.gridSize,
           isFromWatched: true,
         ));
   }

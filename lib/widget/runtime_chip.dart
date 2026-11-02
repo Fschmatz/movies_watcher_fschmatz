@@ -5,12 +5,14 @@ class RuntimeChip extends StatelessWidget {
   final int runtime;
   final bool showMovieName;
   final bool formatRuntime;
+  final int gridSize;
 
   const RuntimeChip({
     super.key,
     required this.runtime,
     required this.showMovieName,
     this.formatRuntime = false,
+    this.gridSize = 3,
   });
 
   @override
@@ -18,8 +20,8 @@ class RuntimeChip extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Positioned(
-      bottom: showMovieName ? 4 : 8,
-      right: showMovieName ? 4 : 8,
+      bottom: UtilsFunctions.getRuntimeChipBottom(gridSize, showMovieName),
+      right: UtilsFunctions.getRuntimeChipRight(gridSize, showMovieName),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(

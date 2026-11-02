@@ -17,6 +17,7 @@ class Movie {
   NoYes? _watched;
   String? _dateAdded;
   String? _dateWatched;
+  bool? _favorite;
 
   Movie(
       {int? id,
@@ -32,7 +33,8 @@ class Movie {
       int? tmdbID,
       NoYes? watched,
       String? dateAdded,
-      String? dateWatched})
+      String? dateWatched,
+      bool? favorite})
       : _id = id,
         _title = title,
         _year = year,
@@ -46,7 +48,8 @@ class Movie {
         _tmdbID = tmdbID,
         _watched = watched,
         _dateAdded = dateAdded,
-        _dateWatched = dateWatched;
+        _dateWatched = dateWatched,
+        _favorite = favorite ?? false;
 
   int? getId() => _id;
 
@@ -75,6 +78,14 @@ class Movie {
   String? getDateWatched() => _dateWatched;
 
   String? getDateAdded() => _dateAdded;
+
+  bool? getFavorite() => _favorite;
+
+  bool isFavorite() => _favorite ?? false;
+
+  void setFavorite(bool value) {
+    _favorite = value;
+  }
 
   void setId(int value) {
     _id = value;
@@ -167,6 +178,7 @@ class Movie {
       watched: NoYes.no,
       dateAdded: null,
       dateWatched: null,
+      favorite: false,
     );
   }
 
@@ -183,6 +195,7 @@ class Movie {
           : '',
       tmdbID: json['id'],
       poster: json['poster_path'] != null ? 'https://image.tmdb.org/t/p/w154${json['poster_path']}' : 'N/A',
+      favorite: false,
     );
   }
 
@@ -202,6 +215,7 @@ class Movie {
       watched: map['watched'] == 'Y' ? NoYes.yes : NoYes.no,
       dateAdded: map['dateAdded'],
       dateWatched: map['dateWatched'],
+      favorite: map['favorite'] == 1 || map['favorite'] == true || map['favorite'] == '1',
     );
   }
 
@@ -221,12 +235,13 @@ class Movie {
       'watched': _watched == NoYes.yes ? 'Y' : 'N',
       'dateAdded': _dateAdded,
       'dateWatched': _dateWatched,
+      'favorite': (_favorite == true) ? 1 : 0,
     };
   }
 
   @override
   String toString() {
-    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _rating: $_rating, _tmdbID: $_tmdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched}';
+    return 'Movie{_id: $_id, _title: $_title, _year: $_year, _released: $_released, _runtime: $_runtime, _director: $_director, _plot: $_plot, _country: $_country, _rating: $_rating, _tmdbID: $_tmdbID, _watched: $_watched, _dateAdded: $_dateAdded, _dateWatched: $_dateWatched, _favorite: $_favorite}';
   }
 
   String get formattedDateAdded => _dateAdded != null

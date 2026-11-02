@@ -10,6 +10,8 @@ import '../util/app_constants.dart';
 import '../util/dialog_backup.dart';
 import '../util/dialog_select_theme.dart';
 import '../util/theme_extension.dart';
+import '../widget/app_parameter_value.dart';
+import '../widget/dialog_select_grid_size.dart';
 import 'app_info.dart';
 import 'changelog.dart';
 
@@ -109,6 +111,28 @@ class _SettingsState extends State<Settings> {
                         parameterKey: AppConstants.formatRuntimeAppParameter,
                         subtitle: 'Format runtime to hours and minutes',
                         defaultValue: false,
+                      ),
+                      Divider(),
+                      ListTile(
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const DialogSelectGridSize(
+                              parameterKey: AppConstants.gridSizeAppParameter,
+                              defaultValue: 3,
+                            );
+                          },
+                        ),
+                        title: const Text("Movies per row in grid"),
+                        subtitle: const Row(
+                          children: [
+                            AppParameterValue(
+                              parameterKey: AppConstants.gridSizeAppParameter,
+                              defaultValue: '3',
+                            ),
+                            Text(" movies"),
+                          ],
+                        ),
                       ),
                     ],
                   ),

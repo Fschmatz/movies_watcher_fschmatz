@@ -7,25 +7,53 @@ class AppConstants {
   static const String showMovieNameOnCardAppParameter = "showMovieNameOnCard";
   static const String formatRuntimeAppParameter = "formatRuntime";
   static const String lastBackupDateAppParameter = "lastBackupDate";
+  static const String gridSizeAppParameter = "gridSize";
+
+  // VARIOUS
+  static const List<int> gridSizeOptions = [2, 3, 4, 5];
+  static const Map<int, double> mapRuntimeChipBottomWithoutName = {
+    2: 8,
+    3: 4,
+    4: 6,
+    5: 8,
+  };
+  static const Map<int, double> mapRuntimeChipRightWithoutName = {
+    2: 8,
+    3: 8,
+    4: 6,
+    5: 4,
+  };
+  static const Map<int, double> mapFavoriteChipIconSize = {
+    2: 22,
+    3: 18,
+    4: 14,
+    5: 12,
+  };
 
   // BACKUP
   static const String backupFileName = "movies_watcher_backup";
   static const String backupDataFormat = "dd/MM/yyyy HH:mm";
 
   // STRINGS
-  static const String appVersion = "2.1.3";
+  static const String appVersion = "2.2.0";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
 
   static String changelogCurrent = '''
 $appVersion
+- Grid options
+- Favorites for watchlist page
 - Bug fixes
-- Format runtime option
 - UI changes
 ''';
 
   static String changelogsOld = '''
+2.1.3
+- Bug fixes
+- Format runtime option
+- UI changes 
+
 2.0.7
 - Use TMDB Api
 - Show trending, now playing and upcoming

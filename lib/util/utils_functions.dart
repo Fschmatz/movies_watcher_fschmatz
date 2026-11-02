@@ -62,4 +62,20 @@ class UtilsFunctions {
 
     return diff > 30;
   }
+
+  static double getRuntimeChipBottom(int gridSize, bool showMovieName) {
+    if (showMovieName) {
+      return 4;
+    }
+
+    return AppConstants.mapRuntimeChipBottomWithoutName[gridSize] ?? 8;
+  }
+
+  static double getRuntimeChipRight(int gridSize, bool showMovieName) {
+    if (showMovieName) {
+      return 4;
+    }
+
+    return AppConstants.mapRuntimeChipRightWithoutName[gridSize] ?? 8;
+  }
 }

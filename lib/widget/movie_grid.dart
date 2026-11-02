@@ -12,6 +12,7 @@ class MovieGrid extends StatelessWidget {
   final bool showRuntimeChip;
   final bool formatRuntime;
   final bool isFromWatched;
+  final int gridSize;
 
   const MovieGrid({
     super.key,
@@ -21,6 +22,7 @@ class MovieGrid extends StatelessWidget {
     required this.showRuntimeChip,
     this.formatRuntime = false,
     this.isFromWatched = false,
+    this.gridSize = 3,
   });
 
   @override
@@ -90,26 +92,34 @@ class MovieGrid extends StatelessWidget {
                       )
                     : Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: GridView.builder(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 4,
-                            crossAxisSpacing: 4,
-                            mainAxisExtent: showMovieName ? 188 : 158,
-                          ),
-                          physics: const ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: movies.length,
-                          itemBuilder: (context, index) {
-                            Movie movie = movies[index];
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final double itemWidth = constraints.maxWidth / gridSize;
+                            final double cardInternalWidth = itemWidth - 8.0;
+                            final double posterHeight = cardInternalWidth / (2 / 3);
+                            final double itemHeight = posterHeight + (showMovieName ? 40.0 : 8.0);
 
-                            return MovieCard(
-                              key: ValueKey(movie.getId()),
-                              movie: movie,
-                              isFromWatched: isFromWatched,
-                              showMovieName: showMovieName,
-                              showRuntimeChip: showRuntimeChip,
-                              formatRuntime: formatRuntime,
+                            return GridView.builder(
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: gridSize,
+                                mainAxisExtent: itemHeight,
+                              ),
+                              physics: const ScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: movies.length,
+                              itemBuilder: (context, index) {
+                                Movie movie = movies[index];
+
+                                return MovieCard(
+                                  key: ValueKey(movie.getId()),
+                                  movie: movie,
+                                  isFromWatched: isFromWatched,
+                                  showMovieName: showMovieName,
+                                  showRuntimeChip: showRuntimeChip,
+                                  formatRuntime: formatRuntime,
+                                  gridSize: gridSize,
+                                );
+                              },
                             );
                           },
                         ),

@@ -18,6 +18,7 @@ class StatsOldYearCard extends StatelessWidget {
     final int totalRuntime = movies.fold(0, (sum, movie) => sum + (movie.getRuntime() ?? 0));
 
     return Card(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: ListTile(
         title: Expanded(
           child: Text(

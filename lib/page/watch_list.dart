@@ -1,4 +1,3 @@
-import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_watcher_fschmatz/page/discover_page.dart';
 import 'package:movies_watcher_fschmatz/page/search_movie.dart';
@@ -7,13 +6,12 @@ import 'package:movies_watcher_fschmatz/page/stats.dart';
 import 'package:movies_watcher_fschmatz/page/watched_list.dart';
 import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
-import '../entity/movie.dart';
 import '../enum/sort_watch_list_option.dart';
 import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
-import '../redux/selectors.dart';
 import '../redux/build_context_extension.dart';
+import '../redux/selectors.dart';
 import '../widget/movie_grid.dart';
 
 class WatchList extends StatefulWidget {
@@ -24,6 +22,8 @@ class WatchList extends StatefulWidget {
 }
 
 class _WatchListState extends State<WatchList> {
+  bool _showOnlyFavorites = false;
+
   Future<void> _onSortListSelected(SortOption optionSelected) async {
     await store.dispatch(ChangeWatchListSortAction(optionSelected));
     await store.dispatch(LoadWatchListAction());
@@ -33,12 +33,13 @@ class _WatchListState extends State<WatchList> {
   @override
   Widget build(BuildContext context) {
     final viewData = context.select((AppState state) => (
-      isLoadingWatchList: state.isLoadingWatchList,
-      movies: state.watchList,
-      showMovieNameOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showMovieNameOnCardAppParameter),
-      showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showRuntimeChipOnCardAppParameter),
-      formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.formatRuntimeAppParameter),
-    ));
+          isLoadingWatchList: state.isLoadingWatchList,
+          movies: state.watchList,
+          showMovieNameOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showMovieNameOnCardAppParameter),
+          showRuntimeChipOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.showRuntimeChipOnCardAppParameter),
+          formatRuntimeOnCard: selectParameterValueByKeyAsBoolean(state, AppConstants.formatRuntimeAppParameter),
+          gridSize: selectParameterValueByKeyAsInt(state, AppConstants.gridSizeAppParameter, defaultValue: 3),
+        ));
 
     return Scaffold(
       appBar: AppBar(
@@ -120,6 +121,17 @@ class _WatchListState extends State<WatchList> {
                 child: const Text('Settings'),
               ),
               const PopupMenuDivider(),
+              MenuItemButton(
+                leadingIcon: Icon(
+                  _showOnlyFavorites ? Icons.check_box_outlined : Icons.check_box_outline_blank_outlined,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _showOnlyFavorites = !_showOnlyFavorites;
+                  });
+                },
+                child: const Text('Favorites only'),
+              ),
               SubmenuButton(
                 leadingIcon: const Icon(Icons.sort_outlined),
                 menuChildren: SortOption.values.map((sortOption) {
@@ -142,11 +154,12 @@ class _WatchListState extends State<WatchList> {
         ],
       ),
       body: MovieGrid(
-        movies: viewData.movies,
+        movies: _showOnlyFavorites ? viewData.movies.where((m) => m.isFavorite()).toList() : viewData.movies,
         isLoading: viewData.isLoadingWatchList,
         showMovieName: viewData.showMovieNameOnCard,
         showRuntimeChip: viewData.showRuntimeChipOnCard,
         formatRuntime: viewData.formatRuntimeOnCard,
+        gridSize: viewData.gridSize,
       ),
       /* floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
