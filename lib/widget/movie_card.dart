@@ -7,6 +7,7 @@ import 'package:movies_watcher_fschmatz/widget/runtime_chip.dart';
 import '../entity/movie.dart';
 import '../page/movie_details.dart';
 import '../service/movie_service.dart';
+import '../util/app_constants.dart';
 import 'favorite_chip.dart';
 
 class MovieCard extends StatefulWidget {
@@ -35,7 +36,7 @@ class _MovieCardState extends State<MovieCard> {
   MovieService movieService = MovieService();
   Movie movie = Movie();
   late BorderRadius posterBorder;
-  BorderRadius cardBorder = BorderRadius.circular(20);
+  BorderRadius cardBorder = BorderRadius.circular(AppConstants.posterBorderRadius);
   late Uint8List? imageBytes;
   Image? posterImage;
 
@@ -62,7 +63,10 @@ class _MovieCardState extends State<MovieCard> {
   void _loadBorders() {
     bool showName = widget.showMovieName;
 
-    posterBorder = showName ? const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)) : BorderRadius.circular(20);
+    posterBorder = showName
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(AppConstants.posterBorderRadius), topRight: Radius.circular(AppConstants.posterBorderRadius))
+        : BorderRadius.circular(AppConstants.posterBorderRadius);
   }
 
   void _loadPosterImage() {
@@ -91,6 +95,9 @@ class _MovieCardState extends State<MovieCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final labelStyle = widget.gridSize > 3 ? theme.textTheme.labelSmall : theme.textTheme.labelMedium;
+    final double topNamePadding = widget.gridSize > 3 ? 6 : 8;
+    final double leftNamePadding = widget.gridSize > 3 ? 8 : 10;
 
     return Card.filled(
       margin: const EdgeInsets.all(4),
@@ -140,12 +147,12 @@ class _MovieCardState extends State<MovieCard> {
             if (widget.showMovieName)
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 5, 8, 0),
+                  padding: EdgeInsets.fromLTRB(leftNamePadding, topNamePadding, 8, 0),
                   child: Text(
                     movie.getTitle()!,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: theme.textTheme.labelMedium?.copyWith(
+                    style: labelStyle?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),

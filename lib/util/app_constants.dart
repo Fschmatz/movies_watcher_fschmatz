@@ -10,6 +10,7 @@ class AppConstants {
   static const String gridSizeAppParameter = "gridSize";
 
   // VARIOUS
+  static const double posterBorderRadius = 20;
   static const List<int> gridSizeOptions = [2, 3, 4, 5];
   static const Map<int, double> mapRuntimeChipBottomWithoutName = {
     2: 8,
@@ -24,10 +25,10 @@ class AppConstants {
     5: 4,
   };
   static const Map<int, double> mapFavoriteChipIconSize = {
-    2: 22,
-    3: 18,
-    4: 14,
-    5: 12,
+    2: 24,
+    3: 20,
+    4: 16,
+    5: 14,
   };
 
   // BACKUP
@@ -35,7 +36,7 @@ class AppConstants {
   static const String backupDataFormat = "dd/MM/yyyy HH:mm";
 
   // STRINGS
-  static const String appVersion = "2.2.0";
+  static const String appVersion = "2.2.1";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";

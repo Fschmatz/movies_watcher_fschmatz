@@ -17,11 +17,11 @@ class FavoriteChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: theme.colorScheme.tertiaryContainer.withAlpha(225),
+          color: theme.colorScheme.tertiaryContainer.withAlpha(230),
           shape: BoxShape.circle,
         ),
         child: Icon(
-          Icons.star_border_outlined,
+          Icons.star,
           size: AppConstants.mapFavoriteChipIconSize[gridSize] ?? 14,
           color: theme.colorScheme.onTertiaryContainer,
         ),

@@ -168,7 +168,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                         child: Hero(
                           tag: 'poster_${movie.getId()}',
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppConstants.posterBorderRadius),
                             child: Image(
                               image: posterProvider,
                               height: 220,
@@ -199,7 +199,7 @@ class _MovieDetailsState extends State<MovieDetails> {
             ),
           ),
           actions: [
-            if (movie.isMovieWatched()) ...[
+            if (!movie.isMovieWatched()) ...[
               IconButton(
                 tooltip: movie.isFavorite() ? 'Remove from Favorites' : 'Add to Favorites',
                 icon: Icon(
