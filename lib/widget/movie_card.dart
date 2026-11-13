@@ -62,10 +62,14 @@ class _MovieCardState extends State<MovieCard> {
 
   void _loadBorders() {
     bool showName = widget.showMovieName;
+    Radius bottomWithName = Radius.circular(2);
 
     posterBorder = showName
-        ? const BorderRadius.only(
-            topLeft: Radius.circular(AppConstants.posterBorderRadius), topRight: Radius.circular(AppConstants.posterBorderRadius))
+        ? BorderRadius.only(
+            topLeft: Radius.circular(AppConstants.posterBorderRadius),
+            topRight: Radius.circular(AppConstants.posterBorderRadius),
+            bottomLeft: bottomWithName,
+            bottomRight: bottomWithName)
         : BorderRadius.circular(AppConstants.posterBorderRadius);
   }
 

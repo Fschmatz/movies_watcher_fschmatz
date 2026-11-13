@@ -10,8 +10,8 @@ class AppConstants {
   static const String gridSizeAppParameter = "gridSize";
 
   // VARIOUS
-  static const double posterBorderRadius = 20;
-  static const List<int> gridSizeOptions = [2, 3, 4, 5];
+  static const double posterBorderRadius = 16;
+  static const List<int> gridSizeOptions = [3, 4, 5];
   static const Map<int, double> mapRuntimeChipBottomWithoutName = {
     2: 8,
     3: 4,
@@ -36,7 +36,7 @@ class AppConstants {
   static const String backupDataFormat = "dd/MM/yyyy HH:mm";
 
   // STRINGS
-  static const String appVersion = "2.2.1";
+  static const String appVersion = "2.2.2";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";
@@ -44,6 +44,7 @@ class AppConstants {
   static String changelogCurrent = '''
 $appVersion
 - Grid options
+- Add watchlist filters
 - Favorites for watchlist page
 - Bug fixes
 - UI changes

@@ -6,13 +6,16 @@ import 'package:movies_watcher_fschmatz/page/stats.dart';
 import 'package:movies_watcher_fschmatz/page/watched_list.dart';
 import 'package:movies_watcher_fschmatz/util/app_constants.dart';
 
+import '../entity/movie.dart';
 import '../enum/sort_watch_list_option.dart';
+import '../enum/watch_list_filter.dart';
 import '../main.dart';
 import '../redux/actions.dart';
 import '../redux/app_state.dart';
 import '../redux/build_context_extension.dart';
 import '../redux/selectors.dart';
 import '../widget/movie_grid.dart';
+import '../widget/watch_list_filter_chips.dart';
 
 class WatchList extends StatefulWidget {
   const WatchList({super.key});
@@ -22,7 +25,12 @@ class WatchList extends StatefulWidget {
 }
 
 class _WatchListState extends State<WatchList> {
-  bool _showOnlyFavorites = false;
+  WatchListFilter _selectedFilter = WatchListFilter.all;
+
+  List<Movie> _filterMovies(List<Movie> movies) {
+    if (_selectedFilter == WatchListFilter.all) return movies;
+    return movies.where((m) => _selectedFilter.matches(m)).toList();
+  }
 
   Future<void> _onSortListSelected(SortOption optionSelected) async {
     await store.dispatch(ChangeWatchListSortAction(optionSelected));
@@ -45,16 +53,16 @@ class _WatchListState extends State<WatchList> {
       appBar: AppBar(
         title: Text(AppConstants.appNameHomePage),
         actions: [
-          // IconButton(
-          //   tooltip: 'Search Movie',
-          //   icon: const Icon(Icons.search_outlined),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (BuildContext context) => const SearchMovie()),
-          //     );
-          //   },
-          // ),
+          IconButton(
+            tooltip: 'Search Movie',
+            icon: const Icon(Icons.search_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (BuildContext context) => const SearchMovie()),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Discover',
             icon: const Icon(Icons.trending_up_outlined),
@@ -79,7 +87,7 @@ class _WatchListState extends State<WatchList> {
               );
             },
             menuChildren: [
-              MenuItemButton(
+              /*   MenuItemButton(
                 leadingIcon: const Icon(Icons.search_outlined),
                 onPressed: () {
                   Navigator.push(
@@ -88,7 +96,7 @@ class _WatchListState extends State<WatchList> {
                   );
                 },
                 child: const Text('Search'),
-              ),
+              ),*/
               MenuItemButton(
                 leadingIcon: const Icon(Icons.visibility_outlined),
                 onPressed: () {
@@ -121,17 +129,6 @@ class _WatchListState extends State<WatchList> {
                 child: const Text('Settings'),
               ),
               const PopupMenuDivider(),
-              MenuItemButton(
-                leadingIcon: Icon(
-                  _showOnlyFavorites ? Icons.check_box_outlined : Icons.check_box_outline_blank_outlined,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showOnlyFavorites = !_showOnlyFavorites;
-                  });
-                },
-                child: const Text('Favorites only'),
-              ),
               SubmenuButton(
                 leadingIcon: const Icon(Icons.sort_outlined),
                 menuChildren: SortOption.values.map((sortOption) {
@@ -154,27 +151,22 @@ class _WatchListState extends State<WatchList> {
         ],
       ),
       body: MovieGrid(
-        movies: _showOnlyFavorites ? viewData.movies.where((m) => m.isFavorite()).toList() : viewData.movies,
+        animationKey: _selectedFilter,
+        header: WatchListFilterChips(
+          selectedFilter: _selectedFilter,
+          onFilterChanged: (newFilter) {
+            setState(() {
+              _selectedFilter = newFilter;
+            });
+          },
+        ),
+        movies: _filterMovies(viewData.movies),
         isLoading: viewData.isLoadingWatchList,
         showMovieName: viewData.showMovieNameOnCard,
         showRuntimeChip: viewData.showRuntimeChipOnCard,
         formatRuntime: viewData.formatRuntimeOnCard,
         gridSize: viewData.gridSize,
       ),
-      /* floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => SearchMovie(),
-              ));
-        },
-        icon: const Icon(Icons.search_outlined),
-        label: const Text(
-          "Add Movie",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),*/
     );
   }
 }
