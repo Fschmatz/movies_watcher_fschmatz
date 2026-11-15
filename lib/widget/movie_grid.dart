@@ -89,64 +89,61 @@ class MovieGrid extends StatelessWidget {
               ),
             ),
           )
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final double itemWidth = constraints.maxWidth / gridSize;
-                final double cardInternalWidth = itemWidth - 8.0;
-                final double posterHeight = cardInternalWidth / (2 / 3);
-                final double itemHeight = posterHeight + (showMovieName ? 40.0 : 8.0);
+        : LayoutBuilder(
+            builder: (context, constraints) {
+              final double itemWidth = (constraints.maxWidth - 32.0) / gridSize;
+              final double cardInternalWidth = itemWidth - 8.0;
+              final double posterHeight = cardInternalWidth / (2 / 3);
+              final double itemHeight = posterHeight + (showMovieName ? 40.0 : 8.0);
 
-                return GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: gridSize,
-                    mainAxisExtent: itemHeight,
-                  ),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: movies.length,
-                  itemBuilder: (context, index) {
-                    Movie movie = movies[index];
+              return GridView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 75),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridSize,
+                  mainAxisExtent: itemHeight,
+                ),
+                itemCount: movies.length,
+                itemBuilder: (context, index) {
+                  Movie movie = movies[index];
 
-                    return MovieCard(
-                      key: ValueKey(movie.getId()),
-                      movie: movie,
-                      isFromWatched: isFromWatched,
-                      showMovieName: showMovieName,
-                      showRuntimeChip: showRuntimeChip,
-                      formatRuntime: formatRuntime,
-                      gridSize: gridSize,
-                    );
-                  },
-                );
-              },
-            ),
+                  return MovieCard(
+                    key: ValueKey(movie.getId()),
+                    movie: movie,
+                    isFromWatched: isFromWatched,
+                    showMovieName: showMovieName,
+                    showRuntimeChip: showRuntimeChip,
+                    formatRuntime: formatRuntime,
+                    gridSize: gridSize,
+                  );
+                },
+              );
+            },
           );
 
-    return ListView(
-      children: [
-        if (header != null) header!,
-        PageTransitionSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation, secondaryAnimation) => FadeThroughTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          ),
-          layoutBuilder: (List<Widget> entries) {
-            return Stack(
-              alignment: Alignment.topCenter,
-              children: entries,
-            );
-          },
-          child: KeyedSubtree(
-            key: ValueKey(animationKey ?? movies.length),
-            child: contentWidget,
-          ),
+    return NestedScrollView(
+      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        return [
+          if (header != null)
+            SliverToBoxAdapter(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: header!,
+              ),
+            ),
+        ];
+      },
+      body: PageTransitionSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation, secondaryAnimation) => FadeThroughTransition(
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          child: child,
         ),
-        const SizedBox(height: 75),
-      ],
+        child: KeyedSubtree(
+          key: ValueKey(animationKey ?? movies.length),
+          child: contentWidget,
+        ),
+      ),
     );
   }
 }

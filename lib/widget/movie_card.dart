@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -74,12 +73,13 @@ class _MovieCardState extends State<MovieCard> {
   }
 
   void _loadPosterImage() {
-    imageBytes = (movie.getPoster() != null && movie.getPoster()!.isNotEmpty) ? base64Decode(movie.getPoster()!) : null;
+    imageBytes = movie.posterBytes;
     posterImage = imageBytes != null
         ? Image.memory(
             imageBytes!,
             fit: BoxFit.cover,
             gaplessPlayback: true,
+            cacheWidth: 350,
           )
         : null;
   }

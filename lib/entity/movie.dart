@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:jiffy/jiffy.dart';
 
 import '../enum/no_yes.dart';
@@ -12,6 +15,7 @@ class Movie {
   String? _plot;
   String? _country;
   String? _poster;
+  Uint8List? _cachedPosterBytes;
   String? _rating;
   int? _tmdbID;
   NoYes? _watched;
@@ -69,6 +73,16 @@ class Movie {
 
   String? getPoster() => _poster;
 
+  Uint8List? get posterBytes {
+    if (_cachedPosterBytes != null) return _cachedPosterBytes;
+    if (_poster != null && _poster!.isNotEmpty) {
+      try {
+        _cachedPosterBytes = base64Decode(_poster!);
+      } catch (_) {}
+    }
+    return _cachedPosterBytes;
+  }
+
   String? getRating() => _rating;
 
   int? getTmdbID() => _tmdbID;
@@ -121,6 +135,7 @@ class Movie {
 
   void setPoster(String value) {
     _poster = value;
+    _cachedPosterBytes = null;
   }
 
   void setRating(String value) {

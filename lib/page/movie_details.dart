@@ -10,8 +10,8 @@ import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
 import '../util/utils_functions.dart';
-import '../widget/movie_detail_chip.dart';
 import '../widget/movie_detail_tile.dart';
+import '../widget/movie_info_card.dart';
 import 'store_movie.dart';
 
 class MovieDetails extends StatefulWidget {
@@ -98,6 +98,44 @@ class _MovieDetailsState extends State<MovieDetails> {
     }
   }
 
+  BorderRadius _getDetailTileRadius(int index, int total) {
+    const Radius outer = Radius.circular(20);
+    const Radius inner = Radius.circular(4);
+
+    if (total == 1) {
+      return const BorderRadius.all(outer);
+    }
+    if (index == 0) {
+      return const BorderRadius.vertical(top: outer, bottom: inner);
+    }
+    if (index == total - 1) {
+      return const BorderRadius.vertical(top: inner, bottom: outer);
+    }
+    return const BorderRadius.all(inner);
+  }
+
+  List<Widget> _buildDetailTiles() {
+    final tiles = [
+      (title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
+      (title: "Released", value: movie.getReleased(), icon: Icons.calendar_month_outlined),
+      (title: "Country", value: movie.getCountry(), icon: Icons.public_outlined),
+      (title: "Added", value: movie.formattedDateAdded, icon: Icons.library_add_outlined),
+      if (movie.isMovieWatched()) (title: "Watched", value: movie.formattedDateWatched, icon: Icons.visibility_outlined),
+    ];
+
+    return [
+      for (int i = 0; i < tiles.length; i++) ...[
+        if (i > 0) const SizedBox(height: 3),
+        MovieDetailTile(
+          title: tiles[i].title,
+          value: tiles[i].value,
+          icon: tiles[i].icon,
+          borderRadius: _getDetailTileRadius(i, tiles.length),
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -123,7 +161,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                   // Blurred Background
                   if (posterProvider != null)
                     Transform.scale(
-                      scale: 1.1,
+                      scale: 1.25,
                       child: ImageFiltered(
                         imageFilter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
                         child: Image(
@@ -142,7 +180,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          theme.scaffoldBackgroundColor.withValues(alpha: 0.4),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.45),
                           theme.scaffoldBackgroundColor,
                         ],
                         stops: const [0.4, 0.95],
@@ -164,14 +202,14 @@ class _MovieDetailsState extends State<MovieDetails> {
                     Align(
                       alignment: Alignment.center,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 30.0),
+                        padding: const EdgeInsets.only(top: 45),
                         child: Hero(
                           tag: 'poster_${movie.getId()}',
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(AppConstants.posterBorderRadius),
                             child: Image(
                               image: posterProvider,
-                              height: 220,
+                              height: 225,
                               fit: BoxFit.cover,
                               alignment: Alignment.center,
                             ),
@@ -270,19 +308,38 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
+                Row(
                   children: [
-                    MovieDetailChip(
-                      icon: Icons.access_time_outlined,
-                      text: movie.getRuntime() != null ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime) : '-',
-                    ),
-                    if (movie.getYear() != null && movie.getYear()!.isNotEmpty)
-                      MovieDetailChip(
-                        icon: Icons.calendar_today_outlined,
-                        text: movie.getYear()!,
+                    Expanded(
+                      child: MovieInfoCard(
+                        icon: Icons.schedule_outlined,
+                        value: movie.getRuntime() != null ? UtilsFunctions.formatRuntime(movie.getRuntime()!, formatRuntime) : '-',
+                        label: "Duration",
+                        backgroundColor: colorScheme.tertiaryContainer,
+                        foregroundColor: colorScheme.onTertiaryContainer,
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: MovieInfoCard(
+                        icon: Icons.calendar_month_outlined,
+                        value: (movie.getYear() != null && movie.getYear()!.isNotEmpty) ? movie.getYear()! : '-',
+                        label: "Year",
+                        backgroundColor: colorScheme.secondaryContainer,
+                        foregroundColor: colorScheme.onSecondaryContainer,
+                        // labelColor: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: MovieInfoCard(
+                        icon: Icons.star_border_rounded,
+                        value: (movie.getRating() != null && movie.getRating()!.isNotEmpty) ? movie.getRating()! : '-',
+                        label: "Rating",
+                        backgroundColor: colorScheme.surfaceContainerHigh,
+                        foregroundColor: colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),
@@ -314,25 +371,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                 const SizedBox(height: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    MovieDetailTile(title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
-                    const SizedBox(height: 12),
-                    MovieDetailTile(title: "Released", value: movie.getReleased(), icon: Icons.calendar_month_outlined),
-                    const SizedBox(height: 12),
-                    MovieDetailTile(title: "Country", value: movie.getCountry(), icon: Icons.public_outlined),
-                    const SizedBox(height: 12),
-                    MovieDetailTile(title: "Rating", value: movie.getRating(), icon: Icons.star_border_outlined),
-                    const SizedBox(height: 12),
-                    MovieDetailTile(title: "Added", value: movie.formattedDateAdded, icon: Icons.library_add_outlined),
-                    if (movie.isMovieWatched()) ...[
-                      const SizedBox(height: 12),
-                      MovieDetailTile(
-                        title: "Watched",
-                        value: movie.formattedDateWatched,
-                        icon: Icons.visibility_outlined,
-                      ),
-                    ],
-                  ],
+                  children: _buildDetailTiles(),
                 ),
                 const SizedBox(height: 100),
               ],
