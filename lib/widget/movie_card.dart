@@ -157,7 +157,7 @@ class _MovieCardState extends State<MovieCard> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: labelStyle?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),

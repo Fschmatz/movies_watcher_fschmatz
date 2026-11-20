@@ -36,7 +36,7 @@ class AppConstants {
   static const String backupDataFormat = "dd/MM/yyyy HH:mm";
 
   // STRINGS
-  static const String appVersion = "2.2.3";
+  static const String appVersion = "2.2.4";
   static const String appName = "Movies Watcher Fschmatz";
   static const String appNameHomePage = "Watchlist";
   static const String repositoryLink = "https://github.com/Fschmatz/movies_watcher_fschmatz";

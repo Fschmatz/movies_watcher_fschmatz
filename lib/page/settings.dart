@@ -1,17 +1,18 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:movies_watcher_fschmatz/util/utils_functions.dart';
-import 'package:movies_watcher_fschmatz/widget/settings_switch.dart';
 
 import '../redux/app_state.dart';
 import '../redux/build_context_extension.dart';
 import '../redux/selectors.dart';
 import '../util/app_constants.dart';
-import '../util/dialog_backup.dart';
-import '../util/dialog_select_theme.dart';
 import '../util/theme_extension.dart';
-import '../widget/app_parameter_value.dart';
+import '../util/utils_functions.dart';
+import '../util/widget/app_parameter_value.dart';
+import '../util/widget/dialog_backup.dart';
+import '../util/widget/dialog_select_theme.dart';
+import '../util/widget/section_segmented_widget_list.dart';
 import '../widget/dialog_select_grid_size.dart';
+import '../widget/settings_switch.dart';
 import 'app_info.dart';
 import 'changelog.dart';
 
@@ -32,10 +33,10 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(title: const Text("Settings")),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 75),
         children: <Widget>[
           Card(
-            margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: context.colors.primaryContainer,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
@@ -45,7 +46,7 @@ class _SettingsState extends State<Settings> {
                   Text(
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: context.colors.onPrimaryContainer,
                         ),
                   ),
@@ -60,196 +61,127 @@ class _SettingsState extends State<Settings> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                  child: Text(
-                    "General",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.primary,
-                        ),
-                  ),
+          SectionSegmentedWidgetList(
+            title: "General",
+            children: [
+              ListTile(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const DialogSelectTheme();
+                  },
                 ),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const DialogSelectTheme();
-                          },
-                        ),
-                        leading: const Icon(Icons.brightness_6_outlined),
-                        title: const Text("App theme"),
-                        subtitle: Text(
-                          UtilsFunctions.getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
-                        ),
-                      ),
-                      Divider(),
-                      const SettingsSwitch(
-                        title: "Show name",
-                        parameterKey: AppConstants.showMovieNameOnCardAppParameter,
-                        subtitle: 'Show the movie name on the card',
-                      ),
-                      Divider(),
-                      const SettingsSwitch(
-                        title: "Show runtime",
-                        parameterKey: AppConstants.showRuntimeChipOnCardAppParameter,
-                        subtitle: 'Show the movie runtime on the card',
-                      ),
-                      Divider(),
-                      const SettingsSwitch(
-                        title: "Format runtime",
-                        parameterKey: AppConstants.formatRuntimeAppParameter,
-                        subtitle: 'Format runtime to hours and minutes',
-                        defaultValue: false,
-                      ),
-                      Divider(),
-                      ListTile(
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const DialogSelectGridSize(
-                              parameterKey: AppConstants.gridSizeAppParameter,
-                              defaultValue: 3,
-                            );
-                          },
-                        ),
-                        title: const Text("Movies per row in grid"),
-                        subtitle: const Row(
-                          children: [
-                            AppParameterValue(
-                              parameterKey: AppConstants.gridSizeAppParameter,
-                              defaultValue: '3',
-                            ),
-                            Text(" movies"),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                leading: const Icon(Icons.brightness_6_outlined),
+                title: const Text("App theme"),
+                subtitle: Text(
+                  UtilsFunctions.getThemeStringFormatted(EasyDynamicTheme.of(context).themeMode),
                 ),
-              ],
-            ),
+              ),
+              const SettingsSwitch(
+                title: "Show name",
+                parameterKey: AppConstants.showMovieNameOnCardAppParameter,
+                subtitle: 'Show the movie name on the card',
+              ),
+              const SettingsSwitch(
+                title: "Show runtime",
+                parameterKey: AppConstants.showRuntimeChipOnCardAppParameter,
+                subtitle: 'Show the movie runtime on the card',
+              ),
+              const SettingsSwitch(
+                title: "Format runtime",
+                parameterKey: AppConstants.formatRuntimeAppParameter,
+                subtitle: 'Format runtime to hours and minutes',
+                defaultValue: false,
+              ),
+              ListTile(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const DialogSelectGridSize(
+                      parameterKey: AppConstants.gridSizeAppParameter,
+                      defaultValue: 3,
+                    );
+                  },
+                ),
+                title: const Text("Movies per row in grid"),
+                subtitle: const Row(
+                  children: [
+                    AppParameterValue(
+                      parameterKey: AppConstants.gridSizeAppParameter,
+                      defaultValue: '3',
+                    ),
+                    Text(" movies"),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                  child: Text(
-                    "Backup",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.primary,
-                        ),
-                  ),
+          SectionSegmentedWidgetList(
+            title: "Backup",
+            children: [
+              ListTile(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogBackup(
+                      isCreateBackup: true,
+                      reloadHomeFunction: widget.loadNotWatchedMovies,
+                    );
+                  },
                 ),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return DialogBackup(
-                              isCreateBackup: true,
-                              reloadHomeFunction: widget.loadNotWatchedMovies,
-                            );
-                          },
-                        ),
-                        leading: const Icon(Icons.save_outlined),
-                        title: const Text("Backup now"),
-                        subtitle: Text("Last backup: $lastBackupDate"),
-                        trailing: UtilsFunctions.isLastBackupDateMoreThan30Days(lastBackupDate)
-                            ? Icon(
-                                Icons.error_outline_outlined,
-                                color: context.colors.error,
-                              )
-                            : null,
-                      ),
-                      Divider(),
-                      ListTile(
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return DialogBackup(
-                              isCreateBackup: false,
-                              reloadHomeFunction: widget.loadNotWatchedMovies,
-                            );
-                          },
-                        ),
-                        leading: const Icon(Icons.settings_backup_restore_outlined),
-                        title: const Text("Restore from backup"),
-                      ),
-                    ],
-                  ),
+                leading: const Icon(Icons.save_outlined),
+                title: const Text("Backup now"),
+                subtitle: Text("Last backup: $lastBackupDate"),
+                trailing: UtilsFunctions.isLastBackupDateMoreThan30Days(lastBackupDate)
+                    ? Icon(
+                        Icons.error_outline_outlined,
+                        color: context.colors.error,
+                      )
+                    : null,
+              ),
+              ListTile(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogBackup(
+                      isCreateBackup: false,
+                      reloadHomeFunction: widget.loadNotWatchedMovies,
+                    );
+                  },
                 ),
-              ],
-            ),
+                leading: const Icon(Icons.settings_backup_restore_outlined),
+                title: const Text("Restore from backup"),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                  child: Text(
-                    "About",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.primary,
-                        ),
-                  ),
-                ),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.info_outline),
-                        title: const Text("App info"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => const AppInfo(),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.article_outlined),
-                        title: const Text("Changelog"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => const Changelog(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          SectionSegmentedWidgetList(
+            title: "About",
+            children: [
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text("App info"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => const AppInfo(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.article_outlined),
+                title: const Text("Changelog"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => const Changelog(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),

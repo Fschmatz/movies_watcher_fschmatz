@@ -6,7 +6,7 @@ enum WatchListFilter {
   under1h30m('Under 1h 30m'),
   under1h45m('Under 1h 45m'),
   under2h00m('Under 2h 00m'),
-  between1h00mAnd2h00m('Between 1h and 2h'),
+  between1h00mAnd2h00m('Betw. 1h and 2h'),
   under2h30m('Under 2h 30m'),
   over2h30m('Over 2h 30m'),
   favorites('Favorites');
@@ -29,7 +29,7 @@ enum WatchListFilter {
 
   bool matches(Movie movie) {
     final runtime = movie.getRuntime() ?? 0;
-    
+
     switch (this) {
       case WatchListFilter.under1h00m:
         return runtime > 0 && runtime <= 60;

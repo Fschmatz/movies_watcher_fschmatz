@@ -10,6 +10,7 @@ import '../redux/selectors.dart';
 import '../service/movie_service.dart';
 import '../util/app_constants.dart';
 import '../util/utils_functions.dart';
+import '../util/widget/segmented_widget_list.dart';
 import '../widget/movie_detail_tile.dart';
 import '../widget/movie_info_card.dart';
 import 'store_movie.dart';
@@ -98,22 +99,6 @@ class _MovieDetailsState extends State<MovieDetails> {
     }
   }
 
-  BorderRadius _getDetailTileRadius(int index, int total) {
-    const Radius outer = Radius.circular(20);
-    const Radius inner = Radius.circular(4);
-
-    if (total == 1) {
-      return const BorderRadius.all(outer);
-    }
-    if (index == 0) {
-      return const BorderRadius.vertical(top: outer, bottom: inner);
-    }
-    if (index == total - 1) {
-      return const BorderRadius.vertical(top: inner, bottom: outer);
-    }
-    return const BorderRadius.all(inner);
-  }
-
   List<Widget> _buildDetailTiles() {
     final tiles = [
       (title: "Director", value: movie.getDirector(), icon: Icons.person_outline),
@@ -123,17 +108,13 @@ class _MovieDetailsState extends State<MovieDetails> {
       if (movie.isMovieWatched()) (title: "Watched", value: movie.formattedDateWatched, icon: Icons.visibility_outlined),
     ];
 
-    return [
-      for (int i = 0; i < tiles.length; i++) ...[
-        if (i > 0) const SizedBox(height: 3),
-        MovieDetailTile(
-          title: tiles[i].title,
-          value: tiles[i].value,
-          icon: tiles[i].icon,
-          borderRadius: _getDetailTileRadius(i, tiles.length),
-        ),
-      ],
-    ];
+    return tiles
+        .map((tile) => MovieDetailTile(
+              title: tile.title,
+              value: tile.value,
+              icon: tile.icon,
+            ))
+        .toList();
   }
 
   @override
@@ -241,7 +222,7 @@ class _MovieDetailsState extends State<MovieDetails> {
               IconButton(
                 tooltip: movie.isFavorite() ? 'Remove from Favorites' : 'Add to Favorites',
                 icon: Icon(
-                  movie.isFavorite() ? Icons.star_rounded : Icons.star_border_rounded,
+                  movie.isFavorite() ? Icons.star_outlined : Icons.star_border_outlined,
                   color: movie.isFavorite() ? Theme.of(context).colorScheme.primary : null,
                 ),
                 onPressed: _toggleFavorite,
@@ -333,11 +314,11 @@ class _MovieDetailsState extends State<MovieDetails> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: MovieInfoCard(
-                        icon: Icons.star_border_rounded,
+                        icon: Icons.star_border_outlined,
                         value: (movie.getRating() != null && movie.getRating()!.isNotEmpty) ? movie.getRating()! : '-',
                         label: "Rating",
                         backgroundColor: colorScheme.surfaceContainerHigh,
-                        foregroundColor: colorScheme.onSurface,
+                        foregroundColor: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -369,8 +350,11 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                SegmentedWidgetList(
+                  largeRadius: 20,
+                  smallRadius: 4,
+                  gap: 3,
+                  color: colorScheme.surfaceContainer,
                   children: _buildDetailTiles(),
                 ),
                 const SizedBox(height: 100),

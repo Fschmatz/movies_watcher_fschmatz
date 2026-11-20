@@ -284,10 +284,7 @@ class _StoreMovieState extends State<StoreMovie> {
           keyboardType: TextInputType.text,
           controller: controller,
           decoration: InputDecoration(
-              helperText: required ? "* Required" : "",
-              labelText: label,
-              border: const OutlineInputBorder(),
-              errorText: (fieldValidator) ? null : "$label is empty or invalid")),
+              helperText: required ? "* Required" : "", labelText: label, errorText: (fieldValidator) ? null : "$label is empty or invalid")),
     );
   }
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../redux/app_state.dart';
-import '../redux/selectors.dart';
-import '../redux/build_context_extension.dart';
+
+import '../../redux/app_state.dart';
+import '../../redux/build_context_extension.dart';
+import '../../redux/selectors.dart';
 
 class AppParameterValue extends StatelessWidget {
   final String parameterKey;

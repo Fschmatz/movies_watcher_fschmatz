@@ -5,6 +5,7 @@ class MovieDetailTile extends StatelessWidget {
   final String? value;
   final IconData? icon;
   final BorderRadius? borderRadius;
+  final Color? backgroundColor;
 
   const MovieDetailTile({
     super.key,
@@ -12,6 +13,7 @@ class MovieDetailTile extends StatelessWidget {
     this.value,
     this.icon,
     this.borderRadius,
+    this.backgroundColor,
   });
 
   @override
@@ -22,10 +24,12 @@ class MovieDetailTile extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
-        borderRadius: borderRadius ?? BorderRadius.circular(20),
-      ),
+      decoration: (backgroundColor != null || borderRadius != null)
+          ? BoxDecoration(
+              color: backgroundColor ?? colorScheme.surfaceContainer,
+              borderRadius: borderRadius ?? BorderRadius.circular(20),
+            )
+          : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
